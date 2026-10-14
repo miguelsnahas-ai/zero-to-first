@@ -485,7 +485,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 </details>
 <details style="border-bottom: 1px solid #D9D3C7">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #9A7300; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #4A4F5A">Após a confirmação do pagamento, <span class="tbd">[COMO E QUANDO O ACESSO É ENVIADO]</span></p>
+<p style="margin: 0 0 20px; color: #4A4F5A">Após a confirmação do pagamento, você recebe por e-mail e WhatsApp, em até 24h, o acesso ao toolkit, aos conteúdos gravados e à comunidade. Por isso, no checkout, informe um e-mail e um número de WhatsApp válidos.</p>
 </details>
 <details style="border-bottom: 1px solid #D9D3C7">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Quais são as condições de reembolso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #9A7300; transition: transform 0.15s">+</span></summary>
@@ -494,7 +494,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
 <a href="#oferta" data-cta="faq_offer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #0B1A33; color: #FFFFFF; text-decoration: none; font-weight: 600; border-radius: 6px">Quero começar pelo Zero to First</a>
-<span style="color: #4A4F5A; font-size: 15px">Outra dúvida? <span class="tbd">[E-MAIL DE CONTATO]</span></span>
+<span style="color: #4A4F5A; font-size: 15px">Outra dúvida? <a href="mailto:miguelsnahas@gmail.com">miguelsnahas@gmail.com</a></span>
 </div>
 </div>
 </section>
@@ -505,15 +505,15 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF; letter-spacing: 0.02em">ZERO TO FIRST</span>
 <span>© 2026 Miguel Nahas</span>
 <div style="display: flex; flex-wrap: wrap; gap: 8px 20px">
-<a href="#" style="color: #C9D2E3">Política de privacidade</a>
-<a href="#" style="color: #C9D2E3">Termos de uso</a>
+<a href="privacidade.html" style="color: #C9D2E3">Política de privacidade</a>
+<a href="termos.html" style="color: #C9D2E3">Termos de uso</a>
 </div>
 </div>
 </footer>
 
 </div>
 <script>
-  var CHECKOUT_URL = ""; // ex.: "https://buy.stripe.com/..."
+  var CHECKOUT_URL = "https://buy.stripe.com/test_6oU8wQ8xv0nbbMj70m73G00"; // LINK DE TESTE: trocar pelo link de produção antes do lançamento
   document.querySelectorAll("[data-checkout]").forEach(function (a) {
     if (CHECKOUT_URL) { a.href = CHECKOUT_URL; }
   });
