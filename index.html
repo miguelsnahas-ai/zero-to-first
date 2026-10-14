@@ -442,7 +442,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 <a href="#oferta" data-checkout data-cta="offer_checkout" rel="noopener" style="display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 24px; background: #FFC93C; color: #0B1A33; text-decoration: none; font-weight: 600; font-size: 18px; border-radius: 6px; text-align: center">Quero acessar o Zero to First</a>
 <dl style="margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #4A4F5A">
 <div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #14181F">Comunidade:</dt><dd style="margin: 0">3 meses de acesso</dd></div>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #14181F">Toolkit e conteúdos:</dt><dd style="margin: 0"><span class="tbd">[PRAZO]</span></dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #14181F">Toolkit e conteúdos:</dt><dd style="margin: 0">liberados em até 24h</dd></div>
 <div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #14181F">Reembolso:</dt><dd style="margin: 0">7 dias após a compra</dd></div>
 </dl>
 <p style="margin: 0; font-size: 13px; color: #4A4F5A">O pagamento é concluído em um checkout externo. Esta página não coleta dados de cartão.</p>
@@ -481,11 +481,11 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 </details>
 <details style="border-bottom: 1px solid #D9D3C7">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Por quanto tempo terei acesso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #9A7300; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #4A4F5A">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir da compra. Toolkit e conteúdos gravados: <span class="tbd">[PRAZO]</span></p>
+<p style="margin: 0 0 20px; color: #4A4F5A">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir da compra. Toolkit e conteúdos gravados: liberados em até 24h após a confirmação do pagamento.</p>
 </details>
 <details style="border-bottom: 1px solid #D9D3C7">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #9A7300; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #4A4F5A">Após a confirmação do pagamento, <span class="tbd">[COMO E QUANDO O ACESSO É ENVIADO]</span></p>
+<p style="margin: 0 0 20px; color: #4A4F5A">Após a confirmação do pagamento, você recebe por e-mail e WhatsApp, em até 24h, o acesso ao toolkit, aos conteúdos gravados e à comunidade. Por isso, no checkout, informe um e-mail e um número de WhatsApp válidos.</p>
 </details>
 <details style="border-bottom: 1px solid #D9D3C7">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Quais são as condições de reembolso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #9A7300; transition: transform 0.15s">+</span></summary>
@@ -494,7 +494,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
 <a href="#oferta" data-cta="faq_offer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #0B1A33; color: #FFFFFF; text-decoration: none; font-weight: 600; border-radius: 6px">Quero começar pelo Zero to First</a>
-<span style="color: #4A4F5A; font-size: 15px">Outra dúvida? <span class="tbd">[E-MAIL DE CONTATO]</span></span>
+<span style="color: #4A4F5A; font-size: 15px">Outra dúvida? <a href="mailto:miguelsnahas@gmail.com">miguelsnahas@gmail.com</a></span>
 </div>
 </div>
 </section>
@@ -505,15 +505,15 @@ a:focus-visible,summary:focus-visible{outline:3px solid #FFC93C;outline-offset:3
 <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 20px; color: #FFFFFF; letter-spacing: 0.02em">ZERO TO FIRST</span>
 <span>© 2026 Miguel Nahas</span>
 <div style="display: flex; flex-wrap: wrap; gap: 8px 20px">
-<a href="#" style="color: #C9D2E3">Política de privacidade</a>
-<a href="#" style="color: #C9D2E3">Termos de uso</a>
+<a href="privacidade.html" style="color: #C9D2E3">Política de privacidade</a>
+<a href="termos.html" style="color: #C9D2E3">Termos de uso</a>
 </div>
 </div>
 </footer>
 
 </div>
 <script>
-  var CHECKOUT_URL = ""; // ex.: "https://buy.stripe.com/..."
+  var CHECKOUT_URL = "https://buy.stripe.com/test_6oU8wQ8xv0nbbMj70m73G00"; // LINK DE TESTE: trocar pelo link de produção antes do lançamento
   document.querySelectorAll("[data-checkout]").forEach(function (a) {
     if (CHECKOUT_URL) { a.href = CHECKOUT_URL; }
   });
