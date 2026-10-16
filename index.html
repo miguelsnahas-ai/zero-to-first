@@ -189,7 +189,6 @@
   .hero-sub { margin-top: 28px; font-size: clamp(18px, 1.8vw, 21px); color: var(--ink-soft); max-width: 46ch; }
   .hero-sub + .hero-sub { margin-top: 14px; font-size: 17px; color: var(--muted); }
   .hero-actions { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
-  .hero-note { margin-top: 14px; font-size: 14.5px; color: var(--muted); }
   .hero-figure { margin: 0; position: relative; }
   .hero-figure img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 22%; border-radius: 18px; background: var(--sand); }
   .hero-figure figcaption {
@@ -205,7 +204,6 @@
   .proof li > span { display: block; margin-top: 6px; font-size: 15.5px; color: var(--ink-soft); }
   .proof-orgs { justify-self: end; max-width: 30ch; display: inline-flex; gap: 8px; align-items: flex-start; font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--pers); padding-bottom: 3px; }
   .proof-orgs svg { width: 14px; height: 14px; flex: none; margin-top: 4px; }
-  .proof + .audiences { margin-top: 32px; }
   @media (max-width: 760px) {
     .proof { grid-template-columns: 1fr 1fr; gap: 20px 24px; }
     .proof-orgs { grid-column: 1 / -1; justify-self: start; max-width: none; }
@@ -227,11 +225,11 @@
   .challenge { border-top: 1px solid var(--line); }
   .challenge-list { border-top: 1.5px solid var(--ink); }
   .challenge-item {
-    display: grid; grid-template-columns: 64px minmax(0, 1.1fr) minmax(0, 1fr); gap: 8px 32px;
-    padding: 28px 0; border-bottom: 1px solid var(--line); align-items: baseline;
+    display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px 32px;
+    padding: 24px 0; border-bottom: 1px solid var(--line); align-items: baseline;
   }
   .challenge-item span { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--pers-ink); }
-  .challenge-item h3 { font-size: clamp(21px, 2.2vw, 26px); line-height: 1.25; }
+  .challenge-item h3 { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.2; max-width: 30ch; }
   .challenge-item p { color: var(--muted); font-size: 16px; }
   .challenge-close { margin-top: 48px; display: grid; grid-template-columns: 64px 1fr auto; gap: 16px 32px; align-items: center; }
   .challenge-close p { grid-column: 2; font-family: var(--serif); font-size: clamp(21px, 2.1vw, 25px); line-height: 1.38; max-width: 48ch; }
@@ -291,11 +289,6 @@
     .stage-validar { padding-bottom: 12px; }
   }
 
-  .applies { margin-top: clamp(56px, 7vw, 80px); padding-top: 28px; border-top: 1px solid var(--plum-line); display: grid; grid-template-columns: 220px 1fr; gap: 16px 32px; align-items: baseline; }
-  .applies > span { font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: #B9A9B8; }
-  .applies ul { display: flex; flex-wrap: wrap; gap: 10px; }
-  .applies li { font-size: 15.5px; padding: 8px 16px; border: 1px solid var(--plum-line); border-radius: 999px; }
-  @media (max-width: 760px) { .applies { grid-template-columns: 1fr; } }
 
   .practice { margin-top: clamp(56px, 7vw, 88px); display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(32px, 5vw, 64px); align-items: center; }
   .practice h3 { font-size: clamp(30px, 3.4vw, 42px); line-height: 1.06; margin-bottom: 16px; }
@@ -344,7 +337,6 @@
   .offer { display: flex; flex-direction: column; padding: 32px 28px 28px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
   .offer-letter { font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--pers-ink); }
   .offer h3 { font-size: clamp(25px, 2.4vw, 30px); margin: 14px 0 8px; }
-  .offer-for { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 16px; }
   .offer-desc { color: var(--ink-soft); font-size: 16px; }
   .offer-result { margin-top: 22px; padding: 16px 0 0; border-top: 1px solid var(--line); }
   .offer-result span { display: block; font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
@@ -352,7 +344,6 @@
   .offer-foot { margin-top: auto; padding-top: 28px; display: flex; flex-direction: column; gap: 14px; align-items: flex-start; }
   .price { font-family: var(--serif); font-size: 26px; line-height: 1.2; }
   .price small { font-family: var(--sans); font-size: 14px; color: var(--muted); margin-left: 6px; }
-  .offer-note { font-size: 14px; color: var(--muted); }
   .offer-foot .btn { width: 100%; }
   @media (max-width: 960px) {
     .offers { grid-template-columns: 1fr; }
@@ -374,16 +365,13 @@
   .shot-painel { aspect-ratio: 1280 / 853; }
   .shot-palco img { object-position: center 20%; }
   .shot-apresentacao img { object-position: center 30%; }
-  .field-formats { margin-top: 32px; display: grid; grid-template-columns: 1fr auto; gap: 20px 40px; align-items: center; }
-  .field-formats ul { display: flex; flex-wrap: wrap; gap: 10px; }
-  .field-formats li { font-size: 15.5px; padding: 8px 16px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); }
+  .field-formats { margin-top: 28px; display: flex; justify-content: flex-end; }
   @media (max-width: 860px) {
     .gallery { grid-template-columns: 1fr 1fr; }
     .shot-workshop { grid-column: 1 / -1; order: 0; }
     .shot-palco { order: 1; aspect-ratio: 3 / 4; }
     .shot-apresentacao { order: 2; aspect-ratio: 3 / 4; }
     .shot-painel { order: 3; grid-column: 1 / -1; }
-    .field-formats { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
     .shot figcaption { left: 10px; bottom: 10px; font-size: 12.5px; padding: 6px 10px; }
@@ -525,14 +513,12 @@
       <div>
         <p class="hero-kicker"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Estratégia, empreendedorismo e educação</p>
         <h1 class="hero-title" id="hero-title">Da ideia à <span class="mark">primeira evidência</span> de valor.</h1>
-        <p class="hero-sub">Sou Miguel Nahas. Ajudo empreendedores, lideranças e profissionais de inovação a transformar desafios em oportunidades, testar caminhos e tirar projetos estratégicos do papel.</p>
-        <p class="hero-sub">Combino estratégia, empreendedorismo, facilitação e experimentação para conectar visão e execução, como facilitador do método Zero to First.</p>
+        <p class="hero-sub">Sou Miguel Nahas, facilitador do método Zero to First. Ajudo empreendedores, lideranças e profissionais de inovação a transformar desafios em oportunidades, testar caminhos e tirar projetos estratégicos do papel.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#agendar" data-schedule data-cta="hero_schedule">Agendar uma conversa
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
           <a class="btn btn-secondary" href="#zero-to-first" data-cta="hero_method">Conhecer o Zero to First</a>
         </div>
-        <p class="hero-note">Uma conversa inicial de cerca de 30 minutos para entender o seu desafio.</p>
       </div>
       <figure class="hero-figure">
         <img src="assets/miguel-nahas.jpg" alt="Retrato de Miguel Nahas" width="800" height="963" fetchpriority="high">
@@ -541,17 +527,8 @@
     </div>
     <div class="proof" id="highlights" hidden>
       <ul></ul>
-      <a class="proof-orgs" href="#trajetoria">Consultoria e treinamento para empresas como Globo, BTG Pactual, Ajinomoto e Comgás
+      <a class="proof-orgs" href="#trajetoria">Globo, BTG Pactual, Ajinomoto, Comgás e outras empresas atendidas
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4"/></svg></a>
-    </div>
-    <div class="audiences">
-      <span>Trabalho com</span>
-      <ul>
-        <li>Empreendedores e founders</li>
-        <li>Lideranças e times de inovação</li>
-        <li>Empresas de médio porte</li>
-        <li>Escolas de negócios, hubs e aceleradoras</li>
-      </ul>
     </div>
   </div>
 </section>
@@ -562,20 +539,20 @@
     <div class="section-head">
       <div>
         <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>O desafio</p>
-        <h2 class="h-section" id="challenge-title">Avançar não é planejar indefinidamente. Nem construir tudo antes de aprender.</h2>
+        <h2 class="h-section" id="challenge-title">Avançar não é planejar para sempre. Nem construir tudo antes de aprender.</h2>
       </div>
       <p class="lead">Muitos projetos travam no mesmo ponto: entre a ideia e a primeira prova de que ela vale a pena. Alguma destas situações parece familiar?</p>
     </div>
     <ol class="challenge-list">
-      <li class="challenge-item reveal"><span>01</span><h3>Uma ideia que ainda não encontrou evidências de demanda.</h3><p>Há entusiasmo e elogios, mas nenhum sinal concreto de que alguém pagaria ou mudaria de comportamento.</p></li>
-      <li class="challenge-item reveal"><span>02</span><h3>Um novo negócio que precisa descobrir seu próximo passo.</h3><p>Já existe algo no ar, mas não está claro onde concentrar tempo e recursos agora.</p></li>
-      <li class="challenge-item reveal"><span>03</span><h3>Um projeto estratégico que permanece no planejamento.</h3><p>O plano está pronto. Falta o primeiro movimento capaz de gerar aprendizado real.</p></li>
-      <li class="challenge-item reveal"><span>04</span><h3>Uma equipe que precisa sair da discussão e começar a experimentar.</h3><p>As opiniões se acumulam e ninguém sabe ao certo o que testar primeiro.</p></li>
-      <li class="challenge-item reveal"><span>05</span><h3>Um programa educacional que precisa gerar aplicação prática.</h3><p>O conteúdo é bom, mas os participantes voltam à rotina sem aplicar o que aprenderam.</p></li>
+      <li class="challenge-item reveal"><span>01</span><h3>Uma ideia que ainda não encontrou evidências de demanda.</h3></li>
+      <li class="challenge-item reveal"><span>02</span><h3>Um novo negócio que precisa descobrir seu próximo passo.</h3></li>
+      <li class="challenge-item reveal"><span>03</span><h3>Um projeto estratégico que permanece no planejamento.</h3></li>
+      <li class="challenge-item reveal"><span>04</span><h3>Uma equipe que precisa sair da discussão e começar a experimentar.</h3></li>
+      <li class="challenge-item reveal"><span>05</span><h3>Um programa educacional que inspira, mas não gera aplicação.</h3></li>
     </ol>
     <div class="challenge-close">
       <span aria-hidden="true"></span>
-      <p>O caminho mais curto costuma ser outro: entender bem o problema, formular hipóteses claras e testá-las com o menor esforço possível, antes de investir mais.</p>
+      <p>O caminho mais curto: entender o problema, formular hipóteses claras e testá-las com o menor esforço possível.</p>
       <a class="text-link" href="#zero-to-first">Ver o método
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4"/></svg></a>
     </div>
@@ -591,7 +568,7 @@
         <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>O método</p>
         <h2 class="h-section" id="method-title">Da ideia às <span>primeiras evidências</span>, uma decisão por vez.</h2>
       </div>
-      <p class="lead">Zero to First é o método que facilito com empreendedores, equipes e organizações. Ele organiza o caminho em cinco etapas, apoiadas por ferramentas, canvases, roteiros e dinâmicas.</p>
+      <p class="lead">Cinco etapas, cada uma apoiada por ferramentas práticas, para negócios, produtos, projetos estratégicos e educação empreendedora.</p>
     </div>
 
     <ol class="stages">
@@ -599,63 +576,53 @@
         <div class="stage-top"><span class="stage-dot" aria-hidden="true"></span></div>
         <span class="stage-num">01</span>
         <h3>Entender</h3>
-        <p>Investigar o contexto, o problema, as pessoas envolvidas e as oportunidades.</p>
-        <div class="tools"><span>Ferramentas</span><ul><li>Território de oportunidade</li><li>Avaliação de mercado</li><li>Jobs to Be Done</li><li>Roteiro de entrevista</li><li>Journey Map</li></ul></div>
+        <p>Investigar o contexto, o problema, as pessoas e as oportunidades.</p>
+        <div class="tools"><span>Ferramentas</span><ul><li>Avaliação de mercado</li><li>Jobs to Be Done</li><li>Roteiro de entrevista</li><li>Journey Map</li></ul></div>
       </li>
       <li class="stage reveal">
         <div class="stage-top"><span class="stage-dot" aria-hidden="true"></span></div>
         <span class="stage-num">02</span>
         <h3>Explorar</h3>
         <p>Gerar alternativas, formular hipóteses e definir o que precisa ser aprendido.</p>
-        <div class="tools"><span>Ferramentas</span><ul><li>Beachhead Market</li><li>Matriz CSD</li><li>Problem Statement</li><li>Importância × satisfação</li><li>Working Backwards</li></ul></div>
+        <div class="tools"><span>Ferramentas</span><ul><li>Beachhead Market</li><li>Matriz CSD</li><li>Problem Statement</li><li>Working Backwards</li></ul></div>
       </li>
       <li class="stage reveal">
         <div class="stage-top"><span class="stage-dot" aria-hidden="true"></span></div>
         <span class="stage-num">03</span>
         <h3>Experimentar</h3>
-        <p>Desenhar testes simples, como entrevistas, protótipos e MVPs, para obter evidências.</p>
+        <p>Desenhar testes simples: entrevistas, protótipos e MVPs.</p>
         <div class="tools"><span>Ferramentas</span><ul><li>Seleção de MVP</li><li>Critérios de saída</li></ul></div>
       </li>
       <li class="stage stage-validar reveal">
         <div class="stage-top"><span class="stage-dot" aria-hidden="true"></span></div>
         <span class="stage-num">04</span>
         <h3>Validar</h3>
-        <p>Analisar aprendizados, confrontar suposições e avaliar os sinais de valor.</p>
+        <p>Analisar aprendizados e confrontar suposições com os sinais de valor.</p>
         <div class="tools"><span>Ferramentas</span><ul><li>Build, Measure, Learn</li><li>CSD atualizada</li><li>Métricas iniciais</li></ul></div>
       </li>
       <li class="loop-note" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>
-        O que você aprende ao validar pode revisar as hipóteses e levar a um novo experimento.
+        Aprendeu algo novo? Revise a hipótese e teste de novo.
       </li>
       <li class="stage stage-last reveal">
         <div class="stage-top"><span class="stage-dot" aria-hidden="true"></span></div>
         <span class="stage-num">05</span>
         <h3>Avançar</h3>
-        <p>Transformar evidências em decisões, iniciativas e próximos passos.</p>
+        <p>Transformar evidências em decisões e próximos passos.</p>
         <div class="tools"><span>Ferramentas</span><ul><li>Stress test</li><li>Modelo de negócio</li></ul></div>
       </li>
       <li class="loop" aria-hidden="true"><p>↺ Aprendeu algo novo? Revise a hipótese e teste de novo.</p></li>
     </ol>
     <p class="visually-hidden">O método é iterativo: o aprendizado da etapa Validar pode levar de volta à etapa Explorar, com hipóteses revisadas e novos experimentos.</p>
 
-    <div class="applies">
-      <span>Onde se aplica</span>
-      <ul>
-        <li>Criação e validação de negócios</li>
-        <li>Desafios organizacionais</li>
-        <li>Desenvolvimento de produtos</li>
-        <li>Projetos estratégicos</li>
-        <li>Educação empreendedora</li>
-      </ul>
-    </div>
 
     <div class="practice">
       <div>
         <h3>Cada etapa termina em uma decisão e um entregável.</h3>
-        <p>O método não fica no conceito. Cada ferramenta responde a uma pergunta concreta e gera um artefato que a equipe usa para decidir: um mapa, uma matriz, uma hipótese, um critério de parada.</p>
+        <p>O método não fica no conceito. Cada ferramenta responde a uma pergunta concreta e gera um artefato para decidir: um mapa, uma matriz, um critério de parada.</p>
         <ul class="modules">
           <li><strong>Problem Framing</strong><span>Descobrir qual problema merece ser resolvido antes de investir em uma solução.</span></li>
-          <li><strong>Launch Track</strong><span>Transformar o problema escolhido em hipóteses, experimentos e um modelo inicial de negócio.</span></li>
+          <li><strong>Launch Track</strong><span>Transformar o problema em hipóteses, experimentos e um modelo inicial de negócio.</span></li>
         </ul>
         <a class="text-link" href="toolkit/" data-entry-link data-cta="method_toolkit">Ver as 18 ferramentas do toolkit
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
@@ -665,9 +632,9 @@
         <div class="card card-csd">
           <div class="card-title"><b>Matriz CSD</b><span class="tag">Problem Framing</span></div>
           <div class="csd">
-            <div><span class="tag">Certezas</span><span class="c">O público já tenta resolver isso sozinho</span><span class="c">A dor aparece toda semana</span></div>
-            <div><span class="tag">Suposições</span><span class="s tilt">Pagariam para economizar tempo</span><span class="s">Quem usa é quem decide</span></div>
-            <div><span class="tag">Dúvidas</span><span class="d">Qual canal alcança esse público?</span><span class="d tilt">Quanto vale resolver?</span></div>
+            <div><span class="tag">Certezas</span><span class="c">A dor aparece toda semana</span></div>
+            <div><span class="tag">Suposições</span><span class="s tilt">Pagariam para economizar tempo</span></div>
+            <div><span class="tag">Dúvidas</span><span class="d tilt">Quanto vale resolver?</span></div>
           </div>
         </div>
         <div class="card">
@@ -696,16 +663,15 @@
         <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Como podemos trabalhar juntos</p>
         <h2 class="h-section" id="offers-title">Três formas de colocar o método em prática.</h2>
       </div>
-      <p class="lead">Do material para aplicar por conta própria a um trabalho desenhado para o seu contexto. Comece pelo que faz sentido agora.</p>
+      <p class="lead">Do material para aplicar sozinho ao trabalho desenhado para o seu contexto.</p>
     </div>
 
     <div class="offers">
       <article class="offer reveal" aria-labelledby="offer-a">
         <span class="offer-letter">A · Por conta própria</span>
         <h3 id="offer-a">Ferramentas e conteúdos práticos</h3>
-        <p class="offer-for">Para quem quer aplicar o Zero to First no próprio projeto</p>
-        <p class="offer-desc">O toolkit Zero to First reúne ferramentas para estruturar problemas, formular hipóteses, conduzir entrevistas e planejar experimentos, com conteúdos gravados e três meses de comunidade.</p>
-        <div class="offer-result"><span>Resultado esperado</span><p>Um problema bem definido, hipóteses explícitas e experimentos com critérios claros de decisão.</p></div>
+        <p class="offer-desc">O toolkit Zero to First: ferramentas, conteúdos gravados e três meses de comunidade para aplicar o método no seu projeto.</p>
+        <div class="offer-result"><span>Resultado</span><p>Um problema bem definido, hipóteses explícitas e experimentos com critérios claros de decisão.</p></div>
         <div class="offer-foot">
           <p class="price" data-entry-price hidden></p>
           <a class="btn btn-accent" href="toolkit/" data-entry-link data-cta="offer_entry_product">Conhecer o material de entrada
@@ -716,9 +682,8 @@
       <article class="offer reveal" aria-labelledby="offer-b">
         <span class="offer-letter">B · Aprendizagem aplicada</span>
         <h3 id="offer-b">Palestras, workshops e educação empreendedora</h3>
-        <p class="offer-for">Para eventos, equipes, escolas de negócios, hubs, aceleradoras e organizações</p>
-        <p class="offer-desc">Palestras, painéis, workshops, módulos e programas práticos sobre resolução de problemas, design thinking, experimentação, validação de oportunidades, desenvolvimento de negócios e IA como apoio ao trabalho.</p>
-        <div class="offer-result"><span>Resultado esperado</span><p>Participantes que saem aplicando: com ferramentas na mão, hipóteses formuladas e próximos passos para os próprios projetos.</p></div>
+        <p class="offer-desc">Palestras, workshops e programas para eventos, equipes, escolas de negócios, hubs e aceleradoras. Temas como validação, experimentação, design thinking e IA no trabalho.</p>
+        <div class="offer-result"><span>Resultado</span><p>Participantes que saem aplicando: com ferramentas na mão e próximos passos para os próprios projetos.</p></div>
         <div class="offer-foot">
           <a class="btn btn-primary" href="#agendar" data-schedule data-cta="offer_workshops">Vamos desenhar uma experiência juntos</a>
         </div>
@@ -727,11 +692,9 @@
       <article class="offer reveal" aria-labelledby="offer-c">
         <span class="offer-letter">C · Sob medida</span>
         <h3 id="offer-c">Estratégia, consultoria e advisory</h3>
-        <p class="offer-for">Para empreendedores, lideranças e organizações</p>
-        <p class="offer-desc">Apoio na estruturação de desafios, no desenvolvimento de negócios, no desenho de programas estratégicos e na experimentação, para transformar ideias em iniciativas concretas.</p>
-        <div class="offer-result"><span>Resultado esperado</span><p>Clareza sobre o problema certo, decisões apoiadas em evidências e próximos passos que a equipe consegue executar.</p></div>
+        <p class="offer-desc">Para empreendedores, lideranças e organizações estruturarem desafios, novos negócios e programas estratégicos. Formato definido caso a caso.</p>
+        <div class="offer-result"><span>Resultado</span><p>Clareza sobre o problema certo, decisões apoiadas em evidências e próximos passos executáveis.</p></div>
         <div class="offer-foot">
-          <p class="offer-note">O formato é definido a partir do contexto, do desafio e do resultado esperado.</p>
           <a class="btn btn-primary" href="#agendar" data-schedule data-cta="offer_advisory">Conversar sobre meu desafio</a>
         </div>
       </article>
@@ -747,7 +710,7 @@
         <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Na prática</p>
         <h2 class="h-section" id="field-title">No palco, em painéis e na sala de trabalho.</h2>
       </div>
-      <p class="lead">É nesses espaços que o meu trabalho acontece: conversando com quem está construindo, facilitando grupos e levando o método para situações reais.</p>
+      <p class="lead">Palestras, painéis e workshops: é onde o método encontra situações reais.</p>
     </div>
     <div class="gallery">
       <figure class="shot shot-workshop reveal">
@@ -768,12 +731,6 @@
       </figure>
     </div>
     <div class="field-formats">
-      <ul aria-label="Formatos">
-        <li>Palestras</li>
-        <li>Painéis e conversas</li>
-        <li>Workshops e facilitação</li>
-        <li>Programas de aprendizagem</li>
-      </ul>
       <a class="btn btn-primary" href="#agendar" data-schedule data-cta="field_invite">Convidar para um evento ou workshop
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
     </div>
@@ -795,17 +752,16 @@
       </ul>
     </div>
     <div class="about-body">
-      <p class="about-lead">Minha trajetória foi construída onde estratégia, empreendedorismo e educação se encontram, quase sempre do lado de quem precisa fazer as coisas acontecerem.</p>
-      <p>Como cofundador e liderança executiva da Future Dojo, participei da construção de uma edtech: estratégia, portfólio de produtos, operações, workshops corporativos e o desenho de experiências de aprendizagem e inovação.</p>
-      <p>Como sócio da ACE Ventures, atuei em cultura, desenvolvimento organizacional e parcerias, perto de fundadores, executivos e lideranças em momentos de crescimento e transformação.</p>
-      <p>Hoje, como Ventures Lead na Link School of Business, trabalho com educação empreendedora e com o desenvolvimento do ecossistema de startups, conectando aprendizagem, negócios, mentores e parceiros.</p>
-      <p>Ao longo desse caminho, mentorei e acelerei mais de 100 startups, dei mais de 100 aulas, palestras e participações em podcasts e prestei serviços de consultoria de inovação, estratégia e treinamento para empresas de diferentes setores.</p>
-      <p class="about-close">Como facilitador do Zero to First, levo essa experiência para empreendedores, equipes e organizações: um jeito estruturado de sair da ideia e chegar às primeiras evidências de valor.</p>
+      <p class="about-lead">Construí minha trajetória entre estratégia, empreendedorismo e educação, sempre do lado de quem faz acontecer.</p>
+      <p>Cofundei a Future Dojo, uma edtech onde liderei estratégia, portfólio de produtos, operações e workshops corporativos de inovação e aprendizagem.</p>
+      <p>Como sócio da ACE Ventures, atuei em cultura, desenvolvimento organizacional e parcerias, perto de fundadores e executivos em momentos de crescimento.</p>
+      <p>Hoje, como Ventures Lead na Link School of Business, trabalho com educação empreendedora e com o ecossistema de startups, conectando aprendizagem, negócios, mentores e parceiros.</p>
+            <p class="about-close">No caminho, foram mais de 100 startups mentoradas e aceleradas e mais de 100 aulas, palestras e podcasts. Como facilitador do Zero to First, levo essa experiência para empreendedores, equipes e organizações.</p>
 
       <div class="orgs">
         <h3>Consultoria de inovação, estratégia e treinamento para</h3>
         <ul><li>Globo</li><li>BTG Pactual</li><li>Ajinomoto</li><li>Comgás</li><li>FTD</li><li>Renner</li><li>BRF</li><li>Eneva</li><li>Grupo Águia Branca</li></ul>
-        <p>Entre outras empresas. Os nomes são citados como referência de experiência e não implicam endosso.</p>
+        <p>Entre outras. Citadas como referência, sem implicar endosso.</p>
       </div>
 
       <div class="quotes" id="testimonials" hidden></div>
@@ -822,15 +778,13 @@
     </div>
     <div class="faq-list">
       <details><summary>Como funciona a primeira conversa?</summary>
-        <p>É uma conversa de cerca de 30 minutos para entender o seu contexto e o desafio. Você não precisa chegar com um escopo fechado: a partir dela, avaliamos juntos se faz sentido trabalharmos e em qual formato.</p></details>
-      <details><summary>Você trabalha com negócios em estágio inicial?</summary>
-        <p>Sim. Trabalho com empreendedores e founders que estão desenvolvendo ou validando negócios, com lideranças de empresas e com organizações educacionais. O formato depende do momento de cada projeto.</p></details>
+        <p>Cerca de 30 minutos para entender o seu desafio. Você não precisa chegar com escopo fechado.</p></details>
       <details><summary>Posso convidar você para uma palestra ou painel?</summary>
-        <p>Sim. Agende uma conversa ou escreva contando o evento, o público e o tema. A partir disso, combinamos o formato.</p></details>
+        <p>Sim. Conte o evento, o público e o tema, e combinamos o formato.</p></details>
       <details><summary>Qual a diferença entre o toolkit e trabalhar junto?</summary>
-        <p>O toolkit é para aplicar o Zero to First por conta própria, no seu ritmo. Nos workshops e na consultoria, aplicamos o método juntos, adaptado ao seu contexto, ao seu público e ao resultado que você busca.</p></details>
+        <p>O toolkit é para aplicar o método sozinho, no seu ritmo. Nos workshops e na consultoria, aplicamos juntos, adaptado ao seu contexto.</p></details>
       <details><summary>Como é definido o investimento em workshops e consultoria?</summary>
-        <p>A partir do desafio, do escopo e do formato combinados. Por isso não há pacotes fechados: depois da conversa inicial, a proposta é desenhada para o seu caso.</p></details>
+        <p>Pelo desafio e pelo escopo. Não há pacotes fechados: a proposta vem depois da conversa.</p></details>
     </div>
   </div>
 </section>
@@ -841,12 +795,11 @@
     <div>
       <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Agendar</p>
       <h2 class="h-section" id="schedule-title">Vamos conversar sobre o que você está construindo?</h2>
-      <p class="lead">Se você está desenvolvendo um negócio, estruturando uma iniciativa estratégica ou buscando uma experiência de aprendizagem mais prática para sua equipe ou comunidade, podemos explorar possibilidades juntos.</p>
-      <p class="lead">Você não precisa chegar com um escopo fechado. Podemos começar entendendo o desafio e avaliando o melhor caminho.</p>
+      <p class="lead">Desenvolvendo um negócio, estruturando uma iniciativa estratégica ou buscando uma experiência de aprendizagem para a sua equipe? Começamos entendendo o desafio. Você não precisa chegar com escopo fechado.</p>
       <ul class="expect" aria-label="O que esperar da conversa">
         <li>Cerca de 30 minutos</li>
         <li>Entendimento do seu contexto e do desafio</li>
-        <li>Próximos passos possíveis, se fizer sentido seguirmos juntos</li>
+        <li>Próximos passos, se fizer sentido seguirmos juntos</li>
       </ul>
       <p class="alt-contact">Prefere escrever?
         <a href="mailto:miguelsnahas@gmail.com" data-email data-cta="contact_email">miguelsnahas@gmail.com</a>
@@ -861,7 +814,7 @@
       <div class="booking-pending" id="booking-pending">
         <span class="tag"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Agenda online em breve</span>
         <h3>Escreva e combinamos um horário.</h3>
-        <p>Envie uma linha sobre o seu desafio para o e-mail abaixo. Eu respondo com opções de horário para a conversa.</p>
+        <p>Mande uma linha sobre o seu desafio. Eu respondo com opções de horário.</p>
         <a class="btn btn-primary" href="mailto:miguelsnahas@gmail.com" data-email data-email-subject="Conversa sobre um desafio" data-cta="schedule_email_fallback">Enviar e-mail para Miguel
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
