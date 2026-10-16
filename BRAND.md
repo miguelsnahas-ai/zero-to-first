@@ -49,7 +49,7 @@ Regras:
 - Prefira fotos **em ação**: falando, facilitando, conversando. Evite poses de estúdio.
 - Use luz natural ou de evento, cores quentes e enquadramento que mostre o contexto (palco, sala, grupo).
 - Legendas descrevem o formato ("No palco", "Facilitação", "Painéis e conversas") e não citam eventos nem empresas sem autorização.
-- O retrato de rosto (`assets/miguel-nahas.jpg`) fica para avatar e assinatura. As fotos de campo ficam em `assets/fotos/`.
+- O retrato (`assets/miguel-nahas.jpg`) é a foto principal da página e o avatar. As fotos de campo ficam em `assets/fotos/` e aparecem no mosaico "Na prática".
 
 ## Voz
 
