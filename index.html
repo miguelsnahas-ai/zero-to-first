@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Miguel Nahas">
 <meta property="og:url" content="https://miguelsnahas-ai.github.io/zero-to-first/">
 <meta property="og:title" content="Miguel Nahas | Da ideia à primeira evidência de valor">
-<meta property="og:description" content="Estratégia, empreendedorismo e educação com um método próprio, o Zero to First. Palestras, workshops, consultoria e advisory para tirar projetos do papel.">
+<meta property="og:description" content="Estratégia, empreendedorismo e educação com o método Zero to First. Palestras, workshops, consultoria e advisory para tirar projetos do papel.">
 <meta property="og:image" content="https://miguelsnahas-ai.github.io/zero-to-first/assets/og-miguel-nahas.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -191,13 +191,25 @@
   .hero-actions { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
   .hero-note { margin-top: 14px; font-size: 14.5px; color: var(--muted); }
   .hero-figure { margin: 0; position: relative; }
-  .hero-figure img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 18%; border-radius: 18px; background: var(--plum); }
+  .hero-figure img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 22%; border-radius: 18px; background: var(--sand); }
   .hero-figure figcaption {
     position: absolute; left: 16px; bottom: 16px; display: inline-flex; align-items: center; gap: 8px;
     background: var(--paper); color: var(--ink); border-radius: 999px; padding: 8px 14px;
     font-size: 13.5px; font-weight: 600;
   }
   .hero-figure figcaption .ast { width: 12px; height: 12px; }
+  .proof { margin-top: clamp(48px, 7vw, 80px); border-top: 1.5px solid var(--ink); padding-top: 24px; display: grid; grid-template-columns: auto auto 1fr; gap: 20px 56px; align-items: end; }
+  .proof ul { display: contents; }
+  .proof strong { display: block; font-family: var(--serif); font-weight: 500; font-size: clamp(44px, 5.4vw, 64px); line-height: .95; letter-spacing: -0.02em; }
+  .proof strong b { font-weight: 500; color: var(--pers-ink); }
+  .proof li > span { display: block; margin-top: 6px; font-size: 15.5px; color: var(--ink-soft); }
+  .proof-orgs { justify-self: end; max-width: 30ch; display: inline-flex; gap: 8px; align-items: flex-start; font-size: 15px; font-weight: 600; text-decoration: none; border-bottom: 2px solid var(--pers); padding-bottom: 3px; }
+  .proof-orgs svg { width: 14px; height: 14px; flex: none; margin-top: 4px; }
+  .proof + .audiences { margin-top: 32px; }
+  @media (max-width: 760px) {
+    .proof { grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+    .proof-orgs { grid-column: 1 / -1; justify-self: start; max-width: none; }
+  }
   .audiences { margin-top: clamp(48px, 7vw, 80px); border-top: 1px solid var(--line); padding-top: 22px; display: grid; grid-template-columns: auto 1fr; gap: 12px 32px; align-items: baseline; }
   .audiences > span { font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
   .audiences ul { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 16px; color: var(--ink-soft); }
@@ -206,7 +218,7 @@
   @media (max-width: 860px) {
     .hero-grid { grid-template-columns: 1fr; }
     .hero-figure { max-width: 440px; }
-    .hero-figure img { aspect-ratio: 5 / 4; object-position: center 15%; }
+    .hero-figure img { aspect-ratio: 1 / 1; object-position: center 18%; }
     .audiences { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) { .hero-actions .btn { width: 100%; } }
@@ -359,16 +371,18 @@
   }
   .shot figcaption .ast { width: 12px; height: 12px; }
   .shot-workshop { aspect-ratio: 1280 / 905; }
+  .shot-painel { aspect-ratio: 1280 / 853; }
+  .shot-palco img { object-position: center 20%; }
   .shot-apresentacao img { object-position: center 30%; }
-  .shot-painel { grid-column: 1 / -1; aspect-ratio: 12 / 5; }
-  .shot-painel img { object-position: center 48%; }
   .field-formats { margin-top: 32px; display: grid; grid-template-columns: 1fr auto; gap: 20px 40px; align-items: center; }
   .field-formats ul { display: flex; flex-wrap: wrap; gap: 10px; }
   .field-formats li { font-size: 15.5px; padding: 8px 16px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); }
   @media (max-width: 860px) {
     .gallery { grid-template-columns: 1fr 1fr; }
-    .shot-workshop { grid-column: 1 / -1; }
-    .shot-apresentacao, .shot-painel { grid-column: auto; aspect-ratio: 3 / 4; }
+    .shot-workshop { grid-column: 1 / -1; order: 0; }
+    .shot-palco { order: 1; aspect-ratio: 3 / 4; }
+    .shot-apresentacao { order: 2; aspect-ratio: 3 / 4; }
+    .shot-painel { order: 3; grid-column: 1 / -1; }
     .field-formats { grid-template-columns: 1fr; }
   }
   @media (max-width: 480px) {
@@ -468,7 +482,7 @@
   "name": "Miguel Nahas",
   "url": "https://miguelsnahas-ai.github.io/zero-to-first/",
   "image": "https://miguelsnahas-ai.github.io/zero-to-first/assets/miguel-nahas.jpg",
-  "description": "Estratégia, empreendedorismo e educação empreendedora. Criador do método Zero to First.",
+  "description": "Estratégia, empreendedorismo e educação empreendedora. Facilitador do método Zero to First.",
   "jobTitle": "Ventures Lead",
   "worksFor": { "@type": "Organization", "name": "Link School of Business" },
   "sameAs": ["https://www.linkedin.com/in/miguelnahas/"],
@@ -512,7 +526,7 @@
         <p class="hero-kicker"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Estratégia, empreendedorismo e educação</p>
         <h1 class="hero-title" id="hero-title">Da ideia à <span class="mark">primeira evidência</span> de valor.</h1>
         <p class="hero-sub">Sou Miguel Nahas. Ajudo empreendedores, lideranças e profissionais de inovação a transformar desafios em oportunidades, testar caminhos e tirar projetos estratégicos do papel.</p>
-        <p class="hero-sub">Combino estratégia, empreendedorismo, facilitação e experimentação para conectar visão e execução, com um método próprio: o Zero to First.</p>
+        <p class="hero-sub">Combino estratégia, empreendedorismo, facilitação e experimentação para conectar visão e execução, como facilitador do método Zero to First.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#agendar" data-schedule data-cta="hero_schedule">Agendar uma conversa
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
@@ -521,9 +535,14 @@
         <p class="hero-note">Uma conversa inicial de cerca de 30 minutos para entender o seu desafio.</p>
       </div>
       <figure class="hero-figure">
-        <img src="assets/fotos/palco.webp" alt="Miguel Nahas falando ao microfone em um palco de evento" width="800" height="1200" fetchpriority="high">
-        <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>No palco</figcaption>
+        <img src="assets/miguel-nahas.jpg" alt="Retrato de Miguel Nahas" width="800" height="963" fetchpriority="high">
+        <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Facilitador do Zero to First</figcaption>
       </figure>
+    </div>
+    <div class="proof" id="highlights" hidden>
+      <ul></ul>
+      <a class="proof-orgs" href="#trajetoria">Consultoria e treinamento para empresas como Globo, BTG Pactual, Ajinomoto e Comgás
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4"/></svg></a>
     </div>
     <div class="audiences">
       <span>Trabalho com</span>
@@ -572,7 +591,7 @@
         <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>O método</p>
         <h2 class="h-section" id="method-title">Da ideia às <span>primeiras evidências</span>, uma decisão por vez.</h2>
       </div>
-      <p class="lead">Zero to First é a forma estruturada como eu trabalho. Reúne o que aprendi construindo negócios, conduzindo projetos estratégicos e desenhando programas de aprendizagem em cinco etapas, apoiadas por ferramentas, canvases, roteiros e dinâmicas.</p>
+      <p class="lead">Zero to First é o método que facilito com empreendedores, equipes e organizações. Ele organiza o caminho em cinco etapas, apoiadas por ferramentas, canvases, roteiros e dinâmicas.</p>
     </div>
 
     <ol class="stages">
@@ -735,13 +754,17 @@
         <img src="assets/fotos/workshop.webp" alt="Miguel Nahas facilitando uma atividade com um grupo, diante de um mural colorido" width="1280" height="905" loading="lazy" decoding="async">
         <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Facilitação</figcaption>
       </figure>
-      <figure class="shot shot-apresentacao reveal">
-        <img src="assets/fotos/apresentacao.webp" alt="Miguel Nahas apresentando para um grupo, com um telão ao fundo" width="800" height="1200" loading="lazy" decoding="async">
-        <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Apresentações</figcaption>
+      <figure class="shot shot-palco reveal">
+        <img src="assets/fotos/palco.webp" alt="Miguel Nahas falando ao microfone em um palco de evento" width="800" height="1200" loading="lazy" decoding="async">
+        <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>No palco</figcaption>
       </figure>
       <figure class="shot shot-painel reveal">
         <img src="assets/fotos/painel.webp" alt="Miguel Nahas em um painel com outros dois participantes, em um estúdio montado num evento" width="1280" height="853" loading="lazy" decoding="async">
         <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Painéis e conversas</figcaption>
+      </figure>
+      <figure class="shot shot-apresentacao reveal">
+        <img src="assets/fotos/apresentacao.webp" alt="Miguel Nahas apresentando para um grupo, com um telão ao fundo" width="800" height="1200" loading="lazy" decoding="async">
+        <figcaption><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Apresentações</figcaption>
       </figure>
     </div>
     <div class="field-formats">
@@ -765,31 +788,26 @@
     <div class="about-aside">
       <p class="eyebrow"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>Trajetória</p>
       <h2 class="h-section" id="about-title">Experiência construída entre estratégia, educação e execução.</h2>
-      <div class="portrait">
-        <img src="assets/miguel-nahas.jpg" alt="" width="800" height="963" loading="lazy" decoding="async">
-        <div><strong>Miguel Nahas</strong><span>Criador do Zero to First</span></div>
-      </div>
       <ul class="timeline" aria-label="Resumo da trajetória">
         <li><span class="logo"><img src="assets/link.png" alt="Link School of Business" width="900" height="138" loading="lazy" decoding="async"></span><span><strong>Ventures Lead</strong><small>Link School of Business · atual</small></span></li>
         <li><span class="logo"><img src="assets/ace.png" alt="ACE Ventures" width="900" height="401" loading="lazy" decoding="async"></span><span><strong>Sócio</strong><small>ACE Ventures · anterior</small></span></li>
         <li><span class="logo"><img src="assets/dojo.png" alt="Future Dojo" width="900" height="338" loading="lazy" decoding="async"></span><span><strong>Cofundador e liderança executiva</strong><small>Future Dojo · anterior</small></span></li>
-        <li><span class="logo logo-text">Consultoria de inovação</span><span><strong>Inovação corporativa e aceleração</strong><small>ACE Cortex · anterior</small></span></li>
       </ul>
     </div>
     <div class="about-body">
       <p class="about-lead">Minha trajetória foi construída onde estratégia, empreendedorismo e educação se encontram, quase sempre do lado de quem precisa fazer as coisas acontecerem.</p>
       <p>Como cofundador e liderança executiva da Future Dojo, participei da construção de uma edtech: estratégia, portfólio de produtos, operações, workshops corporativos e o desenho de experiências de aprendizagem e inovação.</p>
-      <p>Em consultoria de inovação, atuei em projetos de inovação corporativa, aceleração e desenvolvimento de novas iniciativas para empresas. Como sócio da ACE Ventures, atuei em cultura, desenvolvimento organizacional e parcerias, perto de fundadores, executivos e lideranças em momentos de crescimento e transformação.</p>
+      <p>Como sócio da ACE Ventures, atuei em cultura, desenvolvimento organizacional e parcerias, perto de fundadores, executivos e lideranças em momentos de crescimento e transformação.</p>
       <p>Hoje, como Ventures Lead na Link School of Business, trabalho com educação empreendedora e com o desenvolvimento do ecossistema de startups, conectando aprendizagem, negócios, mentores e parceiros.</p>
-      <p class="about-close">O Zero to First é a expressão prática desse percurso: o jeito de trabalhar que fui refinando em cada um desses contextos, organizado para que outras pessoas também possam aplicá-lo.</p>
+      <p>Ao longo desse caminho, mentorei e acelerei mais de 100 startups, dei mais de 100 aulas, palestras e participações em podcasts e prestei serviços de consultoria de inovação, estratégia e treinamento para empresas de diferentes setores.</p>
+      <p class="about-close">Como facilitador do Zero to First, levo essa experiência para empreendedores, equipes e organizações: um jeito estruturado de sair da ideia e chegar às primeiras evidências de valor.</p>
 
       <div class="orgs">
-        <h3>Organizações com as quais trabalhei em projetos</h3>
-        <ul><li>BTG Pactual</li><li>Renner</li><li>Eneva</li><li>BRF</li></ul>
-        <p>Projetos dos quais participei ao longo da carreira, entre outras empresas. Os nomes são citados como referência de experiência e não implicam endosso.</p>
+        <h3>Consultoria de inovação, estratégia e treinamento para</h3>
+        <ul><li>Globo</li><li>BTG Pactual</li><li>Ajinomoto</li><li>Comgás</li><li>FTD</li><li>Renner</li><li>BRF</li><li>Eneva</li><li>Grupo Águia Branca</li></ul>
+        <p>Entre outras empresas. Os nomes são citados como referência de experiência e não implicam endosso.</p>
       </div>
 
-      <div class="highlights" id="highlights" hidden><h3>Em números</h3><ul></ul></div>
       <div class="quotes" id="testimonials" hidden></div>
     </div>
   </div>
@@ -888,7 +906,10 @@ var CONFIG = {
 
   // Números verificáveis da trajetória. Vazio = bloco oculto.
   // Ex.: { value: "120+", label: "workshops facilitados" }
-  highlights: [],
+  highlights: [
+    { value: "+100", label: "startups mentoradas e aceleradas" },
+    { value: "+100", label: "aulas, palestras e podcasts" }
+  ],
 
   // Depoimentos reais, com autorização. Vazio = bloco oculto.
   // Ex.: { quote: "…", name: "Nome Sobrenome", role: "Cargo, Empresa" }
@@ -955,7 +976,8 @@ var CONFIG = {
   if (CONFIG.highlights.length) {
     var hl = document.getElementById("highlights");
     hl.querySelector("ul").innerHTML = CONFIG.highlights.map(function (h) {
-      return "<li><strong>" + esc(h.value) + "</strong><span>" + esc(h.label) + "</span></li>";
+      var v = esc(h.value).replace(/^\+/, "<b>+</b>");
+      return "<li><strong>" + v + "</strong><span>" + esc(h.label) + "</span></li>";
     }).join("");
     hl.hidden = false;
   }
