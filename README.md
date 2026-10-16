@@ -13,3 +13,7 @@ Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch 
 - **Página principal:** bloco `CONFIG`, no fim de `index.html`. Ali ficam a URL do Calendly, o link e o preço do produto de entrada, o e-mail, o WhatsApp, o LinkedIn, os números e os depoimentos. Campos vazios ficam ocultos na página.
 - **Checkout do toolkit:** `CHECKOUT_URL`, no fim de `toolkit/index.html`.
 - **Analytics:** cole o snippet no `<head>` de cada página. Os cliques nos CTAs já são enviados para `window.dataLayer`.
+
+## Identidade visual
+
+Guia de cores, tipografia, fotos e voz em [`BRAND.md`](BRAND.md).
