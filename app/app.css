@@ -119,6 +119,8 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .panel h2 { font-size: 22px; margin-bottom: 4px; }
 .panel-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
 .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cols-2 > .panel + .panel { margin-top: 0; }
+.cols-2 + .panel, .panel + .cols-2, .cols-2 + .cols-2, .tiles + .cols-2 { margin-top: 16px; }
 @media (max-width: 1000px) { .cols-2 { grid-template-columns: 1fr; } }
 
 /* Próximos movimentos */
