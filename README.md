@@ -7,6 +7,7 @@ Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch 
 | `/` | `index.html` | Página principal: trajetória, método Zero to First, frentes de trabalho e agendamento |
 | `/toolkit/` | `toolkit/index.html` | Mesa de Trabalho: ferramentas + comunidade, gratuita, com formulário de cadastro |
 | `/app/` | `app/` | Área interna da Mesa de Trabalho: projetos, ferramentas com IA, quadro, radar e mentoria (Supabase) |
+| `/admin/` | `admin/` | Painel de administração (somente contas em `public.admins` no Supabase) |
 | `/privacidade.html`, `/termos.html` | | Política de privacidade e termos de uso do toolkit |
 
 ## Onde configurar
@@ -25,3 +26,10 @@ Guia de cores, tipografia, fotos e voz em [`BRAND.md`](BRAND.md).
 - `app/radar.js`: curadoria do radar (`MESA.RADAR_LIBRARY`), regras de próximos movimentos e leitura dos sinais colados.
 - `app/app.js`: aplicação (login, projetos, telas). Configuração no topo: Supabase e link de agendamento da mentoria (`mentoriaUrl`).
 - Banco (Supabase): `projects`, `artifacts`, `board_items`, `radar_items` e `mentoria_pedidos`. Cada pessoa só acessa os próprios dados (RLS). Os pedidos de mentoria aparecem no painel do Supabase.
+
+## Painel de administração (`/admin/`)
+
+- Entra com a mesma conta da Mesa. Só funciona para contas listadas na tabela `public.admins` (por `user_id`).
+- Os dados vêm de funções no banco (`admin_overview`, `admin_users`, `admin_leads`, `admin_mentorias`, `admin_set_mentoria_status`), e cada uma confere `is_admin()`.
+- Dos projetos, só aparecem números agregados. Nos pedidos de mentoria aparecem o nome e o contexto do projeto e **apenas** os artefatos que a pessoa escolheu compartilhar.
+- Para dar acesso a outra conta, rode no SQL Editor: `insert into public.admins (user_id) select id from auth.users where email = 'email@exemplo.com';`
