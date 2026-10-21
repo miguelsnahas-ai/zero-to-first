@@ -29,7 +29,7 @@
   A página já envia para window.dataLayer:
     - "cta_click"           { cta, destination }   em todo clique de botão com data-cta
     - "schedule_completed"  {}                     quando um agendamento é concluído no Calendly
-  Os parâmetros utm_* da URL são repassados ao Calendly e ao link do toolkit.
+  Os parâmetros utm_* da URL são repassados ao Calendly e ao link da Mesa de Trabalho.
 -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -396,6 +396,12 @@
   .timeline small { display: block; font-size: 14px; color: var(--muted); }
   .about-body p { font-size: 18px; color: var(--ink-soft); margin-bottom: 22px; max-width: 62ch; }
   .about-body p.about-lead { font-family: var(--serif); font-size: clamp(24px, 2.5vw, 30px); line-height: 1.3; color: var(--ink); }
+  .story { margin: 4px 0 30px; padding: clamp(22px, 3vw, 32px); background: var(--sand); border-radius: 16px; }
+  .story-tag { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--pers-ink); }
+  .story-tag .ast { width: 13px; height: 13px; }
+  .story h3 { font-size: clamp(24px, 2.4vw, 30px); line-height: 1.15; margin: 12px 0 14px; }
+  .about-body .story p { font-size: 17px; margin-bottom: 12px; }
+  .about-body .story p:last-child { margin-bottom: 0; }
   .about-body p.about-close { border-left: 3px solid var(--pers); padding-left: 20px; color: var(--ink); }
   .orgs { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
   .orgs h3, .highlights h3 { font-family: var(--sans); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
@@ -624,11 +630,11 @@
           <li><strong>Problem Framing</strong><span>Descobrir qual problema merece ser resolvido antes de investir em uma solução.</span></li>
           <li><strong>Launch Track</strong><span>Transformar o problema em hipóteses, experimentos e um modelo inicial de negócio.</span></li>
         </ul>
-        <a class="text-link" href="toolkit/" data-entry-link data-cta="method_toolkit">Ver as 18 ferramentas do toolkit
+        <a class="text-link" href="toolkit/" data-entry-link data-cta="method_toolkit">Ver as 18 ferramentas na Mesa de Trabalho
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
       </div>
 
-      <figure class="board" aria-label="Exemplo ilustrativo de artefatos do toolkit: matriz CSD, matriz de importância versus satisfação, uma hipótese e um experimento com critérios de saída">
+      <figure class="board" aria-label="Exemplo ilustrativo de ferramentas da Mesa de Trabalho: matriz CSD, matriz de importância versus satisfação, uma hipótese e um experimento com critérios de saída">
         <div class="card card-csd">
           <div class="card-title"><b>Matriz CSD</b><span class="tag">Problem Framing</span></div>
           <div class="csd">
@@ -649,7 +655,7 @@
             <div class="exp"><span><strong style="color:#2F6B3A">Seguir</strong> se o sinal atingir o critério</span><span><strong style="color:#A1341A">Parar</strong> se não atingir no prazo</span></div>
           </div>
         </div>
-        <figcaption>Exemplo ilustrativo de artefatos do toolkit</figcaption>
+        <figcaption>Exemplo ilustrativo · Mesa de Trabalho</figcaption>
       </figure>
     </div>
   </div>
@@ -669,12 +675,12 @@
     <div class="offers">
       <article class="offer reveal" aria-labelledby="offer-a">
         <span class="offer-letter">A · Por conta própria</span>
-        <h3 id="offer-a">Ferramentas e conteúdos práticos</h3>
-        <p class="offer-desc">O toolkit Zero to First: ferramentas, conteúdos gravados e três meses de comunidade para aplicar o método no seu projeto.</p>
+        <h3 id="offer-a">Mesa de Trabalho</h3>
+        <p class="offer-desc">Ferramentas, conteúdos gravados e três meses de comunidade para aplicar o Zero to First no seu projeto. Gratuita: é só se cadastrar.</p>
         <div class="offer-result"><span>Resultado</span><p>Um problema bem definido, hipóteses explícitas e experimentos com critérios claros de decisão.</p></div>
         <div class="offer-foot">
           <p class="price" data-entry-price hidden></p>
-          <a class="btn btn-accent" href="toolkit/" data-entry-link data-cta="offer_entry_product">Conhecer o material de entrada
+          <a class="btn btn-accent" href="toolkit/" data-entry-link data-cta="offer_entry_product">Receber a Mesa de Trabalho
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4"/></svg></a>
         </div>
       </article>
@@ -753,10 +759,15 @@
     </div>
     <div class="about-body">
       <p class="about-lead">Construí minha trajetória entre estratégia, empreendedorismo e educação, sempre do lado de quem faz acontecer.</p>
-      <p>Cofundei a Future Dojo, uma edtech onde liderei estratégia, portfólio de produtos, operações e workshops corporativos de inovação e aprendizagem.</p>
+      <div class="story">
+        <span class="story-tag"><svg class="ast" aria-hidden="true"><use href="#ast"/></svg>A Future Dojo</span>
+        <h3>Antes de facilitar o método, precisei construir do zero.</h3>
+        <p>Cofundei a Future Dojo, uma edtech de inovação e aprendizagem. Como liderança executiva, construí com o time a estratégia, o portfólio de produtos e a operação, e levei workshops e experiências de aprendizagem para empresas de diferentes setores.</p>
+        <p>Foi ali que aprendi, na prática, o que é tirar um negócio do papel: decidir com pouca informação, testar antes de escalar e ajustar a rota com o que o mercado responde. E que aprendizagem só vale quando vira aplicação. É isso que levo para cada sala.</p>
+      </div>
       <p>Como sócio da ACE Ventures, atuei em cultura, desenvolvimento organizacional e parcerias, perto de fundadores e executivos em momentos de crescimento.</p>
       <p>Hoje, como Ventures Lead na Link School of Business, trabalho com educação empreendedora e com o ecossistema de startups, conectando aprendizagem, negócios, mentores e parceiros.</p>
-            <p class="about-close">No caminho, foram mais de 100 startups mentoradas e aceleradas e mais de 100 aulas, palestras e podcasts. Como facilitador do Zero to First, levo essa experiência para empreendedores, equipes e organizações.</p>
+      <p class="about-close">No caminho, foram mais de 100 startups mentoradas e aceleradas e mais de 100 aulas, palestras e podcasts. Como facilitador do Zero to First, levo essa experiência para empreendedores, equipes e organizações.</p>
 
       <div class="orgs">
         <h3>Consultoria de inovação, estratégia e treinamento para</h3>
@@ -781,8 +792,8 @@
         <p>Cerca de 30 minutos para entender o seu desafio. Você não precisa chegar com escopo fechado.</p></details>
       <details><summary>Posso convidar você para uma palestra ou painel?</summary>
         <p>Sim. Conte o evento, o público e o tema, e combinamos o formato.</p></details>
-      <details><summary>Qual a diferença entre o toolkit e trabalhar junto?</summary>
-        <p>O toolkit é para aplicar o método sozinho, no seu ritmo. Nos workshops e na consultoria, aplicamos juntos, adaptado ao seu contexto.</p></details>
+      <details><summary>Qual a diferença entre a Mesa de Trabalho e trabalhar junto?</summary>
+        <p>A Mesa de Trabalho é para aplicar o método sozinho, no seu ritmo. Nos workshops e na consultoria, aplicamos juntos, adaptado ao seu contexto.</p></details>
       <details><summary>Como é definido o investimento em workshops e consultoria?</summary>
         <p>Pelo desafio e pelo escopo. Não há pacotes fechados: a proposta vem depois da conversa.</p></details>
     </div>
@@ -828,7 +839,7 @@
   <div class="container footer-inner">
     <p class="footer-brand">Miguel Nahas<svg class="ast" aria-hidden="true"><use href="#ast"/></svg></p>
     <div class="footer-links">
-      <a href="toolkit/" data-entry-link>Toolkit Zero to First</a>
+      <a href="toolkit/" data-entry-link>Mesa de Trabalho</a>
       <a href="#" data-linkedin hidden>LinkedIn</a>
       <a href="privacidade.html">Privacidade</a>
       <a href="termos.html">Termos</a>
@@ -847,9 +858,9 @@ var CONFIG = {
   // Vazio = a seção de agendamento mostra o contato por e-mail.
   calendlyUrl: "",
 
-  // Produto de entrada (Frente A). O link leva à página do toolkit, que tem o checkout.
-  // Deixe price vazio para esconder o preço.
-  entryProduct: { url: "toolkit/", price: "R$ 27,90", priceNote: "pagamento único" },
+  // Produto de entrada (Frente A): a Mesa de Trabalho, com cadastro gratuito.
+  // Deixe price vazio para esconder o selo de preço.
+  entryProduct: { url: "toolkit/", price: "Gratuito", priceNote: "ferramentas + comunidade" },
 
   email: "miguelsnahas@gmail.com",
 
@@ -876,7 +887,7 @@ var CONFIG = {
   document.documentElement.classList.add("js");
   window.dataLayer = window.dataLayer || [];
 
-  // Origem do tráfego: guarda utm_* da URL para repassar ao Calendly e ao toolkit
+  // Origem do tráfego: guarda utm_* da URL para repassar ao Calendly e à Mesa de Trabalho
   var UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
   var utm = {};
   try {
