@@ -93,7 +93,7 @@
     var parts = parse();
     if (!state.session) return renderAuth(/[?&]email=/.test(location.hash) ? "criar" : "entrar");
     if (parts[0] !== "p" || !parts[1]) return renderProjects();
-    var id = parts[1], tab = parts[2] || "visao", sub = parts[3];
+    var id = parts[1], tab = parts[2] || "mesa", sub = parts[3];
     var ready = state.p && state.p.id === id ? Promise.resolve() : (($app.innerHTML = '<div class="loading">Carregando projeto…</div>'), loadProject(id));
     ready.then(function () { renderProject(tab, sub); }).catch(function (e) { fail(e); go("#/"); });
   }
@@ -191,6 +191,7 @@
 
   /* ================= PROJETO ================= */
   var TABS = [
+    { id: "mesa", name: "Mesa" },
     { id: "visao", name: "Visão geral" },
     { id: "ferramentas", name: "Ferramentas" },
     { id: "artefatos", name: "Artefatos" },
@@ -209,8 +210,8 @@
     $app.innerHTML = topbar('<a href="#/">Projetos</a><span>/</span><strong>' + esc(p.name) + "</strong>") +
       '<div class="proj">' + side + '<main class="main" id="main"></main></div>';
     var main = document.getElementById("main");
-    var views = { visao: viewVisao, ferramentas: viewFerramentas, ferramenta: viewFerramenta, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
-    (views[tab] || viewVisao)(main, sub);
+    var views = { mesa: viewMesa, visao: viewVisao, ferramentas: viewFerramentas, ferramenta: viewFerramenta, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    (views[tab] || viewMesa)(main, sub);
     window.scrollTo(0, 0);
   }
 
@@ -221,6 +222,70 @@
     var a = m.action, href = a.type === "tool" ? "#/p/" + state.p.id + "/ferramenta/" + a.id : a.type === "tab" ? "#/p/" + state.p.id + "/" + a.id : "#/p/" + state.p.id + "/contexto";
     var label = a.type === "tool" ? "Abrir " + TOOL[a.id].name : a.type === "tab" ? "Ir para " + a.id : "Preencher contexto";
     return '<a class="btn btn-accent btn-sm" href="' + href + '">' + esc(label) + " →</a>";
+  }
+
+  /* ---------- Mesa ---------- */
+  var BOARD_COLOR = { hipotese: "#F3D46B", experimento: "#F8D9C6", evidencia: "#DDE4D3", decisao: "#E4DAEE", pergunta: "#FFFDF8" };
+  function tilt(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997; return (h % 11) - 5; }
+  function seenKey() { return "mesa-vista-" + state.p.id; }
+  function readSeen() { try { return JSON.parse(localStorage.getItem(seenKey()) || "null"); } catch (e) { return null; } }
+  function writeSeen(ids) { try { localStorage.setItem(seenKey(), JSON.stringify(ids)); } catch (e) {} }
+  function viewMesa(main) {
+    var p = state.p, ctx = p.context || {}, byTool = {};
+    state.artifacts.forEach(function (a) { if (a.tool_id) (byTool[a.tool_id] = byTool[a.tool_id] || []).push(a); });
+    var done = MESA.DESK_ORDER.filter(function (id) { return byTool[id]; });
+    var ctxFilled = MESA.CONTEXT_FIELDS.filter(function (f) { return (ctx[f.id] || "").trim(); }).length;
+    var life = done.length + (ctxFilled >= 3 ? 1 : 0) + (state.radar.length ? 1 : 0) + (state.board.length ? 1 : 0) + (state.pedidos.length ? 1 : 0);
+    var plant = life === 0 ? 0 : life < 5 ? 1 : life < 12 ? 2 : 3;
+    var dayAgo = Date.now() - 864e5;
+    var warm = state.artifacts.concat(state.board).some(function (x) { return new Date(x.created_at).getTime() > dayAgo; });
+    var seen = readSeen(), fresh = {};
+    if (seen) done.forEach(function (id) { if (seen.indexOf(id) === -1) fresh[id] = true; });
+    var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos)[0];
+    var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
+
+    var zones = MESA.LENSES.map(function (l) {
+      var objs = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).map(function (id) {
+        var t = TOOL[id], n = (byTool[id] || []).length;
+        return '<button class="obj ' + (n ? "is-on" : "is-empty") + (fresh[id] ? " is-new" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
+          '<span class="art">' + MESA.deskArt(id) + '</span><span class="tag">' + esc(t.name) + "</span>" + (n > 1 ? '<span class="badge">' + n + "</span>" : "") + "</button>";
+      }).join("");
+      var n = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).length;
+      return '<section class="zone' + (p.focus === l.id ? " is-focus" : "") + '" style="--n:' + n + '" aria-label="' + l.name + '"><h3>' + l.name + (p.focus === l.id ? " <em>foco</em>" : "") + '</h3><div class="objs">' + objs + "</div></section>";
+    }).join("");
+
+    var notes = state.board.slice(0, 7).map(function (b) {
+      return '<button class="pin" data-act="edit-item" data-id="' + b.id + '" style="--bg:' + BOARD_COLOR[b.kind] + ";--rot:" + tilt(b.id) + 'deg"><small>' + KINDS[b.kind] + '</small><span class="pt">' + esc(b.title) + "</span></button>";
+    }).join("");
+
+    main.innerHTML =
+      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1><p class="small muted">' +
+        (done.length ? done.length + " de " + MESA.DESK_ORDER.length + " objetos na mesa. Cada ferramenta preenchida traz um objeto novo." : "A mesa está vazia. Cada ferramenta que você preencher traz um objeto para cá.") +
+      '</p></div><div class="life" aria-label="Vida da mesa: ' + life + '"><span style="width:' + Math.round(Math.min(life, 24) / 24 * 100) + '%"></span></div></div>' +
+      '<div class="desk' + (state.artifacts.length ? " is-lit" : "") + (life === 0 ? " is-bare" : "") + '">' +
+        '<div class="lamp">' + MESA.deskLamp() + "</div>" +
+        '<div class="mural" aria-label="Quadro do projeto">' + notes + '<button class="pin pin-add" data-act="add-item">+ Hipótese</button><a class="mural-link" href="#/p/' + p.id + '/quadro">Abrir quadro →</a></div>' +
+        '<div class="zones">' + zones + "</div>" +
+        '<div class="front">' +
+          '<a class="notebook' + (ctxFilled ? " is-on" : "") + '" href="#/p/' + p.id + '/contexto"><span class="spiral"></span><span class="page"><small>Caderno do projeto</small><b>' + esc(ctx.ideia || "Escreva aqui a ideia") + "</b>" + (ctx.problema ? "<span>" + esc(ctx.problema) + "</span>" : "<span>" + (ctxFilled ? "" : "Contexto: problema, cliente, segmento…") + "</span>") + "</span></a>" +
+          '<a class="note" href="' + moveHref + '"><small>Próximo movimento</small>' + esc(move.text) + "</a>" +
+          '<a class="prop' + (state.radar.length ? " is-on" : " is-empty") + '" href="#/p/' + p.id + '/radar" title="Radar: buscar sinais">' + MESA.deskLaptop(state.radar.length > 0) + '<span class="tag">Radar' + (state.radar.length ? " · " + state.radar.length : "") + "</span></a>" +
+          '<a class="prop is-on" href="#/p/' + p.id + '/mentoria" title="Mentoria com o Miguel">' + MESA.deskMugs(state.pedidos.length > 0, warm) + '<span class="tag">' + (state.pedidos.length ? "Mentoria pedida" : "Chamar o Miguel") + "</span></a>" +
+          '<span class="prop plant">' + MESA.deskPlant(plant) + "</span>" +
+        "</div>" +
+      "</div>";
+
+    main.querySelectorAll(".obj").forEach(function (el) {
+      el.onclick = function () {
+        var id = el.dataset.tool, t = TOOL[id], list = byTool[id] || [];
+        if (!list.length) return go("#/p/" + p.id + "/ferramenta/" + id);
+        if (list.length === 1) return go("#/p/" + p.id + "/artefato/" + list[0].id);
+        modal('<div class="obj-modal"><span class="art">' + MESA.deskArt(id) + "</span><div><p class=\"label\">" + esc(MESA.DESK_OBJECT[id]) + "</p><h2>" + esc(t.name) + "</h2></div></div>" +
+          '<div class="list" data-close style="margin:16px 0">' + list.map(artifactRow).join("") + "</div>" +
+          '<div class="row"><span class="spacer"></span><button class="btn btn-ghost" data-close>Fechar</button><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + id + '" data-close>Usar de novo</a></div>');
+      };
+    });
+    writeSeen(done);
   }
 
   /* ---------- Visão geral ---------- */
@@ -311,8 +376,9 @@
       e.target.disabled = true;
       sb.from("artifacts").insert({ project_id: p.id, tool_id: t.id, stage: t.lens, title: title, content: content }).select().single().then(function (r) {
         e.target.disabled = false; if (r.error) return fail(r.error);
-        state.artifacts.unshift(r.data); track("artifact_saved", { tool: t.id }); toast("Artefato salvo.");
-        go("#/p/" + p.id + "/artefato/" + r.data.id);
+        state.artifacts.unshift(r.data); track("artifact_saved", { tool: t.id });
+        toast(MESA.DESK_OBJECT[t.id] ? MESA.DESK_OBJECT[t.id] + " na mesa. Clique nele para ver o artefato." : "Artefato salvo.");
+        go("#/p/" + p.id + "/mesa");
       });
     };
   }
