@@ -18,8 +18,8 @@
   1. Cadastro: o formulário da oferta envia nome, e-mail e WhatsApp para o serviço
      configurado em LEADS (no fim do arquivo). Sem serviço configurado, ele abre um
      e-mail pronto para miguelsnahas@gmail.com com os dados preenchidos.
-  2. Analytics: cole aqui o snippet do Google Analytics / Tag Manager / Meta Pixel.
-     Cada clique em CTA dispara o evento "cta_click" com o nome do botão (atributo data-cta).
+  2. Analytics: PostHog em ../assets/analytics.js. Cliques em CTA ("cta_click"),
+     envio e sucesso do cadastro ("lead_submit", "lead_success") são enviados para lá.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap" rel="stylesheet">
@@ -48,6 +48,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 .lead-msg.ok{color:#2F6B3A;font-weight:600}
 .lead-msg.err{color:#A1341A;font-weight:600}
 </style>
+<script src="../assets/analytics.js"></script>
 </head>
 <body>
 <div style="font-family: 'Instrument Sans', system-ui, sans-serif; color: #1D1820; background: #F5F0E8; font-size: 17px; line-height: 1.6">

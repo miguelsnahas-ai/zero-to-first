@@ -25,8 +25,8 @@
 
 <!--
   ANALYTICS
-  Cole aqui o snippet do Google Tag Manager, GA4 ou Meta Pixel quando tiver os IDs.
-  A página já envia para window.dataLayer:
+  PostHog configurado em assets/analytics.js (chave e região ficam lá).
+  A página envia para window.dataLayer, e o analytics.js repassa ao PostHog:
     - "cta_click"           { cta, destination }   em todo clique de botão com data-cta
     - "schedule_completed"  {}                     quando um agendamento é concluído no Calendly
   Os parâmetros utm_* da URL são repassados ao Calendly e ao link da Mesa de Trabalho.
@@ -483,6 +483,7 @@
   "knowsAbout": ["Estratégia", "Empreendedorismo", "Educação empreendedora", "Validação de negócios", "Experimentação", "Facilitação de workshops"]
 }
 </script>
+<script src="assets/analytics.js"></script>
 </head>
 <body>
 <!-- Asterisco reutilizável (a marca) -->
