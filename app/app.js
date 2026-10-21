@@ -103,7 +103,7 @@
   function topbar(crumb) {
     return '<header class="topbar"><a class="brand" href="#/">Mesa de Trabalho' + ast() + '</a>' +
       '<nav class="crumb" aria-label="Você está em">' + (crumb || "") + "</nav><span class=\"spacer\"></span>" +
-      '<a class="btn btn-ghost btn-sm" href="../" title="Site do Miguel">Site</a>' +
+      '<a class="btn btn-ghost btn-sm" href="https://miguelsnahas-ai.github.io/" title="Site do Miguel">Site</a>' +
       '<button class="btn btn-ghost btn-sm" data-act="logout">Sair</button></header>';
   }
 

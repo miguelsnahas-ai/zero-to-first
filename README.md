@@ -1,10 +1,12 @@
-# Miguel Nahas + Zero to First
+# Zero to First · Mesa de Trabalho
 
-Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch `main` (raiz `/`).
+Metodologia Zero to First e Mesa de Trabalho, publicadas no GitHub Pages em `miguelsnahas-ai.github.io/zero-to-first/` a partir da branch `main`.
+
+O site pessoal de Miguel Nahas fica no repositório `miguelsnahas-ai.github.io` (https://miguelsnahas-ai.github.io/).
 
 | Página | Arquivo | O que é |
 | --- | --- | --- |
-| `/` | `index.html` | Página principal: trajetória, método Zero to First, frentes de trabalho e agendamento |
+| `/` | `index.html` | Redireciona para `/toolkit/` |
 | `/toolkit/` | `toolkit/index.html` | Mesa de Trabalho: ferramentas + comunidade, gratuita, com formulário de cadastro |
 | `/app/` | `app/` | Área interna da Mesa de Trabalho: projetos, ferramentas com IA, quadro, radar e mentoria (Supabase) |
 | `/admin/` | `admin/` | Painel de administração (somente contas em `public.admins` no Supabase) |
@@ -12,7 +14,6 @@ Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch 
 
 ## Onde configurar
 
-- **Página principal:** bloco `CONFIG`, no fim de `index.html`. Ali ficam a URL do Calendly, o link e o preço do produto de entrada, o e-mail, o WhatsApp, o LinkedIn, os números e os depoimentos. Campos vazios ficam ocultos na página.
 - **Cadastro da Mesa de Trabalho:** `LEADS`, no fim de `toolkit/index.html` (serviço que recebe nome, e-mail e WhatsApp). Vazio = abre um e-mail pronto.
 - **Analytics:** cole o snippet no `<head>` de cada página. Os cliques nos CTAs já são enviados para `window.dataLayer`.
 
