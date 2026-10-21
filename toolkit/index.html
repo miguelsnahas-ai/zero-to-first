@@ -522,10 +522,14 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 
 </div>
 <script>
-  /* CADASTRO: para onde vão nome, e-mail e WhatsApp.
-     Preencha url e key com o serviço escolhido (ex.: Supabase: url = "https://<projeto>.supabase.co/rest/v1/<tabela>",
-     key = chave publicável). Vazio = abre um e-mail pronto para LEADS.fallbackEmail com os dados. */
-  var LEADS = { url: "", key: "", fallbackEmail: "miguelsnahas@gmail.com" };
+  /* CADASTRO: nome, e-mail e WhatsApp vão para a tabela leads_mesa_trabalho no Supabase.
+     A chave abaixo é pública (publishable): a tabela só aceita inserir, ninguém lê pela página.
+     Os cadastros ficam no painel do Supabase > Table Editor. url vazio = abre um e-mail pronto. */
+  var LEADS = {
+    url: "https://urdgezmqopcvxtaupdgz.supabase.co/rest/v1/leads_mesa_trabalho",
+    key: "sb_publishable_D2Ehp0_ZWu_Gm2UJGitP2A_X01Qs_Xz",
+    fallbackEmail: "miguelsnahas@gmail.com"
+  };
 
   window.dataLayer = window.dataLayer || [];
   (function () {
@@ -563,7 +567,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
       btn.disabled = true; say("Enviando…");
       fetch(LEADS.url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": LEADS.key, "Authorization": "Bearer " + LEADS.key, "Prefer": "return=minimal" },
+        headers: { "Content-Type": "application/json", "apikey": LEADS.key, "Prefer": "return=minimal" },
         body: JSON.stringify(data)
       }).then(function (r) {
         if (!r.ok) throw new Error(r.status);
