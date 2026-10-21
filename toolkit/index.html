@@ -34,6 +34,7 @@ summary{cursor:pointer;list-style:none}
 summary::-webkit-details-marker{display:none}
 details[open] .plus{transform:rotate(45deg)}
 a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3px}
+[hidden]{display:none !important}
 .lead-form{display:flex;flex-direction:column;gap:12px;border-top:1px solid #DCD2C4;padding-top:18px}
 .lead-form label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:#1D1820}
 .lead-form input[type=text],.lead-form input[type=email],.lead-form input[type=tel]{font:inherit;font-weight:400;font-size:16px;min-height:48px;padding:10px 14px;border:1.5px solid #B8AC9C;border-radius:8px;background:#FFFFFF;color:#1D1820}
@@ -311,8 +312,8 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </ul>
 </div>
 
-<!-- Comunidade -->
-<div style="background: #261729; color: #FFFFFF; border-radius: 10px; padding: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; gap: 32px 56px">
+<!-- Comunidade paga: oculta até o lançamento. Para mostrar de novo, remova o atributo hidden abaixo. -->
+<div hidden style="background: #261729; color: #FFFFFF; border-radius: 10px; padding: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; gap: 32px 56px">
 <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
 <span class="mono" style="font-size: 12px; color: #F28A5E">+ COMUNIDADE</span>
 <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(32px, 3.5vw, 42px); line-height: 1; text-transform: uppercase">Você não aplica sozinho</h3>
@@ -346,7 +347,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">1</span><div><strong>Você se cadastra gratuitamente.</strong><p style="margin: 4px 0 0; color: #463E48">Nome, e-mail e WhatsApp, para receber o acesso.</p></div></li>
 <li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">2</span><div><strong>Recebe acesso às ferramentas e aos conteúdos gravados.</strong><p style="margin: 4px 0 0; color: #463E48">Cada ferramenta vem com uma explicação gravada de quando e como aplicar.</p></div></li>
 <li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">3</span><div><strong>Aplica as ferramentas no seu próprio projeto.</strong><p style="margin: 4px 0 0; color: #463E48">No seu ritmo, com o seu problema, gerando os seus entregáveis.</p></div></li>
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4; border-bottom: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">4</span><div><strong>Usa a comunidade para trocar e aprender.</strong><p style="margin: 4px 0 0; color: #463E48">Um espaço complementar para discutir hipóteses e resultados.</p></div></li>
+<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4; border-bottom: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">4</span><div><strong>Pede um olhar de fora quando precisar.</strong><p style="margin: 4px 0 0; color: #463E48">Dentro da área de projetos, você pode pedir uma mentoria com o Miguel.</p></div></li>
 </ol>
 </div>
 <aside style="flex: 1 1 380px; min-width: 0; background: #F5F0E8; border: 1px solid #DCD2C4; border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 16px; align-self: flex-start">
@@ -354,7 +355,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <dl style="margin: 0; display: flex; flex-direction: column; gap: 14px">
 <div><dt style="font-weight: 600">Ferramentas</dt><dd style="margin: 4px 0 0">Os dois módulos, Problem Framing e Launch Track</dd></div>
 <div><dt style="font-weight: 600">Conteúdos gravados</dt><dd style="margin: 4px 0 0">Explicação de como e quando aplicar cada ferramenta</dd></div>
-<div><dt style="font-weight: 600">Comunidade</dt><dd style="margin: 4px 0 0">3 meses com empreendedores e inovadores</dd></div>
+<div><dt style="font-weight: 600">Área de projetos</dt><dd style="margin: 4px 0 0">Prompts com IA, quadro de hipóteses e radar de sinais</dd></div>
 <div><dt style="font-weight: 600">Investimento</dt><dd style="margin: 4px 0 0">Gratuito</dd></div>
 </dl>
 </aside>
@@ -439,12 +440,12 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <div>
 <p class="mono" style="margin: 0; font-size: 12px; color: #B13D16">GRATUITO</p>
 <h3 style="margin: 4px 0 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 36px; line-height: 1; text-transform: uppercase; color: #261729">Mesa de Trabalho</h3>
-<p style="margin: 4px 0 0; font-weight: 600; color: #463E48">Ferramentas + Comunidade</p>
+<p style="margin: 4px 0 0; font-weight: 600; color: #463E48">Ferramentas + área de projetos</p>
 </div>
 <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Problem Framing e Launch Track: 18 ferramentas</li>
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Conteúdos gravados explicando como aplicar cada ferramenta</li>
-<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>3 meses na comunidade de empreendedores e inovadores</li>
+<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Área para organizar projetos, hipóteses e experimentos, com IA</li>
 </ul>
 <form class="lead-form" id="cadastro" novalidate>
 <p class="mono" style="margin: 0; font-size: 12px; color: #463E48">RECEBA O ACESSO</p>
@@ -483,19 +484,19 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">O produto inclui acompanhamento individual?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">A Mesa de Trabalho é um kit de autoaplicação com comunidade. <span class="tbd">[CONFIRMAR SE HAVERÁ ACOMPANHAMENTO INDIVIDUAL OU OFERTA COMPLEMENTAR]</span></p>
+<p style="margin: 0 0 20px; color: #463E48">A Mesa de Trabalho é de autoaplicação. Se quiser um olhar de fora, você pode pedir uma mentoria com o Miguel dentro da área de projetos.</p>
 </details>
-<details style="border-bottom: 1px solid #DCD2C4">
+<details hidden style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como funciona a comunidade?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
 <p style="margin: 0 0 20px; color: #463E48">É um espaço complementar para compartilhar desafios, discutir hipóteses e trocar aprendizados com outras pessoas aplicando as ferramentas. Plataforma: <span class="tbd">[PLATAFORMA]</span> · Formato: <span class="tbd">[FORMATO]</span> · Frequência: <span class="tbd">[FREQUÊNCIA]</span></p>
 </details>
-<details style="border-bottom: 1px solid #DCD2C4">
+<details hidden style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Por quanto tempo terei acesso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
 <p style="margin: 0 0 20px; color: #463E48">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir do cadastro. Ferramentas e conteúdos gravados: <span class="tbd">[PRAZO]</span></p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você cria sua conta e já usa as ferramentas na área da Mesa de Trabalho. O acesso aos conteúdos gravados e à comunidade chega por e-mail e WhatsApp em até 24h. Por isso, informe um e-mail e um número de WhatsApp válidos.</p>
+<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você cria sua conta e já usa as ferramentas na área da Mesa de Trabalho. Os conteúdos gravados chegam por e-mail e WhatsApp em até 24h. Por isso, informe um e-mail e um número de WhatsApp válidos.</p>
 </details>
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
