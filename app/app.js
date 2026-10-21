@@ -251,29 +251,52 @@
           '<span class="art">' + MESA.deskArt(id) + '</span><span class="tag">' + esc(t.name) + "</span>" + (n > 1 ? '<span class="badge">' + n + "</span>" : "") + "</button>";
       }).join("");
       var n = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).length;
-      return '<section class="zone' + (p.focus === l.id ? " is-focus" : "") + '" style="--n:' + n + '" aria-label="' + l.name + '"><h3>' + l.name + (p.focus === l.id ? " <em>foco</em>" : "") + '</h3><div class="objs">' + objs + "</div></section>";
+      return '<section class="zone' + (p.focus === l.id ? " is-focus" : "") + '" style="--n:' + n + '" aria-label="' + l.name + '"><h3 class="hand">' + l.name + MESA.arrow() + (p.focus === l.id ? " <em>foco agora</em>" : "") + '</h3><div class="objs">' + objs + "</div></section>";
     }).join("");
 
     var notes = state.board.slice(0, 7).map(function (b) {
       return '<button class="pin" data-act="edit-item" data-id="' + b.id + '" style="--bg:' + BOARD_COLOR[b.kind] + ";--rot:" + tilt(b.id) + 'deg"><small>' + KINDS[b.kind] + '</small><span class="pt">' + esc(b.title) + "</span></button>";
     }).join("");
 
+    var BOOKS = [["problema", "Problema"], ["persona", "Cliente"], ["mercado", "Mercado"], ["beachhead", "Segmento"], ["solucao", "Solução"], ["modelo", "Receita"]];
+    var books = BOOKS.map(function (b, i) { return '<span class="book' + ((ctx[b[0]] || "").trim() ? " is-on" : "") + '" style="--i:' + i + '">' + b[1] + "</span>"; }).join("");
+    var stageDone = {}; done.forEach(function (id) { var l = TOOL[id].lens; stageDone[l] = (stageDone[l] || 0) + 1; });
+    var steps = MESA.LENSES.map(function (l, i) {
+      var total = MESA.DESK_ORDER.filter(function (id) { return TOOL[id].lens === l.id; }).length, n = stageDone[l.id] || 0;
+      return '<li><button data-act="mesa-focus" data-lens="' + l.id + '"' + (p.focus === l.id ? ' aria-current="step"' : "") + ' title="' + esc(l.q) + '"><span class="dot' + (n ? " has" : "") + (n === total ? " full" : "") + '">' + (i + 1) + "</span><b>" + l.name + "</b><small>" + n + "/" + total + "</small></button></li>";
+    }).join("");
+    var moveIcon = move.action.type === "tool" ? MESA.deskArt(move.action.id) : MESA.bulb();
+    var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Preencher o contexto";
+
     main.innerHTML =
-      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1><p class="small muted">' +
-        (done.length ? done.length + " de " + MESA.DESK_ORDER.length + " objetos na mesa. Cada ferramenta preenchida traz um objeto novo." : "A mesa está vazia. Cada ferramenta que você preencher traz um objeto para cá.") +
-      '</p></div><div class="life" aria-label="Vida da mesa: ' + life + '"><span style="width:' + Math.round(Math.min(life, 24) / 24 * 100) + '%"></span></div></div>' +
-      '<div class="desk' + (state.artifacts.length ? " is-lit" : "") + (life === 0 ? " is-bare" : "") + '">' +
-        '<div class="lamp">' + MESA.deskLamp() + "</div>" +
-        '<div class="mural" aria-label="Quadro do projeto">' + notes + '<button class="pin pin-add" data-act="add-item">+ Hipótese</button><a class="mural-link" href="#/p/' + p.id + '/quadro">Abrir quadro →</a></div>' +
-        '<div class="zones">' + zones + "</div>" +
-        '<div class="front">' +
-          '<a class="notebook' + (ctxFilled ? " is-on" : "") + '" href="#/p/' + p.id + '/contexto"><span class="spiral"></span><span class="page"><small>Caderno do projeto</small><b>' + esc(ctx.ideia || "Escreva aqui a ideia") + "</b>" + (ctx.problema ? "<span>" + esc(ctx.problema) + "</span>" : "<span>" + (ctxFilled ? "" : "Contexto: problema, cliente, segmento…") + "</span>") + "</span></a>" +
-          '<a class="note" href="' + moveHref + '"><small>Próximo movimento</small>' + esc(move.text) + "</a>" +
-          '<a class="prop' + (state.radar.length ? " is-on" : " is-empty") + '" href="#/p/' + p.id + '/radar" title="Radar: buscar sinais">' + MESA.deskLaptop(state.radar.length > 0) + '<span class="tag">Radar' + (state.radar.length ? " · " + state.radar.length : "") + "</span></a>" +
-          '<a class="prop is-on" href="#/p/' + p.id + '/mentoria" title="Mentoria com o Miguel">' + MESA.deskMugs(state.pedidos.length > 0, warm) + '<span class="tag">' + (state.pedidos.length ? "Mentoria pedida" : "Chamar o Miguel") + "</span></a>" +
-          '<span class="prop plant">' + MESA.deskPlant(plant) + "</span>" +
+      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div>' +
+        '<ol class="msteps" aria-label="Etapas do método">' + steps + "</ol></div>" +
+      '<div class="scene' + (state.artifacts.length ? " is-lit" : "") + '">' +
+        '<div class="wall">' +
+          '<div class="window">' + MESA.sceneWindow() + "</div>" +
+          '<div class="wall-plant">' + MESA.scenePlant() + "</div>" +
+          '<div class="wall-mid"><p class="hand slogan">Uma decisão por vez.</p>' +
+          '<div class="mural" aria-label="Quadro do projeto">' + notes + '<button class="pin pin-add" data-act="add-item">+ Hipótese</button><a class="mural-link" href="#/p/' + p.id + '/quadro">Abrir quadro →</a></div></div>' +
+          '<aside class="next-card"><a class="nc-head" href="' + moveHref + '">Próximo passo <span aria-hidden="true">→</span></a>' +
+            '<div class="nc-box"><span class="nc-icon">' + moveIcon + "</span><b>" + esc(move.text) + "</b></div>" +
+            '<p class="small muted">' + (done.length ? done.length + " de " + MESA.DESK_ORDER.length + " objetos na mesa." : "A mesa começa vazia. Cada atividade preenchida traz um objeto.") + '</p>' +
+            '<div class="life" aria-label="Vida da mesa"><span style="width:' + Math.round(Math.min(life, 24) / 24 * 100) + '%"></span></div>' +
+            '<a class="btn btn-primary btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></aside>" +
         "</div>" +
+        '<div class="tabletop">' +
+          '<div class="zones">' + zones + "</div>" +
+          '<div class="front">' +
+            '<span class="prop lamp">' + MESA.deskLamp() + "</span>" +
+            '<a class="stack" href="#/p/' + p.id + '/contexto" title="Contexto do projeto"><span class="books">' + books + '</span><span class="cup">' + MESA.pencup() + "</span></a>" +
+            '<a class="notebook' + (ctxFilled ? " is-on" : "") + '" href="#/p/' + p.id + '/contexto"><span class="spiral"></span><span class="page"><small>Caderno do projeto</small><b>' + esc(ctx.ideia || "Escreva aqui a ideia") + "</b>" + (ctx.problema ? "<span>" + esc(ctx.problema) + "</span>" : "<span>" + (ctxFilled ? "" : "Contexto: problema, cliente, segmento…") + "</span>") + "</span></a>" +
+            '<a class="prop' + (state.radar.length ? " is-on" : " is-empty") + '" href="#/p/' + p.id + '/radar" title="Radar: buscar sinais">' + MESA.deskLaptop(state.radar.length > 0) + '<span class="tag">Radar' + (state.radar.length ? " · " + state.radar.length : "") + "</span></a>" +
+            '<a class="prop" href="#/p/' + p.id + '/mentoria" title="Mentoria com o Miguel">' + MESA.deskMugs(state.pedidos.length > 0, warm) + '<span class="tag">' + (state.pedidos.length ? "Mentoria pedida" : "Chamar o Miguel") + "</span></a>" +
+            '<span class="prop plant">' + MESA.deskPlant(plant) + "</span>" +
+          "</div>" +
+        "</div>" +
+        '<div class="chair">' + MESA.chair() + "</div>" +
       "</div>";
+    main.querySelectorAll("[data-act=mesa-focus]").forEach(function (b) { b.onclick = function () { setFocus(b.dataset.lens); viewMesa(main); }; });
 
     main.querySelectorAll(".obj").forEach(function (el) {
       el.onclick = function () {

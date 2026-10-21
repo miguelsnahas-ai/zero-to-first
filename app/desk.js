@@ -68,6 +68,38 @@ window.MESA = window.MESA || {};
   MESA.deskArt = function (id) { return ART[id] || ""; };
 
   // Objetos de apoio: caderno (contexto), notebook (radar), canecas (mentoria), luminária e planta (vida da mesa)
+
+  // Cena: janela, planta grande, porta-lápis, cadeira, seta desenhada à mão
+  MESA.sceneWindow = function () {
+    return '<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BFD9EE"/><stop offset="1" stop-color="#E8F1F7"/></linearGradient></defs>' +
+      '<rect width="300" height="200" fill="url(#sky)"/>' +
+      '<g fill="#9DB9D3" opacity=".85"><rect x="20" y="70" width="34" height="130"/><rect x="60" y="40" width="26" height="160"/><rect x="92" y="90" width="40" height="110"/><rect x="190" y="56" width="30" height="144"/><rect x="226" y="100" width="44" height="100"/></g>' +
+      '<g fill="#B9D0E3"><rect x="140" y="110" width="44" height="90"/><rect x="270" y="80" width="30" height="120"/></g>' +
+      '<path d="M0 176c30-14 60-6 90-12s70-16 110-6 70 4 100-4V200H0Z" fill="#9CC487"/><path d="M0 188c40-8 80 0 130-6s100-10 170-2V200H0Z" fill="#7FA36B"/>' +
+      '<rect x="0" y="0" width="300" height="200" fill="none" stroke="#FFFDF8" stroke-width="14"/><path d="M150 0V200M0 100H300" stroke="#FFFDF8" stroke-width="8"/></svg>';
+  };
+  MESA.scenePlant = function () {
+    var leaf = function (d, f) { return '<path d="' + d + '" fill="' + f + '" stroke="' + K + '" stroke-width="2" stroke-linejoin="round"/>'; };
+    return '<svg viewBox="0 0 140 200" aria-hidden="true">' +
+      leaf("M70 150C40 130 18 96 22 58C52 70 70 110 70 150Z", "#4E7A3E") + leaf("M70 150C64 110 70 60 98 30C112 70 96 120 70 150Z", "#7FA36B") +
+      leaf("M70 150C90 120 118 104 134 108C126 138 98 152 70 150Z", "#5E8C4A") + leaf("M70 150C50 140 20 140 6 150C24 168 52 166 70 150Z", "#8DB577") + leaf("M70 150C66 120 46 96 40 20C70 40 80 100 70 150Z", "#6B9A57") +
+      '<path d="M44 150H96L90 196H50Z" fill="#FFFDF8" stroke="' + K + '" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  };
+  MESA.pencup = function () {
+    return svg(ln(50, 50, 44, 14, 6, "#3B6FD8") + ln(60, 50, 62, 10, 6, K) + ln(70, 50, 78, 16, 6, Y) + ln(56, 50, 52, 20, 5, O) + s("M38 46H82L78 90H42Z", W) +
+      c(52, 66, 1.8, K, ' stroke-width="0"') + c(68, 66, 1.8, K, ' stroke-width="0"') + s("M52 74c4 5 12 5 16 0", "none", ' stroke-width="2"'));
+  };
+  MESA.chair = function () {
+    return '<svg viewBox="0 0 360 120" aria-hidden="true"><path d="M30 40C30 18 60 8 180 8S330 18 330 40V120H30Z" fill="' + Y + '" stroke="' + K + '" stroke-width="3"/>' +
+      '<path d="M48 44C60 30 110 24 180 24S300 30 312 44" fill="none" stroke="#FFFDF8" stroke-width="5" stroke-linecap="round" opacity=".55"/>' +
+      '<rect x="98" y="56" width="16" height="64" rx="8" fill="' + K + '"/><rect x="246" y="56" width="16" height="64" rx="8" fill="' + K + '"/></svg>';
+  };
+  MESA.arrow = function () {
+    return '<svg class="arrow" viewBox="0 0 40 30" aria-hidden="true"><path d="M4 4C10 18 20 24 34 24M27 17l7 7-8 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  };
+  MESA.bulb = function () {
+    return '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6a10 10 0 0 0-6 18c2 2 2 4 2 6h8c0-2 0-4 2-6a10 10 0 0 0-6-18z" fill="#FFFDF8" stroke="' + K + '" stroke-width="2.2" stroke-linejoin="round"/><path d="M16 34h8M20 2v-1M6 8l-2-2M34 8l2-2M3 20H1M37 20h2" stroke="' + K + '" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  };
   MESA.deskLaptop = function (on) {
     return svg(s("M18 70H102L110 84H10Z", "#C9C3CB") + r(24, 14, 72, 56, 4, P) + r(30, 20, 60, 44, 2, on ? W : "#3A2C3D") +
       (on ? r(36, 26, 48, 9, 4.5, W, ' stroke-width="1.6"') + c(42, 30.5, 2.5, "none", ' stroke-width="1.4"') + ln(44, 32.5, 46, 34.5, 1.4) + ln(38, 42, 80, 42, 2, O) + ln(38, 49, 74, 49, 1.8, K, ' opacity=".4"') + ln(38, 56, 78, 56, 1.8, K, ' opacity=".4"') : ""));
