@@ -6,6 +6,7 @@ Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch 
 | --- | --- | --- |
 | `/` | `index.html` | Página principal: trajetória, método Zero to First, frentes de trabalho e agendamento |
 | `/toolkit/` | `toolkit/index.html` | Mesa de Trabalho: ferramentas + comunidade, gratuita, com formulário de cadastro |
+| `/app/` | `app/` | Área interna da Mesa de Trabalho: projetos, ferramentas com IA, quadro, radar e mentoria (Supabase) |
 | `/privacidade.html`, `/termos.html` | | Política de privacidade e termos de uso do toolkit |
 
 ## Onde configurar
@@ -17,3 +18,10 @@ Site profissional de Miguel Nahas, publicado no GitHub Pages a partir da branch 
 ## Identidade visual
 
 Guia de cores, tipografia, fotos e voz em [`BRAND.md`](BRAND.md).
+
+## Área interna (`/app/`)
+
+- `app/tools.js`: catálogo de ferramentas e montagem dos prompts. Para editar ou criar uma ferramenta, mexa em `MESA.TOOLS`.
+- `app/radar.js`: curadoria do radar (`MESA.RADAR_LIBRARY`), regras de próximos movimentos e leitura dos sinais colados.
+- `app/app.js`: aplicação (login, projetos, telas). Configuração no topo: Supabase e link de agendamento da mentoria (`mentoriaUrl`).
+- Banco (Supabase): `projects`, `artifacts`, `board_items`, `radar_items` e `mentoria_pedidos`. Cada pessoa só acessa os próprios dados (RLS). Os pedidos de mentoria aparecem no painel do Supabase.

@@ -65,6 +65,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <a href="#conteudo" style="color: #D9CDD6; text-decoration: none">Conteúdo</a>
 <a href="#sobre" style="color: #D9CDD6; text-decoration: none">Sobre</a>
 <a href="#faq" style="color: #D9CDD6; text-decoration: none">FAQ</a>
+<a href="../app/" data-cta="nav_login" style="color: #D9CDD6; text-decoration: none">Entrar</a>
 <a href="#oferta" data-cta="nav_offer" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1.5px solid #E0592A; color: #F28A5E; text-decoration: none; border-radius: 6px; font-weight: 600">Acessar</a>
 </div>
 </nav>
@@ -494,7 +495,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você recebe por e-mail e WhatsApp, em até 24h, o acesso às ferramentas, aos conteúdos gravados e à comunidade. Por isso, informe um e-mail e um número de WhatsApp válidos.</p>
+<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você cria sua conta e já usa as ferramentas na área da Mesa de Trabalho. O acesso aos conteúdos gravados e à comunidade chega por e-mail e WhatsApp em até 24h. Por isso, informe um e-mail e um número de WhatsApp válidos.</p>
 </details>
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
@@ -568,7 +569,13 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
       }).then(function (r) {
         if (!r.ok) throw new Error(r.status);
         form.reset();
-        say("Pronto! Você vai receber o acesso por e-mail e WhatsApp em até 24h.", "ok");
+        say("Pronto! Agora crie sua conta e comece a usar a Mesa de Trabalho.", "ok");
+        var go = document.createElement("a");
+        go.href = "../app/#/?email=" + encodeURIComponent(data.email);
+        go.textContent = "Criar minha conta →";
+        go.setAttribute("data-cta", "lead_to_app");
+        go.style.cssText = "display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:6px;background:#261729;color:#FFFFFF;text-decoration:none;font-weight:600";
+        msg.insertAdjacentElement("afterend", go);
         window.dataLayer.push({ event: "lead_success", form: "mesa_de_trabalho" });
       }).catch(function () {
         say("Não conseguimos enviar agora. Tente de novo ou escreva para " + LEADS.fallbackEmail + ".", "err");
