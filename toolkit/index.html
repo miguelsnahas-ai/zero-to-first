@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Zero to First: Toolkit + Comunidade | Miguel Nahas</title>
-<meta name="description" content="Toolkit prático para empreendedores e líderes de projetos inovadores investigarem problemas reais, validarem hipóteses e estruturarem os primeiros experimentos. Por Miguel Nahas.">
+<title>Mesa de Trabalho: ferramentas gratuitas para tirar ideias do papel | Miguel Nahas</title>
+<meta name="description" content="Ferramentas práticas e gratuitas para empreendedores e líderes de projetos inovadores investigarem problemas reais, testarem hipóteses e estruturarem os primeiros experimentos. Com Miguel Nahas.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Zero to First: Toolkit + Comunidade">
-<meta property="og:description" content="Toolkit prático para empreendedores e líderes de projetos inovadores investigarem problemas reais, validarem hipóteses e estruturarem os primeiros experimentos. Por Miguel Nahas.">
+<meta property="og:title" content="Mesa de Trabalho · gratuita">
+<meta property="og:description" content="Ferramentas práticas e gratuitas para empreendedores e líderes de projetos inovadores investigarem problemas reais, testarem hipóteses e estruturarem os primeiros experimentos. Com Miguel Nahas.">
 <meta property="og:image" content="https://miguelsnahas-ai.github.io/zero-to-first/assets/miguel-nahas.jpg">
 <link rel="canonical" href="https://miguelsnahas-ai.github.io/zero-to-first/toolkit/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#261729">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23261729'/%3E%3Cpath d='M8 16h16M18 10l6 6-6 6' stroke='%23E0592A' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23261729'/%3E%3Cpath d='M16 6v20M7.3 11l17.4 10M7.3 21l17.4-10' stroke='%23E0592A' stroke-width='3.6' stroke-linecap='round'/%3E%3C/svg%3E">
 <!--
   CONFIGURAÇÃO
-  1. Link do checkout: cole o endereço do Stripe em CHECKOUT_URL (no fim do arquivo).
-     Enquanto estiver vazio, o botão da oferta só rola até a seção de oferta.
+  1. Cadastro: o formulário da oferta envia nome, e-mail e WhatsApp para o serviço
+     configurado em LEADS (no fim do arquivo). Sem serviço configurado, ele abre um
+     e-mail pronto para miguelsnahas@gmail.com com os dados preenchidos.
   2. Analytics: cole aqui o snippet do Google Analytics / Tag Manager / Meta Pixel.
      Cada clique em CTA dispara o evento "cta_click" com o nome do botão (atributo data-cta).
 -->
@@ -33,6 +34,19 @@ summary{cursor:pointer;list-style:none}
 summary::-webkit-details-marker{display:none}
 details[open] .plus{transform:rotate(45deg)}
 a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3px}
+.lead-form{display:flex;flex-direction:column;gap:12px;border-top:1px solid #DCD2C4;padding-top:18px}
+.lead-form label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:#1D1820}
+.lead-form input[type=text],.lead-form input[type=email],.lead-form input[type=tel]{font:inherit;font-weight:400;font-size:16px;min-height:48px;padding:10px 14px;border:1.5px solid #B8AC9C;border-radius:8px;background:#FFFFFF;color:#1D1820}
+.lead-form input:focus-visible{outline:3px solid #E0592A;outline-offset:1px;border-color:#261729}
+.lead-form .lead-consent{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:13.5px;color:#463E48;line-height:1.45}
+.lead-form .lead-consent input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:#B13D16}
+.lead-form button{font:inherit;font-weight:600;font-size:18px;min-height:56px;border:0;border-radius:6px;background:#E0592A;color:#261729;cursor:pointer}
+.lead-form button:hover{background:#EA6D41}
+.lead-form button[disabled]{opacity:.6;cursor:progress}
+.lead-form [aria-invalid=true]{border-color:#A1341A !important}
+.lead-msg{margin:0;font-size:14.5px;line-height:1.45;color:#463E48}
+.lead-msg.ok{color:#2F6B3A;font-weight:600}
+.lead-msg.err{color:#A1341A;font-weight:600}
 </style>
 </head>
 <body>
@@ -42,11 +56,8 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <header style="background: #261729; color: #FFFFFF; border-bottom: 1px solid #4D3A52">
 <nav aria-label="Principal" style="max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
 <a href="#topo" style="text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 10px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; letter-spacing: 0.02em; line-height: 1">ZERO</span>
-<span aria-hidden="true" style="display: inline-flex; width: 28px; height: 28px; border-radius: 50%; background: #E0592A; color: #261729; align-items: center; justify-content: center; font-weight: 700">
-<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg>
-</span>
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; letter-spacing: 0.02em; line-height: 1">FIRST</span>
+<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; letter-spacing: 0.02em; line-height: 1">MESA DE TRABALHO</span>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" style="margin-top: -10px"><path d="M10 1.5v17M2.64 5.75l14.72 8.5M2.64 14.25l14.72-8.5" stroke="#E0592A" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg>
 </a>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; font-size: 15px">
 <a href="#problema" style="color: #D9CDD6; text-decoration: none">O problema</a>
@@ -63,9 +74,9 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <section id="topo" style="background: #261729; color: #FFFFFF">
 <div style="max-width: 1200px; margin: 0 auto; padding: 72px 24px 96px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
 <div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #F28A5E">Para empreendedores e líderes de projetos inovadores</p>
+<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #F28A5E">Gratuito · Para empreendedores e líderes de projetos inovadores</p>
 <h1 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(44px, 6vw, 76px); line-height: 0.98; letter-spacing: -0.01em; text-transform: uppercase">Você não precisa de mais uma ideia. <span style="color: #F28A5E">Precisa descobrir qual vale a pena construir.</span></h1>
-<p style="margin: 0; font-size: 19px; line-height: 1.6; color: #E6DCE4; max-width: 560px">Um toolkit prático para empreendedores e líderes de projetos inovadores saírem do achismo, investigarem problemas reais, testarem hipóteses e transformarem oportunidades em negócios, com ferramentas que ajudam a decidir o próximo passo.</p>
+<p style="margin: 0; font-size: 19px; line-height: 1.6; color: #E6DCE4; max-width: 560px">A Mesa de Trabalho é um kit gratuito de ferramentas, baseado no método Zero to First, para empreendedores e líderes de projetos inovadores saírem do achismo, investigarem problemas reais, testarem hipóteses e transformarem oportunidades em negócios, com ferramentas que ajudam a decidir o próximo passo.</p>
 <div style="display: flex; flex-wrap: wrap; gap: 10px">
 <div style="flex: 1 1 220px; display: flex; gap: 12px; align-items: flex-start; background: #352338; border: 1px solid #4D3A52; border-radius: 8px; padding: 14px 16px">
 <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E0592A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"></path></svg>
@@ -77,14 +88,14 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </div>
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
-<a href="#oferta" data-cta="hero_primary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #E0592A; color: #261729; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 17px">Quero começar pelo Zero to First</a>
+<a href="#oferta" data-cta="hero_primary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #E0592A; color: #261729; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 17px">Quero a Mesa de Trabalho</a>
 <a href="#conteudo" data-cta="hero_secondary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border: 1.5px solid #6B5670; color: #FFFFFF; text-decoration: none; font-weight: 500; border-radius: 6px; font-size: 17px">Veja o que vou aprender</a>
 </div>
-<p style="margin: 0; padding-top: 8px; border-top: 1px solid #4D3A52; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-size: 22px; font-weight: 600; letter-spacing: 0.02em; color: #FFFFFF; text-transform: uppercase">Pare de apostar em ideias. <span style="color: #F28A5E">Comece a construir com evidências.</span></p>
+<p style="margin: 0; padding-top: 8px; border-top: 1px solid #4D3A52; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-size: 22px; font-weight: 600; letter-spacing: 0.02em; color: #FFFFFF; text-transform: uppercase">Pare de adivinhar. <span style="color: #F28A5E">Comece a testar.</span></p>
 </div>
 
-<!-- Hero visual: toolkit board -->
-<div role="img" aria-label="Ilustração do toolkit: matriz CSD, matriz de importância versus satisfação, uma hipótese e um experimento com critério de saída" style="flex: 1 1 500px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; background: #352338; border: 1px solid #4D3A52; border-radius: 12px; padding: 18px">
+<!-- Hero visual: quadro de ferramentas -->
+<div role="img" aria-label="Ilustração das ferramentas: matriz CSD, matriz de importância versus satisfação, uma hipótese e um experimento com critério de saída" style="flex: 1 1 500px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; background: #352338; border: 1px solid #4D3A52; border-radius: 12px; padding: 18px">
 
 <div style="grid-column: 1 / -1; background: #FFFFFF; color: #1D1820; border-radius: 8px; padding: 14px 16px">
 <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px">
@@ -304,7 +315,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
 <span class="mono" style="font-size: 12px; color: #F28A5E">+ COMUNIDADE</span>
 <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(32px, 3.5vw, 42px); line-height: 1; text-transform: uppercase">Você não aplica sozinho</h3>
-<p style="margin: 0; color: #E6DCE4">Uma comunidade de empreendedores e inovadores colocando as ferramentas em prática nos próprios projetos. Três meses de acesso incluídos na compra.</p>
+<p style="margin: 0; color: #E6DCE4">Uma comunidade de empreendedores e inovadores colocando as ferramentas em prática nos próprios projetos. Três meses de acesso incluídos, sem custo.</p>
 <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #F28A5E; font-weight: 700">→</span>Compartilhar desafios e aprendizados</li>
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #F28A5E; font-weight: 700">→</span>Trocar experiências com outras pessoas desenvolvendo projetos</li>
@@ -331,19 +342,19 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Simples assim</h2>
 </div>
 <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0">
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">1</span><div><strong>Você adquire o toolkit.</strong><p style="margin: 4px 0 0; color: #463E48">Pagamento feito em um checkout externo e seguro.</p></div></li>
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">2</span><div><strong>Recebe acesso ao toolkit e aos conteúdos gravados.</strong><p style="margin: 4px 0 0; color: #463E48">Cada ferramenta vem com uma explicação gravada de quando e como aplicar.</p></div></li>
+<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">1</span><div><strong>Você se cadastra gratuitamente.</strong><p style="margin: 4px 0 0; color: #463E48">Nome, e-mail e WhatsApp, para receber o acesso.</p></div></li>
+<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">2</span><div><strong>Recebe acesso às ferramentas e aos conteúdos gravados.</strong><p style="margin: 4px 0 0; color: #463E48">Cada ferramenta vem com uma explicação gravada de quando e como aplicar.</p></div></li>
 <li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">3</span><div><strong>Aplica as ferramentas no seu próprio projeto.</strong><p style="margin: 4px 0 0; color: #463E48">No seu ritmo, com o seu problema, gerando os seus entregáveis.</p></div></li>
 <li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4; border-bottom: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">4</span><div><strong>Usa a comunidade para trocar e aprender.</strong><p style="margin: 4px 0 0; color: #463E48">Um espaço complementar para discutir hipóteses e resultados.</p></div></li>
 </ol>
 </div>
 <aside style="flex: 1 1 380px; min-width: 0; background: #F5F0E8; border: 1px solid #DCD2C4; border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 16px; align-self: flex-start">
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; text-transform: uppercase; color: #261729">O que você recebe na compra</h3>
+<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; text-transform: uppercase; color: #261729">O que você recebe</h3>
 <dl style="margin: 0; display: flex; flex-direction: column; gap: 14px">
-<div><dt style="font-weight: 600">Toolkit de ferramentas</dt><dd style="margin: 4px 0 0">Os dois módulos, Problem Framing e Launch Track</dd></div>
+<div><dt style="font-weight: 600">Ferramentas</dt><dd style="margin: 4px 0 0">Os dois módulos, Problem Framing e Launch Track</dd></div>
 <div><dt style="font-weight: 600">Conteúdos gravados</dt><dd style="margin: 4px 0 0">Explicação de como e quando aplicar cada ferramenta</dd></div>
 <div><dt style="font-weight: 600">Comunidade</dt><dd style="margin: 4px 0 0">3 meses com empreendedores e inovadores</dd></div>
-<div><dt style="font-weight: 600">Investimento</dt><dd style="margin: 4px 0 0">R$ 27,90, com 7 dias para reembolso</dd></div>
+<div><dt style="font-weight: 600">Investimento</dt><dd style="margin: 4px 0 0">Gratuito</dd></div>
 </dl>
 </aside>
 </div>
@@ -419,33 +430,35 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
 <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
 <p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #F28A5E">07 · Acesso</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 0.98; text-transform: uppercase">Pare de apostar em ideias. <span style="color: #F28A5E">Comece a construir com evidências.</span></h2>
+<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 0.98; text-transform: uppercase">Pare de adivinhar. <span style="color: #F28A5E">Comece a testar.</span></h2>
 <p style="margin: 0; color: #E6DCE4; max-width: 520px">Investigue problemas reais, valide suas hipóteses e estruture os primeiros experimentos do seu negócio ou projeto antes de construir uma solução que ninguém pediu.</p>
 </div>
 <div style="flex: 1 1 440px; min-width: 0; background: #FFFFFF; color: #1D1820; border-radius: 12px; overflow: hidden; border-top: 6px solid #E0592A">
 <div style="padding: 32px; display: flex; flex-direction: column; gap: 20px">
 <div>
-<p class="mono" style="margin: 0; font-size: 12px; color: #463E48">PRODUTO DIGITAL</p>
-<h3 style="margin: 4px 0 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 36px; line-height: 1; text-transform: uppercase; color: #261729">Zero to First</h3>
-<p style="margin: 4px 0 0; font-weight: 600; color: #463E48">Toolkit + Comunidade</p>
+<p class="mono" style="margin: 0; font-size: 12px; color: #B13D16">GRATUITO</p>
+<h3 style="margin: 4px 0 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 36px; line-height: 1; text-transform: uppercase; color: #261729">Mesa de Trabalho</h3>
+<p style="margin: 4px 0 0; font-weight: 600; color: #463E48">Ferramentas + Comunidade</p>
 </div>
 <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
-<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Toolkit completo: Problem Framing e Launch Track, 18 ferramentas</li>
+<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Problem Framing e Launch Track: 18 ferramentas</li>
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Conteúdos gravados explicando como aplicar cada ferramenta</li>
 <li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>3 meses na comunidade de empreendedores e inovadores</li>
 </ul>
-<div style="border-top: 1px solid #DCD2C4; padding-top: 18px; display: flex; flex-direction: column; gap: 6px">
-<span class="mono" style="font-size: 12px; color: #463E48">INVESTIMENTO</span>
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 64px; line-height: 1; color: #261729"><span style="font-size: 28px; vertical-align: 0.9em; margin-right: 4px">R$</span>27,90</span>
-<span style="font-size: 15px; color: #463E48">Pagamento único</span>
-</div>
-<a href="#oferta" data-checkout data-cta="offer_checkout" rel="noopener" style="display: flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 24px; background: #E0592A; color: #261729; text-decoration: none; font-weight: 600; font-size: 18px; border-radius: 6px; text-align: center">Quero acessar o Zero to First</a>
+<form class="lead-form" id="cadastro" novalidate>
+<p class="mono" style="margin: 0; font-size: 12px; color: #463E48">RECEBA O ACESSO</p>
+<label>Nome<input name="nome" type="text" autocomplete="name" required></label>
+<label>E-mail<input name="email" type="email" autocomplete="email" required></label>
+<label>WhatsApp<input name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 90000-0000" required></label>
+<label class="lead-consent"><input name="consentimento" type="checkbox" required><span>Aceito receber o material e conteúdos relacionados, conforme a <a href="../privacidade.html">política de privacidade</a>.</span></label>
+<button type="submit" data-cta="offer_signup">Quero a Mesa de Trabalho</button>
+<p class="lead-msg" role="status" aria-live="polite"></p>
+</form>
 <dl style="margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #463E48">
 <div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #1D1820">Comunidade:</dt><dd style="margin: 0">3 meses de acesso</dd></div>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #1D1820">Toolkit e conteúdos:</dt><dd style="margin: 0"><span class="tbd">[PRAZO]</span></dd></div>
-<div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #1D1820">Reembolso:</dt><dd style="margin: 0">7 dias após a compra</dd></div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px 8px"><dt style="font-weight: 600; color: #1D1820">Ferramentas e conteúdos:</dt><dd style="margin: 0"><span class="tbd">[PRAZO]</span></dd></div>
 </dl>
-<p style="margin: 0; font-size: 13px; color: #463E48">O pagamento é concluído em um checkout externo. Esta página não coleta dados de cartão.</p>
+<p style="margin: 0; font-size: 13px; color: #463E48">Sem custo e sem cartão. Você pode pedir a exclusão dos seus dados a qualquer momento.</p>
 </div>
 </div>
 </div>
@@ -461,10 +474,10 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <div style="display: flex; flex-direction: column; border-top: 2px solid #261729">
 <details style="border-bottom: 1px solid #DCD2C4; padding: 0">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Preciso já ter um negócio?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Não. O toolkit começa antes da solução: serve para quem tem uma ideia, um território de interesse ou um projeto em estágio inicial e quer descobrir se o problema vale a pena.</p>
+<p style="margin: 0 0 20px; color: #463E48">Não. A Mesa de Trabalho começa antes da solução: serve para quem tem uma ideia, um território de interesse ou um projeto em estágio inicial e quer descobrir se o problema vale a pena.</p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">O toolkit serve para projetos de inovação dentro de empresas?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
+<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">A Mesa de Trabalho serve para projetos de inovação dentro de empresas?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
 <p style="margin: 0 0 20px; color: #463E48">Sim. As ferramentas valem para qualquer iniciativa nova que precise transformar um problema em hipóteses e experimentos antes de pedir mais investimento. Ele foi pensado tanto para empreendedores quanto para líderes de projetos inovadores dentro de empresas.</p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
@@ -473,27 +486,23 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">O produto inclui acompanhamento individual?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">O Zero to First é um toolkit de autoaplicação com comunidade. <span class="tbd">[CONFIRMAR SE HAVERÁ ACOMPANHAMENTO INDIVIDUAL OU OFERTA COMPLEMENTAR]</span></p>
+<p style="margin: 0 0 20px; color: #463E48">A Mesa de Trabalho é um kit de autoaplicação com comunidade. <span class="tbd">[CONFIRMAR SE HAVERÁ ACOMPANHAMENTO INDIVIDUAL OU OFERTA COMPLEMENTAR]</span></p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como funciona a comunidade?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">É um espaço complementar para compartilhar desafios, discutir hipóteses e trocar aprendizados com outras pessoas aplicando o toolkit. Plataforma: <span class="tbd">[PLATAFORMA]</span> · Formato: <span class="tbd">[FORMATO]</span> · Frequência: <span class="tbd">[FREQUÊNCIA]</span></p>
+<p style="margin: 0 0 20px; color: #463E48">É um espaço complementar para compartilhar desafios, discutir hipóteses e trocar aprendizados com outras pessoas aplicando as ferramentas. Plataforma: <span class="tbd">[PLATAFORMA]</span> · Formato: <span class="tbd">[FORMATO]</span> · Frequência: <span class="tbd">[FREQUÊNCIA]</span></p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Por quanto tempo terei acesso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir da compra. Toolkit e conteúdos gravados: <span class="tbd">[PRAZO]</span></p>
+<p style="margin: 0 0 20px; color: #463E48">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir do cadastro. Ferramentas e conteúdos gravados: <span class="tbd">[PRAZO]</span></p>
 </details>
 <details style="border-bottom: 1px solid #DCD2C4">
 <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Após a confirmação do pagamento, você recebe por e-mail e WhatsApp, em até 24h, o acesso ao toolkit, aos conteúdos gravados e à comunidade. Por isso, no checkout, informe um e-mail e um número de WhatsApp válidos.</p>
-</details>
-<details style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Quais são as condições de reembolso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Você tem 7 dias a partir da compra para pedir o reembolso integral, sem precisar justificar.</p>
+<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você recebe por e-mail e WhatsApp, em até 24h, o acesso às ferramentas, aos conteúdos gravados e à comunidade. Por isso, informe um e-mail e um número de WhatsApp válidos.</p>
 </details>
 </div>
 <div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
-<a href="#oferta" data-cta="faq_offer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #261729; color: #FFFFFF; text-decoration: none; font-weight: 600; border-radius: 6px">Quero começar pelo Zero to First</a>
+<a href="#oferta" data-cta="faq_offer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #261729; color: #FFFFFF; text-decoration: none; font-weight: 600; border-radius: 6px">Quero a Mesa de Trabalho</a>
 <span style="color: #463E48; font-size: 15px">Outra dúvida? <a href="mailto:miguelsnahas@gmail.com">miguelsnahas@gmail.com</a></span>
 </div>
 </div>
@@ -502,7 +511,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <!-- FOOTER -->
 <footer style="background: #261729; color: #D9CDD6; border-top: 1px solid #4D3A52">
 <div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; font-size: 14px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 20px; color: #FFFFFF; letter-spacing: 0.02em">ZERO TO FIRST</span>
+<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 20px; color: #FFFFFF; letter-spacing: 0.02em">MESA DE TRABALHO</span>
 <span>© 2026 <a href="../" style="color: #D9CDD6">Miguel Nahas</a></span>
 <div style="display: flex; flex-wrap: wrap; gap: 8px 20px">
 <a href="../privacidade.html" style="color: #D9CDD6">Política de privacidade</a>
@@ -513,16 +522,68 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 
 </div>
 <script>
-  var CHECKOUT_URL = "https://buy.stripe.com/test_6oU8wQ8xv0nbbMj70m73G00"; // LINK DE TESTE: trocar pelo link de produção antes do lançamento
-  document.querySelectorAll("[data-checkout]").forEach(function (a) {
-    if (CHECKOUT_URL) { a.href = CHECKOUT_URL; }
-  });
+  /* CADASTRO: nome, e-mail e WhatsApp vão para a tabela leads_mesa_trabalho no Supabase.
+     A chave abaixo é pública (publishable): a tabela só aceita inserir, ninguém lê pela página.
+     Os cadastros ficam no painel do Supabase > Table Editor. url vazio = abre um e-mail pronto. */
+  var LEADS = {
+    url: "https://urdgezmqopcvxtaupdgz.supabase.co/rest/v1/leads_mesa_trabalho",
+    key: "sb_publishable_D2Ehp0_ZWu_Gm2UJGitP2A_X01Qs_Xz",
+    fallbackEmail: "miguelsnahas@gmail.com"
+  };
+
   window.dataLayer = window.dataLayer || [];
+  (function () {
+    var form = document.getElementById("cadastro");
+    if (!form) return;
+    var msg = form.querySelector(".lead-msg");
+    var btn = form.querySelector("button");
+    function say(text, cls) { msg.textContent = text; msg.className = "lead-msg" + (cls ? " " + cls : ""); }
+    function valid(input) {
+      var v = input.type === "checkbox" ? input.checked : input.value.trim();
+      var ok = !!v;
+      if (ok && input.type === "email") ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+      if (ok && input.type === "tel") ok = input.value.replace(/\D/g, "").length >= 10;
+      input.setAttribute("aria-invalid", String(!ok));
+      return ok;
+    }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var fields = [form.nome, form.email, form.telefone, form.consentimento];
+      var bad = fields.filter(function (f) { return !valid(f); });
+      if (bad.length) { say(bad[0] === form.consentimento ? "Marque o consentimento para continuar." : "Confira os campos destacados.", "err"); bad[0].focus(); return; }
+      var data = {
+        nome: form.nome.value.trim(),
+        email: form.email.value.trim(),
+        telefone: form.telefone.value.trim(),
+        origem: (new URLSearchParams(location.search)).get("utm_source") || document.referrer || "direto"
+      };
+      window.dataLayer.push({ event: "lead_submit", form: "mesa_de_trabalho" });
+      if (!LEADS.url) {
+        var body = "Quero receber a Mesa de Trabalho.\n\nNome: " + data.nome + "\nE-mail: " + data.email + "\nWhatsApp: " + data.telefone;
+        location.href = "mailto:" + LEADS.fallbackEmail + "?subject=" + encodeURIComponent("Quero a Mesa de Trabalho") + "&body=" + encodeURIComponent(body);
+        say("Abrimos um e-mail com os seus dados. É só enviar para receber o acesso.", "ok");
+        return;
+      }
+      btn.disabled = true; say("Enviando…");
+      fetch(LEADS.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": LEADS.key, "Prefer": "return=minimal" },
+        body: JSON.stringify(data)
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        form.reset();
+        say("Pronto! Você vai receber o acesso por e-mail e WhatsApp em até 24h.", "ok");
+        window.dataLayer.push({ event: "lead_success", form: "mesa_de_trabalho" });
+      }).catch(function () {
+        say("Não conseguimos enviar agora. Tente de novo ou escreva para " + LEADS.fallbackEmail + ".", "err");
+      }).then(function () { btn.disabled = false; });
+    });
+  })();
   document.querySelectorAll("[data-cta]").forEach(function (el) {
     el.addEventListener("click", function () {
       var name = el.getAttribute("data-cta");
       window.dataLayer.push({ event: "cta_click", cta: name });
-      if (typeof window.fbq === "function" && name === "offer_checkout") { window.fbq("track", "InitiateCheckout"); }
+      if (typeof window.fbq === "function" && name === "offer_signup") { window.fbq("track", "Lead"); }
     });
   });
 </script>
