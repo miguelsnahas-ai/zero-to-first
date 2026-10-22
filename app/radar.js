@@ -71,9 +71,27 @@ MESA.matchRadar = function (project, counts, limit) {
 };
 
 /* Sugestões de próximos movimentos a partir do estado do projeto */
-MESA.nextMoves = function (project, artifacts, board, pedidos) {
+MESA.nextMoves = function (project, artifacts, board, pedidos, workspaces) {
   var ctx = project.context || {};
   var moves = [];
+  workspaces = workspaces || [];
+  // Fase 3 (Traction): segue a ordem pedagógica das sete ferramentas
+  if (MESA.TRACTION) {
+    var wsBy = {}; workspaces.forEach(function (w) { wsBy[w.tool_id] = w; });
+    var inTraction = workspaces.length || ["vender", "repetir"].indexOf(project.focus) !== -1;
+    var validated = artifacts.some(function (a) { return a.stage === "validar" || a.stage === "avancar"; }) || board.some(function (b) { return b.kind === "hipotese" && b.status === "validado"; });
+    if (inTraction) {
+      var cur = MESA.TRACTION.filter(function (t) { return !wsBy[t.id] || wsBy[t.id].status !== "concluido"; })[0];
+      if (cur) moves.push(wsBy[cur.id]
+        ? { text: "Continue " + cur.title.replace(" — ", ": ") + ".", action: { type: "tool", id: cur.id } }
+        : { text: "Próximo passo da tração: " + cur.title.replace(" — ", ": ") + ".", action: { type: "tool", id: cur.id } });
+      else moves.push({ text: "As sete ferramentas de tração estão concluídas. Mantenha a rotina de revisão e planeje o próximo ciclo.", action: { type: "tool", id: "review" } });
+    } else if (validated && !ctx.tipo) {
+      moves.push({ text: "Há evidências de validação. Defina o modelo de negócio e comece a Fase 3 por First Customers.", action: { type: "tool", id: "first" } });
+    } else if (validated) {
+      moves.push({ text: "Há evidências de validação: hora de conquistar os primeiros clientes (Fase 3).", action: { type: "tool", id: "first" } });
+    }
+  }
   var used = {}; artifacts.forEach(function (a) { if (a.tool_id) used[a.tool_id] = true; });
   var byKind = function (k, st) { return board.filter(function (b) { return b.kind === k && (!st || st.indexOf(b.status) !== -1); }); };
 
