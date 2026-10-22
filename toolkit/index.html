@@ -48,6 +48,15 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 .lead-msg{margin:0;font-size:14.5px;line-height:1.45;color:#463E48}
 .lead-msg.ok{color:#2F6B3A;font-weight:600}
 .lead-msg.err{color:#A1341A;font-weight:600}
+.nav-sec{display:flex;flex-wrap:wrap;gap:6px 22px}
+.nav-sec a{color:#D9CDD6;text-decoration:none}
+.nav-sec a:hover,.nav-login:hover{color:#FFFFFF}
+.nav-act{display:flex;align-items:center;gap:10px;padding-left:22px;border-left:1px solid #4D3A52}
+.nav-login{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1.5px solid #6B5670;border-radius:6px;color:#FFFFFF;text-decoration:none;font-weight:500}
+.nav-signup{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;background:#E0592A;color:#261729;text-decoration:none;border-radius:6px;font-weight:600}
+.nav-signup:hover{background:#F28A5E}
+@media (max-width:900px){.nav-sec{display:none}.nav-act{padding-left:0;border-left:0}}
+@media (max-width:440px){.nav-login,.nav-signup{padding:0 12px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -61,13 +70,17 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" style="margin-top: -10px"><path d="M10 1.5v17M2.64 5.75l14.72 8.5M2.64 14.25l14.72-8.5" stroke="#E0592A" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg>
 </a>
 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; font-size: 15px">
-<a href="#problema" style="color: #D9CDD6; text-decoration: none">O problema</a>
-<a href="#caminho" style="color: #D9CDD6; text-decoration: none">O caminho</a>
-<a href="#conteudo" style="color: #D9CDD6; text-decoration: none">Conteúdo</a>
-<a href="#sobre" style="color: #D9CDD6; text-decoration: none">Sobre</a>
-<a href="#faq" style="color: #D9CDD6; text-decoration: none">FAQ</a>
-<a href="../app/" data-cta="nav_login" style="color: #D9CDD6; text-decoration: none">Entrar</a>
-<a href="#oferta" data-cta="nav_offer" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1.5px solid #E0592A; color: #F28A5E; text-decoration: none; border-radius: 6px; font-weight: 600">Acessar</a>
+<div class="nav-sec">
+<a href="#problema">O problema</a>
+<a href="#caminho">O caminho</a>
+<a href="#conteudo">Conteúdo</a>
+<a href="#sobre">Sobre</a>
+<a href="#faq">FAQ</a>
+</div>
+<div class="nav-act">
+<a class="nav-login" href="../app/" data-cta="nav_login"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg>Entrar</a>
+<a class="nav-signup" href="#oferta" data-cta="nav_offer">Começar grátis</a>
+</div>
 </div>
 </nav>
 </header>
@@ -93,6 +106,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <a href="#oferta" data-cta="hero_primary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #E0592A; color: #261729; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 17px">Quero a Mesa de Trabalho</a>
 <a href="#conteudo" data-cta="hero_secondary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border: 1.5px solid #6B5670; color: #FFFFFF; text-decoration: none; font-weight: 500; border-radius: 6px; font-size: 17px">Veja o que vou aprender</a>
 </div>
+<p style="margin: 0; font-size: 15px; color: #D9CDD6">Já tem conta? <a href="../app/" data-cta="hero_login" style="color: #F28A5E; font-weight: 600">Entrar na Mesa</a></p>
 </div>
 
 <!-- Hero visual: quadro de ferramentas -->
@@ -417,7 +431,7 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <button type="submit" data-cta="offer_signup">Quero a Mesa de Trabalho</button>
 <p class="lead-msg" role="status" aria-live="polite"></p>
 </form>
-<p style="margin: 0; font-size: 13px; color: #463E48">Sem custo e sem cartão.</p>
+<p style="margin: 0; font-size: 13px; color: #463E48">Sem custo e sem cartão. Já tem conta? <a href="../app/" data-cta="form_login" style="color: #B13D16; font-weight: 600">Entrar</a></p>
 </div>
 </div>
 </div>
