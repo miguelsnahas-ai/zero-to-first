@@ -7,11 +7,41 @@
 window.MESA = window.MESA || {};
 
 MESA.LENSES = [
-  { id: "entender", name: "Entender", q: "Qual problema real existe aqui?" },
-  { id: "explorar", name: "Explorar", q: "Que hipóteses valem ser testadas?" },
-  { id: "experimentar", name: "Experimentar", q: "Qual o menor teste que ensina algo?" },
-  { id: "validar", name: "Validar", q: "O que a evidência está dizendo?" },
-  { id: "avancar", name: "Avançar", q: "Seguir, ajustar ou parar?" }
+  { id: "entender", phase: "discovery", name: "Entender", q: "Qual problema real existe aqui?" },
+  { id: "explorar", phase: "discovery", name: "Explorar", q: "Que hipóteses valem ser testadas?" },
+  { id: "experimentar", phase: "validation", name: "Experimentar", q: "Qual o menor teste que ensina algo?" },
+  { id: "validar", phase: "validation", name: "Validar", q: "O que a evidência está dizendo?" },
+  { id: "avancar", phase: "validation", name: "Avançar", q: "Seguir, ajustar ou parar?" },
+  { id: "vender", phase: "traction", name: "Vender", q: "Quem compra, e como chegamos até essa pessoa?" },
+  { id: "repetir", phase: "traction", name: "Repetir", q: "O que já pode virar um processo?" }
+];
+
+/* As três fases oficiais do Zero to First. As lentes acima são as subetapas de cada fase. */
+MESA.PHASES = [
+  {
+    id: "discovery", n: 1, name: "Discovery", pt: "Descoberta",
+    goal: "Entender o problema, o cliente, o contexto de uso e a oportunidade de negócio.",
+    learn: "Quem é o cliente, qual problema merece ser resolvido e por que a oportunidade vale a investigação.",
+    deliverables: ["Território e avaliação de mercado", "Jobs, jornada e entrevistas analisadas", "Segmento inicial (beachhead)", "Matriz CSD e problem statement"],
+    exit: "Você consegue descrever cliente, problema e segmento inicial com evidências de entrevistas, não só opinião.",
+    lenses: ["entender", "explorar"]
+  },
+  {
+    id: "validation", n: 2, name: "Validation", pt: "Validação",
+    goal: "Testar as hipóteses críticas sobre problema, solução e demanda, e decidir o que construir.",
+    learn: "Quais hipóteses se sustentam, qual solução mínima entrega valor e como aprender com o uso real.",
+    deliverables: ["Promessa (working backwards) e MVP escolhido", "Experimentos com critérios de saída", "Registro de experimentos e CSD atualizada", "Modelo de negócio e decisão (stress test, pitch)"],
+    exit: "Hipóteses críticas testadas, uma solução inicial definida e uma decisão explícita de seguir, ajustar ou parar.",
+    lenses: ["experimentar", "validar", "avancar"]
+  },
+  {
+    id: "traction", n: 3, name: "Traction", pt: "Tração",
+    goal: "Transformar o que foi aprendido em um processo inicial de aquisição, conversão e retenção de clientes.",
+    learn: "Como conquistar os primeiros clientes e o que, na aquisição e na entrega de valor, pode se tornar repetível.",
+    deliverables: ["Tracker de primeiros clientes", "Plano de GTM de 30 a 90 dias", "Sales playbook", "Experimentos de canais", "Painel de tração", "Unit economics em cenários", "Rotina de revisão e roadmap de tração"],
+    exit: "Um processo comercial registrado, métricas confiáveis e uma rotina de revisão que orienta o próximo ciclo. Tração não é escala: é encontrar o que se repete.",
+    lenses: ["vender", "repetir"]
+  }
 ];
 
 /* Campos de contexto: preenchidos uma vez, usados por todas as ferramentas */
@@ -23,7 +53,9 @@ MESA.CONTEXT_FIELDS = [
   { id: "beachhead", label: "Segmento inicial (beachhead)", hint: "O nicho por onde começar.", ph: "Ex.: clínicas de bairro em São Paulo capital" },
   { id: "jornada", label: "Como resolvem hoje", hint: "Alternativas atuais, mesmo que ruins.", ph: "Ex.: planilha, WhatsApp e maquininha; fecha o caixa à mão", long: true },
   { id: "solucao", label: "Hipótese de solução", hint: "Não precisa estar pronta.", ph: "Ex.: app que registra procedimento e cobra no atendimento", long: true },
+  { id: "proposta", label: "Proposta de valor", hint: "Em uma frase: o resultado que o cliente obtém e por que é melhor que a alternativa atual.", ph: "Ex.: a clínica para de perder cobrança e fecha o caixa em 5 minutos, sem planilha", long: true },
   { id: "modelo", label: "Como gera valor / receita", hint: "Quem paga, quanto e por quê (hipótese).", ph: "Ex.: assinatura mensal por clínica" },
+  { id: "tipo", label: "Modelo de negócio", hint: "Ajuda as ferramentas de Traction a sugerir funil, métricas e unidade econômica adequados.", options: [["", "Escolha…"], ["saas", "SaaS / software por assinatura"], ["b2b_servico", "Serviço B2B"], ["b2c", "Produto ou serviço B2C"], ["marketplace", "Marketplace"], ["transacional", "E-commerce / transacional"], ["outro", "Outro"]] },
   { id: "evidencias", label: "O que já sabemos", hint: "Entrevistas, números, testes já feitos.", ph: "Ex.: 6 entrevistas; 4 citaram perda de cobrança", long: true },
   { id: "org", label: "Contexto da organização", hint: "Para projetos de inovação em empresas: área, patrocinador, restrições.", ph: "Ex.: área de novos negócios; patrocínio da diretoria comercial; piloto de 90 dias", long: true, kind: "inovacao" }
 ];
@@ -124,7 +156,7 @@ MESA.TOOLS = [
     board: "decisao"
   },
   {
-    id: "working", lens: "explorar", name: "Working Backwards",
+    id: "working", lens: "experimentar", name: "Working Backwards",
     desc: "Que promessa vale a pena fazer: press release e FAQ.",
     uses: ["problema", "persona", "beachhead", "solucao"],
     task: "Escreva um press release de lançamento como se a solução já existisse e funcionasse, seguido de um FAQ com as perguntas difíceis de clientes e de quem decide internamente.",

@@ -20,7 +20,7 @@
   });
 
   var $app = document.getElementById("app");
-  var state = { session: null, projects: [], p: null, artifacts: [], board: [], radar: [], pedidos: [], toolFilter: "todas", boardFilter: "todas" };
+  var state = { session: null, projects: [], p: null, artifacts: [], board: [], radar: [], pedidos: [], workspaces: [], toolFilter: "todas", boardFilter: "todas", tTab: {}, aiVar: {} };
   var LENS = {}; MESA.LENSES.forEach(function (l) { LENS[l.id] = l; });
   var TOOL = {}; MESA.TOOLS.forEach(function (t) { TOOL[t.id] = t; });
   var KINDS = { hipotese: "Hipótese", experimento: "Experimento", evidencia: "Evidência", decisao: "Decisão", pergunta: "Pergunta" };
@@ -67,11 +67,12 @@
       sb.from("artifacts").select("*").eq("project_id", id).order("created_at", { ascending: false }),
       sb.from("board_items").select("*").eq("project_id", id).order("created_at", { ascending: false }),
       sb.from("radar_items").select("*").eq("project_id", id).order("created_at", { ascending: false }),
-      sb.from("mentoria_pedidos").select("*").eq("project_id", id).order("created_at", { ascending: false })
+      sb.from("mentoria_pedidos").select("*").eq("project_id", id).order("created_at", { ascending: false }),
+      sb.from("tool_workspaces").select("*").eq("project_id", id)
     ]).then(function (rs) {
       rs.forEach(function (r) { if (r.error) throw r.error; });
       if (!rs[0].data) throw new Error("Projeto não encontrado.");
-      state.p = rs[0].data; state.artifacts = rs[1].data; state.board = rs[2].data; state.radar = rs[3].data; state.pedidos = rs[4].data;
+      state.p = rs[0].data; state.artifacts = rs[1].data; state.board = rs[2].data; state.radar = rs[3].data; state.pedidos = rs[4].data; state.workspaces = rs[5].data || [];
     });
   }
   // Contexto: salva 700ms depois da última digitação, ou na hora ao trocar de tela
@@ -97,7 +98,7 @@
     var ready = state.p && state.p.id === id ? Promise.resolve() : (($app.innerHTML = '<div class="loading">Carregando projeto…</div>'), loadProject(id));
     ready.then(function () { renderProject(tab, sub); }).catch(function (e) { fail(e); go("#/"); });
   }
-  window.addEventListener("hashchange", function () { flushContext(); route(); });
+  window.addEventListener("hashchange", function () { flushContext(); flushWorkspace(); route(); });
 
   /* ---------------- topo ---------------- */
   function topbar(crumb) {
@@ -193,7 +194,7 @@
   var TABS = [
     { id: "mesa", name: "Mesa" },
     { id: "visao", name: "Visão geral" },
-    { id: "ferramentas", name: "Ferramentas" },
+    { id: "ferramentas", name: "Jornada" },
     { id: "artefatos", name: "Artefatos" },
     { id: "quadro", name: "Quadro" },
     { id: "radar", name: "Radar" },
@@ -210,7 +211,7 @@
     $app.innerHTML = topbar('<a href="#/">Projetos</a><span>/</span><strong>' + esc(p.name) + "</strong>") +
       '<div class="proj">' + side + '<main class="main" id="main"></main></div>';
     var main = document.getElementById("main");
-    var views = { mesa: viewMesa, visao: viewVisao, ferramentas: viewFerramentas, ferramenta: viewFerramenta, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    var views = { mesa: viewMesa, visao: viewVisao, ferramentas: viewFerramentas, ferramenta: function (m, id) { return TOOL[id] && TOOL[id].workspace ? viewTraction(m, id) : viewFerramenta(m, id); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
     (views[tab] || viewMesa)(main, sub);
     window.scrollTo(0, 0);
   }
@@ -236,22 +237,26 @@
     var done = MESA.DESK_ORDER.filter(function (id) { return byTool[id]; });
     var ctxFilled = MESA.CONTEXT_FIELDS.filter(function (f) { return (ctx[f.id] || "").trim(); }).length;
     var life = done.length + (ctxFilled >= 3 ? 1 : 0) + (state.radar.length ? 1 : 0) + (state.board.length ? 1 : 0) + (state.pedidos.length ? 1 : 0);
-    var plant = life === 0 ? 0 : life < 5 ? 1 : life < 12 ? 2 : 3;
+    var plant = life === 0 ? 0 : life < 6 ? 1 : life < 16 ? 2 : 3;
     var dayAgo = Date.now() - 864e5;
     var warm = state.artifacts.concat(state.board).some(function (x) { return new Date(x.created_at).getTime() > dayAgo; });
     var seen = readSeen(), fresh = {};
     if (seen) done.forEach(function (id) { if (seen.indexOf(id) === -1) fresh[id] = true; });
-    var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos)[0];
+    var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces)[0];
     var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
 
-    var zones = MESA.LENSES.map(function (l) {
+    var wip = {}; state.workspaces.forEach(function (w) { if (!byTool[w.tool_id]) wip[w.tool_id] = true; });
+    var zoneHtml = function (l) {
       var objs = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).map(function (id) {
         var t = TOOL[id], n = (byTool[id] || []).length;
-        return '<button class="obj ' + (n ? "is-on" : "is-empty") + (fresh[id] ? " is-new" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
+        return '<button class="obj ' + (n ? "is-on" : wip[id] ? "is-wip" : "is-empty") + (fresh[id] ? " is-new" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
           '<span class="art">' + MESA.deskArt(id) + '</span><span class="tag">' + esc(t.name) + "</span>" + (n > 1 ? '<span class="badge">' + n + "</span>" : "") + "</button>";
       }).join("");
       var n = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).length;
       return '<section class="zone' + (p.focus === l.id ? " is-focus" : "") + '" style="--n:' + n + '" aria-label="' + l.name + '"><h3 class="hand">' + l.name + MESA.arrow() + (p.focus === l.id ? " <em>foco agora</em>" : "") + '</h3><div class="objs">' + objs + "</div></section>";
+    };
+    var zones = MESA.PHASES.map(function (ph) {
+      return '<div class="phase-band"><p class="phase-name"><span>' + ph.n + "</span>" + ph.name + " <small>" + ph.pt + '</small></p><div class="zones">' + ph.lenses.map(function (lid) { return zoneHtml(LENS[lid]); }).join("") + "</div></div>";
     }).join("");
 
     var notes = state.board.slice(0, 7).map(function (b) {
@@ -260,10 +265,10 @@
 
     var BOOKS = [["problema", "Problema"], ["persona", "Cliente"], ["mercado", "Mercado"], ["beachhead", "Segmento"], ["solucao", "Solução"], ["modelo", "Receita"]];
     var books = BOOKS.map(function (b, i) { return '<span class="book' + ((ctx[b[0]] || "").trim() ? " is-on" : "") + '" style="--i:' + i + '">' + b[1] + "</span>"; }).join("");
-    var stageDone = {}; done.forEach(function (id) { var l = TOOL[id].lens; stageDone[l] = (stageDone[l] || 0) + 1; });
-    var steps = MESA.LENSES.map(function (l, i) {
-      var total = MESA.DESK_ORDER.filter(function (id) { return TOOL[id].lens === l.id; }).length, n = stageDone[l.id] || 0;
-      return '<li><button data-act="mesa-focus" data-lens="' + l.id + '"' + (p.focus === l.id ? ' aria-current="step"' : "") + ' title="' + esc(l.q) + '"><span class="dot' + (n ? " has" : "") + (n === total ? " full" : "") + '">' + (i + 1) + "</span><b>" + l.name + "</b><small>" + n + "/" + total + "</small></button></li>";
+    var steps = MESA.PHASES.map(function (ph) {
+      var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(function (id) { return byTool[id]; }).length;
+      var cur = LENS[p.focus] && LENS[p.focus].phase === ph.id;
+      return '<li><button data-act="mesa-focus" data-lens="' + ph.lenses[0] + '"' + (cur ? ' aria-current="step"' : "") + ' title="' + esc(ph.goal) + '"><span class="dot' + (n ? " has" : "") + (n === ids.length ? " full" : "") + '">' + ph.n + "</span><b>" + ph.name + "</b><small>" + n + "/" + ids.length + "</small></button></li>";
     }).join("");
     var moveIcon = move.action.type === "tool" ? MESA.deskArt(move.action.id) : MESA.bulb();
     var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Preencher o contexto";
@@ -280,11 +285,11 @@
           '<aside class="next-card"><a class="nc-head" href="' + moveHref + '">Próximo passo <span aria-hidden="true">→</span></a>' +
             '<div class="nc-box"><span class="nc-icon">' + moveIcon + "</span><b>" + esc(move.text) + "</b></div>" +
             '<p class="small muted">' + (done.length ? done.length + " de " + MESA.DESK_ORDER.length + " objetos na mesa." : "A mesa começa vazia. Cada atividade preenchida traz um objeto.") + '</p>' +
-            '<div class="life" aria-label="Vida da mesa"><span style="width:' + Math.round(Math.min(life, 24) / 24 * 100) + '%"></span></div>' +
+            '<div class="life" aria-label="Vida da mesa"><span style="width:' + Math.round(Math.min(life, 31) / 31 * 100) + '%"></span></div>' +
             '<a class="btn btn-primary btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></aside>" +
         "</div>" +
         '<div class="tabletop">' +
-          '<div class="zones">' + zones + "</div>" +
+          '<div class="bands">' + zones + "</div>" +
           '<div class="front">' +
             '<span class="prop lamp">' + MESA.deskLamp() + "</span>" +
             '<a class="stack" href="#/p/' + p.id + '/contexto" title="Contexto do projeto"><span class="books">' + books + '</span><span class="cup">' + MESA.pencup() + "</span></a>" +
@@ -301,7 +306,7 @@
     main.querySelectorAll(".obj").forEach(function (el) {
       el.onclick = function () {
         var id = el.dataset.tool, t = TOOL[id], list = byTool[id] || [];
-        if (!list.length) return go("#/p/" + p.id + "/ferramenta/" + id);
+        if (!list.length || t.workspace) return go("#/p/" + p.id + "/ferramenta/" + id);
         if (list.length === 1) return go("#/p/" + p.id + "/artefato/" + list[0].id);
         modal('<div class="obj-modal"><span class="art">' + MESA.deskArt(id) + "</span><div><p class=\"label\">" + esc(MESA.DESK_OBJECT[id]) + "</p><h2>" + esc(t.name) + "</h2></div></div>" +
           '<div class="list" data-close style="margin:16px 0">' + list.map(artifactRow).join("") + "</div>" +
@@ -314,13 +319,14 @@
   /* ---------- Visão geral ---------- */
   function viewVisao(main) {
     var p = state.p, c = counts();
-    var moves = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos);
+    var moves = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces);
     var radar = MESA.matchRadar(p, c, 3);
-    var lenses = MESA.LENSES.map(function (l) {
+    var lensBtn = function (l) {
       var n = c[l.id] || 0, meter = "";
       for (var i = 0; i < 4; i++) meter += "<i" + (i < Math.min(n, 4) ? ' class="on"' : "") + "></i>";
       return '<button class="lens' + (p.focus === l.id ? " is-focus" : "") + '" data-act="lens" data-lens="' + l.id + '"><b>' + l.name + '</b><span class="q">' + l.q + '</span><span class="small muted">' + n + " artefato" + (n === 1 ? "" : "s") + '</span><span class="meter">' + meter + "</span></button>";
-    }).join("");
+    };
+    var lenses = MESA.PHASES.map(function (ph) { return '<div class="lens-phase" style="--n:' + ph.lenses.length + '"><p class="label">Fase ' + ph.n + " · " + ph.name + '</p><div class="lens-col">' + ph.lenses.map(function (id) { return lensBtn(LENS[id]); }).join("") + "</div></div>"; }).join("");
     var recent = state.artifacts.slice(0, 4).map(artifactRow).join("");
     var b = state.board;
     var stat = function (k, st) { return b.filter(function (x) { return x.kind === k && (!st || x.status === st); }).length; };
@@ -344,15 +350,225 @@
   }
 
   /* ---------- Ferramentas ---------- */
+  /* ---------- Jornada: as três fases ---------- */
+  function wsFor(id) { return state.workspaces.filter(function (w) { return w.tool_id === id; })[0]; }
+  function toolState(id) {
+    var t = TOOL[id], n = state.artifacts.filter(function (a) { return a.tool_id === id; }).length, w = wsFor(id);
+    if (t.workspace) return w && w.status === "concluido" ? { k: "done", label: "Concluída" } : w ? { k: "wip", label: "Em andamento" } : { k: "todo", label: "Não iniciada" };
+    return n ? { k: "done", label: n + " artefato" + (n > 1 ? "s" : "") } : { k: "todo", label: "Sem artefato" };
+  }
+  function phaseTools(ph) { return MESA.TOOLS.filter(function (t) { return LENS[t.lens] && LENS[t.lens].phase === ph.id; }); }
+  function phaseProgress(ph) { var ts = phaseTools(ph), d = ts.filter(function (t) { return toolState(t.id).k === "done"; }).length; return { done: d, total: ts.length }; }
+  function currentPhase() { var l = LENS[state.p.focus]; return (l && l.phase) || "discovery"; }
   function viewFerramentas(main) {
-    var p = state.p, f = state.toolFilter;
-    var used = {}; state.artifacts.forEach(function (a) { if (a.tool_id) used[a.tool_id] = (used[a.tool_id] || 0) + 1; });
-    var filters = [{ id: "todas", name: "Todas" }].concat(MESA.LENSES).map(function (l) { return '<button data-act="tfilter" data-f="' + l.id + '" aria-pressed="' + (f === l.id) + '">' + l.name + "</button>"; }).join("");
-    var tools = MESA.TOOLS.filter(function (t) { return f === "todas" || t.lens === f; });
-    main.innerHTML = head("Ferramentas", "Cada ferramenta monta um prompt com o contexto do projeto. Use na sua IA preferida e cole a resposta: ela vira um artefato.") +
-      '<div class="filters">' + filters + '</div><div class="grid-cards">' + tools.map(function (t) {
-        return '<a class="tcard" href="#/p/' + p.id + "/ferramenta/" + t.id + '"><div class="row"><span class="chip">' + LENS[t.lens].name + "</span>" + (used[t.id] ? '<span class="chip pers">' + used[t.id] + " artefato" + (used[t.id] > 1 ? "s" : "") + "</span>" : "") + "</div><h3>" + esc(t.name) + "</h3><p>" + esc(t.desc) + '</p><span class="go">Abrir ferramenta →</span></a>';
+    var p = state.p, cur = currentPhase();
+    var strip = MESA.PHASES.map(function (ph) {
+      var pr = phaseProgress(ph);
+      return '<a class="pstrip-item' + (ph.id === cur ? " is-current" : "") + '" href="#fase-' + ph.id + '" data-act="scroll" data-target="fase-' + ph.id + '"><span class="pn">' + ph.n + '</span><span><b>' + ph.name + "</b><small>" + ph.pt + " · " + pr.done + "/" + pr.total + '</small></span><span class="pbar"><i style="width:' + Math.round(pr.done / pr.total * 100) + '%"></i></span>' + (ph.id === cur ? '<em>você está aqui</em>' : "") + "</a>";
+    }).join('<span class="parrow" aria-hidden="true">→</span>');
+    var sections = MESA.PHASES.map(function (ph, i) {
+      var pr = phaseProgress(ph), prev = MESA.PHASES[i - 1], next = MESA.PHASES[i + 1], tools;
+      if (ph.id === "traction") {
+        var nextTodo = MESA.TRACTION.filter(function (t) { return toolState(t.id).k !== "done"; })[0];
+        tools = '<ol class="tsteps">' + MESA.TRACTION.map(function (t) {
+          var st = toolState(t.id);
+          return '<li class="tstep is-' + st.k + (nextTodo && nextTodo.id === t.id ? " is-next" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + t.id + '"><span class="tn">' + t.n + '</span><span class="tb"><b>' + esc(t.name) + '</b><span>' + esc(t.question) + '</span></span><span class="tst">' + st.label + (nextTodo && nextTodo.id === t.id ? " · próxima" : "") + "</span></a></li>";
+        }).join("") + "</ol>";
+      } else {
+        tools = ph.lenses.map(function (lid) {
+          var ts = MESA.TOOLS.filter(function (t) { return t.lens === lid; });
+          return '<div class="psub"><h4>' + LENS[lid].name + ' <span class="muted">· ' + esc(LENS[lid].q) + '</span></h4><div class="grid-cards">' + ts.map(function (t) {
+            var st = toolState(t.id);
+            return '<a class="tcard" href="#/p/' + p.id + "/ferramenta/" + t.id + '"><div class="row"><span class="chip ' + (st.k === "done" ? "pers" : "") + '">' + st.label + "</span></div><h3>" + esc(t.name) + "</h3><p>" + esc(t.desc) + '</p><span class="go">Abrir ferramenta →</span></a>';
+          }).join("") + "</div></div>";
+        }).join("");
+      }
+      return '<section class="panel phase" id="fase-' + ph.id + '"><div class="phase-head"><span class="pn big">' + ph.n + '</span><div><p class="label">Fase ' + ph.n + " · " + ph.pt + "</p><h2>" + ph.name + "</h2><p>" + esc(ph.goal) + '</p></div><div class="phase-prog"><b>' + pr.done + "/" + pr.total + '</b><span class="small muted">ferramentas ' + (ph.id === "traction" ? "concluídas" : "com artefato") + '</span><span class="pbar"><i style="width:' + Math.round(pr.done / pr.total * 100) + '%"></i></span></div></div>' +
+        '<div class="phase-info"><div><h4>O que você vai aprender</h4><p>' + esc(ph.learn) + "</p></div><div><h4>Entregáveis</h4><ul>" + ph.deliverables.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul></div><div><h4>Pode avançar quando</h4><p>" + esc(ph.exit) + '</p><p class="small muted">' + (prev ? "Vem de: Fase " + prev.n + " · " + prev.name + ". " : "") + (next ? "Leva a: Fase " + next.n + " · " + next.name + "." : "Depois: novos ciclos de revisão e melhoria.") + "</p></div></div>" + tools + "</section>";
+    }).join("");
+    main.innerHTML = head("Jornada Zero to First", "Três fases oficiais, da descoberta do problema aos primeiros sinais de tração. Não é uma trilha rígida: volte a uma fase sempre que a evidência pedir.") +
+      '<nav class="pstrip" aria-label="Fases">' + strip + "</nav>" + sections;
+  }
+
+  /* ---------- Ferramentas de Traction: área de trabalho estruturada ---------- */
+  var wsTimer = null, wsPending = null;
+  function wsEnv() {
+    var map = {}; state.workspaces.forEach(function (w) { map[w.tool_id] = w.data || {}; });
+    return { p: state.p, artifacts: state.artifacts, ws: map, base: "#/p/" + state.p.id + "/" };
+  }
+  function setSaveState(text, cls) { var el = document.getElementById("ws-save"); if (el) { el.textContent = text; el.className = "ws-save " + (cls || ""); } }
+  function flushWorkspace() {
+    if (!wsPending) return Promise.resolve();
+    var job = wsPending; wsPending = null; clearTimeout(wsTimer);
+    setSaveState("Salvando…");
+    return sb.from("tool_workspaces").upsert({ project_id: job.project_id, tool_id: job.tool_id, data: job.w.data, status: job.w.status || "em_andamento" }, { onConflict: "project_id,tool_id" }).select().single().then(function (r) {
+      if (r.error) { setSaveState("Não foi possível salvar. Tente de novo.", "err"); wsPending = wsPending || job; return fail(r.error); }
+      job.w.id = r.data.id; job.w.status = r.data.status; job.w.updated_at = r.data.updated_at;
+      setSaveState("Salvo às " + new Date(r.data.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), "ok");
+    });
+  }
+  function saveWorkspace(w) {
+    if (state.workspaces.indexOf(w) === -1) { state.workspaces.push(w); track("traction_tool_started", { tool: w.tool_id }); }
+    wsPending = { project_id: state.p.id, tool_id: w.tool_id, w: w };
+    setSaveState("Alterações não salvas…"); clearTimeout(wsTimer); wsTimer = setTimeout(flushWorkspace, 800);
+  }
+  window.addEventListener("beforeunload", function () { if (wsPending) flushWorkspace(); });
+  function inputHtml(f, val, attrs) {
+    var a = attrs + ' aria-label="' + esc(f.label) + '"';
+    if (f.options || f.type === "select") return '<select class="select" ' + a + ">" + ['<option value=""></option>'].concat((f.options || []).map(function (o) { var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (val === v ? " selected" : "") + ">" + esc(l) + "</option>"; })).join("") + "</select>";
+    if (f.long) return '<textarea class="textarea" ' + a + ' placeholder="' + esc(f.ph || "") + '">' + esc(val || "") + "</textarea>";
+    var type = f.type === "date" ? "date" : "text", extra = f.type === "number" ? ' inputmode="decimal"' : "";
+    return '<input class="input" type="' + type + '"' + extra + (f.list ? ' list="dl-' + f.id + '"' : "") + " " + a + ' placeholder="' + esc(f.ph || "") + '" value="' + esc(val == null ? "" : val) + '">';
+  }
+  function viewTraction(main, toolId) {
+    var t = TOOL[toolId], p = state.p, w = wsFor(toolId), isNew = !w;
+    if (!LENS[p.focus] || LENS[p.focus].phase !== "traction") setFocus(t.lens);
+    if (!w) { w = { tool_id: toolId, status: "em_andamento", data: {} }; (t.sections || []).forEach(function (s) { (s.fields || []).forEach(function (f) { if (f.def != null) w.data[f.id] = f.def; }); }); }
+    var d = w.data, env = function () { var e = wsEnv(); e.ws[toolId] = d; return e; };
+    var tab = state.tTab[toolId] || (isNew ? "guia" : "trabalho");
+    var idx = MESA.TRACTION.indexOf(t), next = t.next && TOOL[t.next];
+    var stepper = '<ol class="tmini" aria-label="Ferramentas da Fase 3">' + MESA.TRACTION.map(function (x) { var st = toolState(x.id); return '<li class="is-' + st.k + (x.id === toolId ? " is-cur" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + x.id + '" title="' + esc(x.n + ". " + x.name + " · " + st.label) + '"><span>' + x.n + "</span><b>" + esc(x.name) + "</b></a></li>"; }).join("") + "</ol>";
+    var st = toolState(toolId);
+    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/ferramentas">← Jornada</a> <span class="muted">· Fase 3 · Traction · ferramenta ' + t.n + " de 7</span></p>" + stepper +
+      '<div class="thead"><div><h1>' + esc(t.title) + '</h1><p class="tq"><span class="label">Pergunta central</span>' + esc(t.question) + '</p></div><div class="tstatus"><span class="chip" id="ws-status"></span><span class="ws-save" id="ws-save">' + (isNew ? "Nada salvo ainda" : "Salvo") + "</span></div></div>" +
+      '<div class="ttabs" role="tablist">' + [["guia", "Guia"], ["trabalho", "Área de trabalho"], ["resultado", "Resultado"]].map(function (x) { return '<button role="tab" data-tab="' + x[0] + '" aria-selected="' + (tab === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div>" +
+      '<div id="tbody"></div>';
+    var body = document.getElementById("tbody");
+    function reuseHtml(compact) {
+      var items = t.reuse ? t.reuse(env()) : [];
+      return '<div class="reuse' + (compact ? " compact" : "") + '">' + items.map(function (it) {
+        return '<div class="ritem' + (MESA.util.filled(it.value) ? "" : " is-empty") + '"><span class="label">' + esc(it.label) + "</span><p>" + (MESA.util.filled(it.value) ? esc(it.value) : '<span class="muted">Ainda não preenchido.</span>') + '</p><a class="small" href="' + env().base + it.href + '">' + (MESA.util.filled(it.value) ? "Editar na origem" : "Preencher") + " · " + esc(it.origin) + " →</a></div>";
       }).join("") + "</div>";
+    }
+    function renderGuide() {
+      body.innerHTML = '<div class="tguide"><section class="panel"><h2>Quando usar</h2><ul class="ticks">' + t.when.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></section>" +
+        '<section class="panel"><h2>O que você precisa</h2><p class="small muted">Informações das etapas anteriores que esta ferramenta reaproveita. Você não precisa digitar de novo.</p>' + reuseHtml(false) + "</section>" +
+        '<section class="panel wide"><h2>Contexto essencial</h2><div class="concepts">' + t.concepts.map(function (c) { return "<div><b>" + esc(c[0]) + "</b><p>" + esc(c[1]) + "</p></div>"; }).join("") + "</div></section>" +
+        '<section class="panel"><h2>Método passo a passo</h2><ol class="msteps-list">' + t.steps.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ol></section>" +
+        '<section class="panel"><h2>Exemplo preenchido</h2><details class="example"><summary>Ver o exemplo</summary><div class="md small">' + md(t.example) + "</div></details>" +
+        '<h2 style="margin-top:20px">Referências</h2><ul class="small refs">' + t.refs.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul></section></div>" +
+        '<div class="row" style="margin-top:16px"><span class="spacer"></span><button class="btn btn-accent" data-tab="trabalho">Começar na área de trabalho →</button></div>';
+    }
+    function fieldBlock(f) {
+      var e = env(), sug = f.prefill ? f.prefill(e) : "", val = d[f.id];
+      return '<label class="field' + (f.long ? " span2" : "") + '"><span>' + esc(f.label) + "</span>" + (f.hint ? "<small>" + esc(f.hint) + "</small>" : "") + inputHtml(f, val, 'data-f="' + f.id + '"') +
+        (MESA.util.filled(sug) && sug !== val ? '<span class="suggest">Das etapas anteriores: “' + esc(sug.length > 160 ? sug.slice(0, 160) + "…" : sug) + '” <button type="button" class="btn btn-ghost btn-sm" data-use="' + f.id + '">Usar</button></span>' : "") + "</label>";
+    }
+    function listBlock(s) {
+      var list = MESA.util.rows(d, s.id);
+      var dls = s.columns.filter(function (c) { return c.list; }).map(function (c) { return '<datalist id="dl-' + c.id + '">' + c.list.map(function (x) { return '<option value="' + esc(x) + '">'; }).join("") + "</datalist>"; }).join("");
+      return dls + (list.length ? '<div class="lrows">' + list.map(function (r, i) {
+        return '<div class="lrow"><span class="lnum">' + (i + 1) + "</span>" + s.columns.map(function (c) {
+          if (c.computed) return '<div class="field"><span>' + esc(c.label) + '</span><output data-comp="' + s.id + ":" + i + ":" + c.id + '">' + esc(c.computed(r)) + "</output></div>";
+          return '<label class="field' + (c.long ? " span2" : "") + '"><span>' + esc(c.label) + "</span>" + inputHtml(c, r[c.id], 'data-l="' + s.id + '" data-r="' + i + '" data-c="' + c.id + '"') + "</label>";
+        }).join("") + '<button type="button" class="ldel" data-del="' + s.id + '" data-r="' + i + '" title="Remover" aria-label="Remover linha ' + (i + 1) + '">×</button></div>';
+      }).join("") + "</div>" : '<p class="small muted empty-row">Nada registrado ainda.</p>') +
+        '<div class="row"><button type="button" class="btn btn-line btn-sm" data-add="' + s.id + '">+ ' + esc(s.add || "Adicionar") + "</button>" + (s.actions || []).map(function (a) { return '<button type="button" class="btn btn-ghost btn-sm" data-action="' + a.id + '">' + esc(a.label) + "</button>"; }).join("") + "</div>";
+    }
+    function decisionsBlock(s) {
+      var g = d[s.id] = d[s.id] || {};
+      return '<div class="decs">' + s.items.map(function (it) {
+        var v = g[it.id] || {}, e = env(), sug = it.prefill ? it.prefill(e) : "";
+        var main = it.options ? inputHtml({ label: it.label, options: it.options }, v.texto, 'data-dec="' + s.id + '" data-item="' + it.id + '" data-k="texto"') : inputHtml({ label: it.label, long: true, ph: "Sua escolha" }, v.texto, 'data-dec="' + s.id + '" data-item="' + it.id + '" data-k="texto"');
+        return '<div class="dec"><div class="dec-q"><b>' + esc(it.label) + "</b><span>" + esc(it.q) + "</span></div>" + main +
+          (MESA.util.filled(sug) && sug !== v.texto ? '<span class="suggest">Das etapas anteriores: “' + esc(sug.length > 160 ? sug.slice(0, 160) + "…" : sug) + '” <button type="button" class="btn btn-ghost btn-sm" data-use-dec="' + s.id + ":" + it.id + '">Usar</button></span>' : "") +
+          '<div class="dec-meta"><div class="seg" role="radiogroup" aria-label="Tipo">' + ["Decisão", "Hipótese", "A validar"].map(function (k) { return '<button type="button" role="radio" aria-checked="' + (v.tipo === k) + '" data-dec-tipo="' + s.id + ":" + it.id + '" data-v="' + k + '">' + k + "</button>"; }).join("") + "</div>" +
+          inputHtml({ label: "Por quê", ph: "Por quê? Em que evidência se apoia?" }, v.porque, 'data-dec="' + s.id + '" data-item="' + it.id + '" data-k="porque"') + "</div></div>";
+      }).join("") + "</div>";
+    }
+    function unitBlock() {
+      var ue = d.ue = d.ue || {}, origem = d.ue_origem = d.ue_origem || {};
+      return '<div class="table-scroll"><table class="ttable ue"><thead><tr><th>Variável</th><th>Conservador</th><th>Base</th><th>Otimista</th><th>Origem</th></tr></thead><tbody>' + MESA.UE_VARS.map(function (v) {
+        return "<tr><th>" + esc(v.label) + "<small>" + esc(v.hint) + "</small></th>" + ["c", "b", "o"].map(function (sc) { return '<td><input class="input" inputmode="decimal" data-ue="' + sc + '" data-v="' + v.id + '" aria-label="' + esc(v.label + " · " + { c: "conservador", b: "base", o: "otimista" }[sc]) + '" value="' + esc((ue[sc] || {})[v.id] == null ? "" : ue[sc][v.id]) + '"></td>'; }).join("") +
+          '<td><select class="select" data-uo="' + v.id + '" aria-label="Origem de ' + esc(v.label) + '"><option' + (origem[v.id] !== "Observado" ? " selected" : "") + ">Estimado</option><option" + (origem[v.id] === "Observado" ? " selected" : "") + ">Observado</option></select></td></tr>";
+      }).join("") + '</tbody></table></div><div class="row"><button type="button" class="btn btn-ghost btn-sm" data-action="ueFromOffer">Usar o preço da oferta</button><button type="button" class="btn btn-ghost btn-sm" data-action="ueFromChannels">Usar investimento e clientes dos canais</button><button type="button" class="btn btn-ghost btn-sm" data-action="ueCopyBase">Copiar base para os outros cenários</button></div>';
+    }
+    function aiBlock() {
+      var vi = state.aiVar[toolId] || 0, v = t.ai[vi] || t.ai[0], prompt = MESA.tractionPrompt(t, d, env(), v), q = encodeURIComponent(prompt);
+      return '<section class="panel ai"><div class="panel-head"><div><h2>Apoio de IA</h2><p class="small muted">A IA não roda dentro da Mesa: monte o prompt com os dados desta ferramenta e das anteriores, use no Claude ou no ChatGPT e trate a resposta como sugestão a testar.</p></div></div>' +
+        '<div class="filters">' + t.ai.map(function (a, i) { return '<button data-ai-v="' + i + '" aria-pressed="' + (i === vi) + '">' + esc(a.label) + "</button>"; }).join("") + "</div>" +
+        '<details><summary class="small">Ver o prompt</summary><pre class="aipre">' + esc(prompt) + "</pre></details>" +
+        '<div class="row" style="margin-top:10px"><button class="btn btn-accent btn-sm" data-copy-ai>Copiar prompt</button><a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://claude.ai/new?q=' + q + '">Abrir no Claude</a><a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://chatgpt.com/?q=' + q + '">Abrir no ChatGPT</a></div>' +
+        '<details style="margin-top:12px"><summary class="small">Guardar a resposta da IA como nota do projeto</summary><textarea class="textarea" id="ai-answer" placeholder="Cole aqui a resposta"></textarea><div class="row" style="margin-top:8px"><span class="spacer"></span><button class="btn btn-primary btn-sm" data-save-ai>Salvar nota</button></div></details></section>';
+    }
+    function renderWork() {
+      var n = 0;
+      body.innerHTML = '<details class="panel reuse-box"' + (isNew ? " open" : "") + '><summary><b>Reaproveitado das etapas anteriores</b> <span class="small muted">· edite na origem</span></summary>' + reuseHtml(true) + "</details>" +
+        t.sections.map(function (s) {
+          if (s.type === "panel") return '<div data-panel="' + s.fn + '">' + MESA.TRACTION_PANELS[s.fn](d, env()) + "</div>";
+          n++;
+          var inner = s.type === "fields" ? '<div class="fgrid">' + s.fields.map(fieldBlock).join("") + "</div>" : s.type === "list" ? listBlock(s) : s.type === "decisions" ? decisionsBlock(s) : s.type === "unit" ? unitBlock() :
+            s.type === "model" ? '<div class="fgrid"><label class="field"><span>Modelo de negócio</span>' + inputHtml(MESA.CONTEXT_FIELDS.filter(function (f) { return f.id === "tipo"; })[0], (p.context || {}).tipo, 'data-ctxf="tipo"') + '<small>Salvo no contexto do projeto: vale para todas as ferramentas.</small></label></div>' : "";
+          var title = s.type === "unit" ? "Cenários" : s.type === "model" ? "Modelo de negócio" : s.title;
+          return '<section class="panel wsec" data-sec="' + (s.id || n) + '"><h2><span class="snum">' + n + "</span>" + esc(title) + "</h2>" + (s.help ? '<p class="small muted">' + esc(s.help) + "</p>" : "") + inner + "</section>";
+        }).join("") + aiBlock() +
+        '<div class="row" style="margin-top:16px"><span class="spacer"></span><button class="btn btn-accent" data-tab="resultado">Ver o resultado →</button></div>';
+    }
+    function renderResult() {
+      var e = env(), deliverable = MESA.tractionDeliverable(t, d, e), checks = MESA.tractionChecks(t, d, e), all = checks.every(function (c) { return c.ok; });
+      var art = state.artifacts.filter(function (a) { return a.tool_id === toolId; })[0];
+      body.innerHTML = '<div class="tresult"><section class="panel wide"><div class="panel-head"><div><h2>Resultado gerado</h2><p class="small muted">Montado a partir da área de trabalho. ' + (art ? "Última versão salva na Mesa em " + fmtDate(art.updated_at || art.created_at) + "." : "Ainda não salvo na Mesa.") + '</p></div><div class="row"><button class="btn btn-line btn-sm" data-copy-md>Copiar</button><button class="btn btn-line btn-sm" data-download>Baixar .md</button><button class="btn btn-accent btn-sm" data-save-art>' + (art ? "Atualizar na Mesa" : "Salvar na Mesa") + '</button></div></div><div class="md deliverable">' + md(deliverable) + "</div></section>" +
+        '<section class="panel"><h2>Critérios de qualidade</h2><p class="small muted">Marque o que o resultado já atende.</p><div class="qlist">' + t.quality.map(function (q, i) { return '<label class="check"><input type="checkbox" data-q="' + i + '"' + ((d._q || {})[i] ? " checked" : "") + "><span>" + esc(q) + "</span></label>"; }).join("") + "</div></section>" +
+        '<section class="panel"><h2>Critério de conclusão</h2><ul class="checks">' + checks.map(function (c) { return '<li class="' + (c.ok ? "ok" : "") + '">' + (c.ok ? "✓" : "○") + " " + esc(c.label) + "</li>"; }).join("") + "</ul>" + (t.doneNote ? '<p class="small muted">' + esc(t.doneNote) + "</p>" : "") +
+          (w.status === "concluido" ? '<p class="small"><b>Concluída.</b> O entregável está na Mesa.</p><button class="btn btn-ghost btn-sm" data-reopen>Reabrir</button>' : '<button class="btn btn-primary" data-conclude' + (all ? "" : " disabled") + ">Marcar como concluída</button>" + (all ? "" : '<p class="small muted">Complete os itens acima na área de trabalho para concluir.</p>')) + "</section>" +
+        '<section class="panel"><h2>Próxima ação</h2><p class="small muted">Sugestão: ' + esc(t.nextAction) + '</p><div class="fgrid"><label class="field span2"><span>Minha próxima ação, fora da ferramenta</span><input class="input" data-f="_acao" value="' + esc(d._acao || "") + '"></label><label class="field"><span>Até quando</span><input class="input" type="date" data-f="_acao_data" value="' + esc(d._acao_data || "") + '"></label></div></section>' +
+        '<section class="panel next-step"><h2>Próxima etapa</h2>' + (next ? '<p><b>' + next.n + ". " + esc(next.name) + "</b> · " + esc(next.question) + '</p><p class="small muted">Vai reaproveitar o que você registrou aqui.</p><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + next.id + '">Ir para ' + esc(next.name) + " →</a>" :
+          '<p>Você chegou ao fim da Fase 3. A partir daqui, a tração vira ciclo: mantenha a rotina de revisão, volte a First Customers e Traction Channels quando o roadmap pedir, e reveja Discovery e Validation se a evidência mudar.</p><a class="btn btn-line" href="#/p/' + p.id + '/ferramentas">Ver a jornada</a>') + "</section></div>";
+    }
+    function updateStatus() {
+      var s2 = toolState(toolId), el = document.getElementById("ws-status"); if (!el) return;
+      el.textContent = s2.label; el.className = "chip " + (s2.k === "done" ? "ok" : s2.k === "wip" ? "pers" : "");
+      main.querySelectorAll(".tmini li").forEach(function (li, i) { var x = MESA.TRACTION[i], k = toolState(x.id).k; li.className = "is-" + k + (x.id === toolId ? " is-cur" : ""); });
+    }
+    function render() {
+      updateStatus();
+      main.querySelectorAll("[role=tab]").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === tab); });
+      if (tab === "guia") renderGuide(); else if (tab === "trabalho") renderWork(); else renderResult();
+    }
+    function refreshPanels() {
+      var e = env();
+      body.querySelectorAll("[data-panel]").forEach(function (el) { el.innerHTML = MESA.TRACTION_PANELS[el.dataset.panel](d, e); });
+      body.querySelectorAll("[data-comp]").forEach(function (el) { var k = el.dataset.comp.split(":"), s = t.sections.filter(function (x) { return x.id === k[0]; })[0], c = s.columns.filter(function (x) { return x.id === k[2]; })[0]; el.textContent = c.computed(MESA.util.rows(d, k[0])[+k[1]] || {}); });
+    }
+    function changed() { saveWorkspace(w); refreshPanels(); updateStatus(); }
+    function rerender() { var y = window.scrollY; render(); window.scrollTo(0, y); }
+    function onInput(e) {
+      var el = e.target, ds = el.dataset;
+      if (ds.f) { d[ds.f] = el.value; changed(); }
+      else if (ds.l) { var list = d[ds.l] = MESA.util.rows(d, ds.l); list[+ds.r][ds.c] = el.value; changed(); }
+      else if (ds.dec) { var g = d[ds.dec] = d[ds.dec] || {}; g[ds.item] = g[ds.item] || {}; g[ds.item][ds.k] = el.value; changed(); }
+      else if (ds.ue) { d.ue = d.ue || {}; d.ue[ds.ue] = d.ue[ds.ue] || {}; d.ue[ds.ue][ds.v] = el.value; changed(); }
+      else if (ds.uo) { d.ue_origem = d.ue_origem || {}; d.ue_origem[ds.uo] = el.value; changed(); }
+      else if (ds.q != null && el.type === "checkbox") { d._q = d._q || {}; d._q[ds.q] = el.checked; saveWorkspace(w); }
+      else if (ds.ctxf) { p.context = p.context || {}; p.context[ds.ctxf] = el.value; saveContext(); refreshPanels(); }
+    }
+    main.addEventListener("input", onInput);
+    main.addEventListener("change", function (e) { if (e.target.tagName === "SELECT" || e.target.type === "checkbox" || e.target.type === "date") onInput(e); });
+    main.addEventListener("click", function (e) {
+      var b = e.target.closest("button, [data-tab]"); if (!b) return;
+      var ds = b.dataset;
+      if (ds.tab) { tab = state.tTab[toolId] = ds.tab; render(); window.scrollTo(0, main.querySelector(".ttabs").offsetTop - 70); }
+      else if (ds.add) { d[ds.add] = MESA.util.rows(d, ds.add).concat([{ _id: MESA.util.uid() }]); saveWorkspace(w); rerender(); var rs = body.querySelectorAll('[data-l="' + ds.add + '"]'); if (rs.length) { var last = body.querySelector('[data-l="' + ds.add + '"][data-r="' + (d[ds.add].length - 1) + '"]'); if (last) last.focus(); } }
+      else if (ds.del) { var row = MESA.util.rows(d, ds.del)[+ds.r] || {}; if (Object.keys(row).some(function (k) { return k !== "_id" && MESA.util.filled(row[k]); }) && !confirm("Remover esta linha?")) return; d[ds.del].splice(+ds.r, 1); saveWorkspace(w); rerender(); }
+      else if (ds.action) { var msg = MESA.TRACTION_ACTIONS[ds.action](d, env()); saveWorkspace(w); rerender(); toast(msg); }
+      else if (ds.use) { var f = null; t.sections.forEach(function (s) { (s.fields || []).forEach(function (x) { if (x.id === ds.use) f = x; }); }); d[ds.use] = f.prefill(env()); saveWorkspace(w); rerender(); }
+      else if (ds.useDec) { var k = ds.useDec.split(":"), s = t.sections.filter(function (x) { return x.id === k[0]; })[0], it = s.items.filter(function (x) { return x.id === k[1]; })[0]; d[k[0]] = d[k[0]] || {}; d[k[0]][k[1]] = Object.assign({}, d[k[0]][k[1]], { texto: it.prefill(env()) }); saveWorkspace(w); rerender(); }
+      else if (ds.decTipo) { var kk = ds.decTipo.split(":"); d[kk[0]] = d[kk[0]] || {}; d[kk[0]][kk[1]] = Object.assign({}, d[kk[0]][kk[1]], { tipo: ds.v }); saveWorkspace(w); b.parentNode.querySelectorAll("[role=radio]").forEach(function (x) { x.setAttribute("aria-checked", x === b); }); }
+      else if (ds.aiV != null) { state.aiVar[toolId] = +ds.aiV; rerender(); }
+      else if (b.hasAttribute("data-copy-ai")) { copy(MESA.tractionPrompt(t, d, env(), t.ai[state.aiVar[toolId] || 0])).then(function () { toast("Prompt copiado. Cole na sua IA."); track("traction_prompt_copied", { tool: toolId }); }); }
+      else if (b.hasAttribute("data-save-ai")) { var txt = document.getElementById("ai-answer").value.trim(); if (!txt) return toast("Cole a resposta antes de salvar."); b.disabled = true; sb.from("artifacts").insert({ project_id: p.id, stage: t.lens, title: ("IA · " + t.name + " · " + (t.ai[state.aiVar[toolId] || 0].label)).slice(0, 200), content: txt }).select().single().then(function (r) { b.disabled = false; if (r.error) return fail(r.error); state.artifacts.unshift(r.data); toast("Nota salva em Artefatos."); document.getElementById("ai-answer").value = ""; }); }
+      else if (b.hasAttribute("data-copy-md")) { copy(MESA.tractionDeliverable(t, d, env())).then(function () { toast("Entregável copiado em Markdown."); }); }
+      else if (b.hasAttribute("data-download")) { var blob = new Blob([MESA.tractionDeliverable(t, d, env())], { type: "text/markdown" }), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (p.name + " - " + t.name).replace(/[^\wÀ-ú -]+/g, "").trim() + ".md"; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(a.href); }, 1500); track("traction_deliverable_downloaded", { tool: toolId }); }
+      else if (b.hasAttribute("data-save-art")) { b.disabled = true; saveDeliverable().then(function () { b.disabled = false; rerender(); }); }
+      else if (b.hasAttribute("data-conclude")) { w.status = "concluido"; saveWorkspace(w); flushWorkspace().then(saveDeliverable).then(function () { track("traction_tool_done", { tool: toolId }); toast(MESA.DESK_OBJECT[toolId] + " na mesa. Ferramenta concluída."); rerender(); }); }
+      else if (b.hasAttribute("data-reopen")) { w.status = "em_andamento"; saveWorkspace(w); rerender(); }
+    });
+    function saveDeliverable() {
+      var content = MESA.tractionDeliverable(t, d, env()), art = state.artifacts.filter(function (a) { return a.tool_id === toolId; })[0];
+      var q = art ? sb.from("artifacts").update({ content: content }).eq("id", art.id).select().single() : sb.from("artifacts").insert({ project_id: p.id, tool_id: toolId, stage: t.lens, title: t.name + " · entregável", content: content }).select().single();
+      return q.then(function (r) { if (r.error) return fail(r.error); if (art) Object.assign(art, r.data); else state.artifacts.unshift(r.data); toast(art ? "Entregável atualizado na Mesa." : MESA.DESK_OBJECT[toolId] + " na mesa: entregável salvo."); });
+    }
+    render();
   }
 
   /* ---------- Ferramenta ---------- */
@@ -492,7 +708,7 @@
   /* ---------- Radar ---------- */
   function viewRadar(main) {
     var p = state.p, c = counts();
-    var moves = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos);
+    var moves = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces);
     var cur = MESA.matchRadar(p, c, 8);
     var saved = state.radar.slice().sort(function (a, b) { return (b.pinned - a.pinned) || (new Date(b.created_at) - new Date(a.created_at)); });
     main.innerHTML = head("Radar", "Sinais, temas e referências que se relacionam com o projeto. Quanto mais contexto e artefatos, mais preciso o radar fica.") +
@@ -534,7 +750,7 @@
     var p = state.p, email = state.session.user.email;
     main.innerHTML = head("Mentoria com o Miguel", "Quer um olhar de fora? Escolha o tema e os artefatos que ele deve ver antes da conversa.") +
       '<div class="cols-2"><section class="panel"><form class="form" id="mf">' +
-        '<label class="field"><span>Tema</span><select class="select" name="tema"><option>Entender o problema e o cliente</option><option>Hipóteses e experimentos</option><option>Leitura de evidências</option><option>Modelo de negócio e preço</option><option>Pitch e decisão</option><option>Projeto de inovação na organização</option><option>Outro</option></select></label>' +
+        '<label class="field"><span>Tema</span><select class="select" name="tema"><option>Entender o problema e o cliente</option><option>Hipóteses e experimentos</option><option>Leitura de evidências</option><option>Modelo de negócio e preço</option><option>Pitch e decisão</option><option>Primeiros clientes e vendas</option><option>Go-to-market e canais</option><option>Métricas e unit economics</option><option>Ativação e retenção</option><option>Projeto de inovação na organização</option><option>Outro</option></select></label>' +
         '<label class="field"><span>Em que você quer ajuda?</span><textarea class="textarea" name="mensagem" required maxlength="4000" placeholder="Contexto rápido, a decisão travada e o que você já tentou"></textarea></label>' +
         '<fieldset class="field" style="border:0;padding:0;margin:0"><span>Artefatos para compartilhar</span><small>O Miguel só verá os que você marcar.</small>' +
           (state.artifacts.length ? '<div class="list" style="margin-top:6px;max-height:220px;overflow:auto">' + state.artifacts.map(function (a) { return '<label class="item" style="cursor:pointer"><input type="checkbox" name="art" value="' + a.id + '"><span class="t" style="font-weight:500">' + esc(a.title) + "</span></label>"; }).join("") + "</div>" : '<p class="small muted">Nenhum artefato ainda.</p>') + "</fieldset>" +
@@ -566,10 +782,11 @@
         '<div class="row"><label class="field" style="flex:2;min-width:220px"><span>Nome do projeto</span><input class="input" id="pname" maxlength="120" value="' + esc(p.name) + '"></label>' +
         '<label class="field" style="flex:1;min-width:200px"><span>Tipo</span><select class="select" id="pkind"><option value="empreendedor"' + (p.kind === "empreendedor" ? " selected" : "") + '>Projeto empreendedor</option><option value="inovacao"' + (p.kind === "inovacao" ? " selected" : "") + ">Inovação em uma organização</option></select></label></div>" +
         fields.map(function (f) {
+          if (f.options) return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint) + '</small><select class="select" data-ctx="' + f.id + '">' + f.options.map(function (o) { return '<option value="' + o[0] + '"' + ((ctx[f.id] || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select></label>";
           return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint) + "</small>" + (f.long ? '<textarea class="textarea" data-ctx="' + f.id + '" placeholder="' + esc(f.ph) + '">' + esc(ctx[f.id] || "") + "</textarea>" : '<input class="input" data-ctx="' + f.id + '" placeholder="' + esc(f.ph) + '" value="' + esc(ctx[f.id] || "") + '">') + "</label>";
         }).join("") +
       '</div></section><section class="panel"><h2>Zona de perigo</h2><p class="small muted" style="margin:6px 0 12px">Excluir o projeto apaga artefatos, quadro, radar e pedidos de mentoria.</p><button class="btn btn-line btn-danger" data-act="del-project">Excluir projeto</button></section>';
-    main.querySelectorAll("[data-ctx]").forEach(function (el) { el.oninput = function () { ctx[el.dataset.ctx] = el.value; saveContext(); }; });
+    main.querySelectorAll("[data-ctx]").forEach(function (el) { el.oninput = el.onchange = function () { ctx[el.dataset.ctx] = el.value; saveContext(); }; });
     var saveMeta = debounce(function () {
       var name = document.getElementById("pname").value.trim(); if (!name) return;
       p.name = name; p.kind = document.getElementById("pkind").value;
@@ -588,6 +805,7 @@
     var el = e.target.closest("[data-act]"); if (!el) return;
     var act = el.dataset.act;
     if (act === "logout") { sb.auth.signOut().then(function () { state = Object.assign(state, { p: null, projects: [] }); go("#/"); }); }
+    else if (act === "scroll") { e.preventDefault(); var tg = document.getElementById(el.dataset.target); if (tg) tg.scrollIntoView({ behavior: "smooth", block: "start" }); }
     else if (act === "new-project") newProjectModal();
     else if (act === "tfilter") { state.toolFilter = el.dataset.f; route(); }
     else if (act === "bfilter") { state.boardFilter = el.dataset.f; route(); }

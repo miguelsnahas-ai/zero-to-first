@@ -54,16 +54,25 @@ window.MESA = window.MESA || {};
     modelo: svg('<rect x="34" y="18" width="78" height="64" fill="#3B4C7A" stroke="' + K + '" stroke-width="2.4"/>' + '<path d="M42 28H104M42 40H104M42 52H104M42 64H104M54 22V78M70 22V78M86 22V78" stroke="#FFFFFF" stroke-width="1" opacity=".45"/>' + r(46, 32, 20, 14, 1, "none", ' stroke="#FFFFFF" stroke-width="1.6"') + s("M76 46L96 46L96 66", "none", ' stroke="#FFFFFF" stroke-width="1.6"') +
       r(16, 14, 22, 72, 11, "#5A6C9E") + '<ellipse cx="27" cy="20" rx="11" ry="5" fill="#2E3B60" stroke="' + K + '" stroke-width="2.4"/>'),
     pitch: svg(s("M60 62V86M42 90H78", "none", ' stroke-width="3"') + s("M46 46C46 56 52 62 60 62S74 56 74 46") + r(48, 8, 24, 44, 12, P) + '<path d="M52 18H68M52 26H68M52 34H68M52 42H68" stroke="' + W + '" stroke-width="1.4" opacity=".55"/>' +
-      '<path d="M86 22c5 5 5 13 0 18M93 16c9 9 9 21 0 30" stroke="' + O + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>')
+      '<path d="M86 22c5 5 5 13 0 18M93 16c9 9 9 21 0 30" stroke="' + O + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>'),
+    // TRACTION
+    first: svg(r(18, 62, 84, 26, 6, P) + c(30, 75, 5, O) + c(90, 75, 5, O) + '<g transform="rotate(-10 46 44)">' + r(26, 22, 44, 34, 3, PE) + "</g>" + '<g transform="rotate(8 74 44)">' + r(52, 22, 44, 34, 3, LI) + "</g>" + r(36, 18, 48, 40, 3, W) + c(48, 30, 5, SA) + txt(57, 28, 22, 2, 6) + txt(42, 42, 36, 2, 6) + ln(36, 18, 84, 18, 3, O)),
+    gtm: svg(c(60, 52, 38, W) + c(60, 52, 30, "none", ' stroke-width="1.6" opacity=".4"') + '<text x="60" y="27" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="700" fill="' + K + '">N</text>' + s("M60 52L72 30L64 54Z", O) + s("M60 52L48 74L56 50Z", P) + c(60, 52, 4, W) + ln(60, 14, 60, 8, 3) + c(60, 6, 3, Y)),
+    playbook: svg(r(26, 10, 66, 82, 5, P) + r(32, 14, 58, 74, 3, W) + [22, 40, 58, 76].map(function (y) { return c(32, y, 4, SD); }).join("") + r(90, 18, 12, 14, 2, O) + r(90, 36, 12, 14, 2, SA) + r(90, 54, 12, 14, 2, LI) + '<text x="62" y="34" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="9" fill="' + K + '">PLAYBOOK</text>' + txt(44, 46, 38, 4, 9)),
+    channels: svg(s("M22 44L76 20V84L22 60Z", O) + r(12, 42, 14, 20, 3, P) + s("M30 62L38 84H48L42 64", W) + '<path d="M86 40c6 6 6 18 0 24M94 32c10 10 10 30 0 40M102 26c13 13 13 39 0 52" stroke="' + K + '" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".75"/>'),
+    metrics: svg(s("M14 12H106L90 34H30Z", LI) + s("M30 34H90L78 56H42Z", PE) + s("M42 56H78L68 76H52Z", O) + s("M52 76H68V90H52Z", P) + c(60, 96, 3, Y, ' stroke-width="1.4"') + txt(40, 22, 40, 1, 0)),
+    unit: svg('<ellipse cx="58" cy="58" rx="40" ry="28" fill="' + PE + '" stroke="' + K + '" stroke-width="2.4"/>' + s("M30 40L26 26L42 34", PE) + r(94, 50, 14, 16, 6, PE) + c(99, 58, 1.6, K, ' stroke-width="0"') + c(104, 58, 1.6, K, ' stroke-width="0"') + c(78, 48, 2.4, K, ' stroke-width="0"') + r(36, 80, 10, 12, 2, PE) + r(66, 80, 10, 12, 2, PE) + ln(50, 34, 66, 34, 3) + '<ellipse cx="58" cy="16" rx="12" ry="4" fill="' + Y + '" stroke="' + K + '" stroke-width="2.4"/>' + s("M46 16v6c0 2 5 4 12 4s12-2 12-4v-6", Y)),
+    review: svg(r(16, 16, 88, 76, 6, W) + '<rect x="16" y="16" width="88" height="20" rx="6" fill="' + O + '" stroke="' + K + '" stroke-width="2.4"/>' + ln(36, 10, 36, 22, 4) + ln(84, 10, 84, 22, 4) + [0, 1, 2, 3, 4].map(function (i) { return [0, 1, 2].map(function (j) { return r(24 + i * 16, 44 + j * 15, 10, 10, 2, i === 0 && j === 1 ? SA : "none", ' stroke-width="1.4" opacity="' + (i === 0 && j === 1 ? 1 : 0.5) + '"'); }).join(""); }).join("") + '<path d="M25 63l3 3 6-7" stroke="#2F6B3A" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
   };
 
   // Ordem na mesa, por lente do método (a mesa não é uma trilha: os objetos podem chegar em qualquer ordem)
-  MESA.DESK_ORDER = ["territorio", "mercado", "jtbd", "roteiro", "analisador", "journey", "beachhead", "csd", "problema", "importancia", "resultados", "working", "mvp", "criterios", "bml", "csd2", "metricas", "stress", "modelo", "pitch"];
+  MESA.DESK_ORDER = ["territorio", "mercado", "jtbd", "roteiro", "analisador", "journey", "beachhead", "csd", "problema", "importancia", "resultados", "working", "mvp", "criterios", "bml", "csd2", "metricas", "stress", "modelo", "pitch", "first", "gtm", "playbook", "channels", "metrics", "unit", "review"];
   MESA.DESK_OBJECT = {
     territorio: "Mapa", mercado: "Calculadora", jtbd: "Post-its", roteiro: "Telefone", analisador: "Fones", journey: "Linha da jornada",
     beachhead: "Alvo", csd: "Matriz de post-its", problema: "Lupa", importancia: "Papel quadriculado", resultados: "Prancheta", working: "Jornal",
     mvp: "Blocos de montar", criterios: "Ampulheta", bml: "Frasco de teste", csd2: "Post-its revisados", metricas: "Tablet",
-    stress: "Balança", modelo: "Planta baixa", pitch: "Microfone"
+    stress: "Balança", modelo: "Planta baixa", pitch: "Microfone",
+    first: "Agenda de contatos", gtm: "Bússola", playbook: "Fichário de vendas", channels: "Megafone", metrics: "Funil", unit: "Cofrinho", review: "Calendário de revisão"
   };
   MESA.deskArt = function (id) { return ART[id] || ""; };
 
