@@ -75,6 +75,11 @@ MESA.nextMoves = function (project, artifacts, board, pedidos, workspaces) {
   var ctx = project.context || {};
   var moves = [];
   workspaces = workspaces || [];
+  // Projeto sem nenhuma ferramenta usada: o primeiro passo é a ferramenta recomendada para o momento dele
+  if (MESA.recommendTool && !artifacts.some(function (a) { return a.tool_id; }) && !workspaces.length) {
+    var rec = MESA.recommendTool(project, artifacts, workspaces), rt = rec && MESA.TOOLS.filter(function (t) { return t.id === rec; })[0];
+    if (rt) moves.push({ text: "Comece por " + rt.name + ": " + rt.desc.charAt(0).toLowerCase() + rt.desc.slice(1), action: { type: "tool", id: rt.id } });
+  }
   // Fase 3 (Traction): segue a ordem pedagógica das sete ferramentas
   if (MESA.TRACTION) {
     var wsBy = {}; workspaces.forEach(function (w) { wsBy[w.tool_id] = w; });
@@ -110,6 +115,8 @@ MESA.nextMoves = function (project, artifacts, board, pedidos, workspaces) {
   if (artifacts.length >= 4 && !used.stress) moves.push({ text: "Teste a solidez do projeto com o stress test.", action: { type: "tool", id: "stress" } });
   if (artifacts.length >= 3 && !pedidos.length) moves.push({ text: "Quer uma segunda opinião? Peça feedback ao Miguel.", action: { type: "tab", id: "mentoria" } });
   if (!moves.length) moves.push({ text: "Rode o radar de sinais para trazer referências novas ao projeto.", action: { type: "tab", id: "radar" } });
+  var seenMove = {};
+  moves = moves.filter(function (m) { var k = m.action.type + ":" + (m.action.id || ""); if (seenMove[k]) return false; seenMove[k] = 1; return true; });
   return moves.slice(0, 3);
 };
 
