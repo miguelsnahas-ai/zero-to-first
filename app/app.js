@@ -44,12 +44,12 @@
   function counts() { var c = {}; state.artifacts.forEach(function (a) { if (a.stage) c[a.stage] = (c[a.stage] || 0) + 1; }); return c; }
 
   /* ---------------- modal ---------------- */
-  function modal(html, onMount) {
+  function modal(html, onMount, opts) {
     var wrap = document.createElement("div"); wrap.className = "modal"; wrap.setAttribute("role", "dialog"); wrap.setAttribute("aria-modal", "true");
     wrap.innerHTML = '<div class="modal-box">' + html + "</div>";
     function close() { wrap.remove(); document.removeEventListener("keydown", onKey); }
     function onKey(e) { if (e.key === "Escape") close(); }
-    wrap.addEventListener("click", function (e) { if (e.target === wrap || e.target.closest("[data-close]")) close(); });
+    wrap.addEventListener("click", function (e) { if ((e.target === wrap && !(opts && opts.sticky)) || e.target.closest("[data-close]")) close(); });
     document.addEventListener("keydown", onKey);
     document.body.appendChild(wrap);
     var first = wrap.querySelector("input, textarea, select, button"); if (first) first.focus();
@@ -166,28 +166,128 @@
       $app.querySelector(".page").innerHTML =
         '<div class="page-head"><div><p class="label">Mesa de Trabalho</p><h1>Seus projetos</h1></div><button class="btn btn-primary" data-act="new-project">+ Novo projeto</button></div>' +
         (state.projects.length ? '<div class="grid-cards">' + cards + "</div>" :
-          '<div class="empty"><h2>Comece pelo seu primeiro projeto</h2><p>Um negócio que você quer tirar do papel ou um projeto de inovação na sua organização.</p><button class="btn btn-accent" data-act="new-project">Criar projeto</button></div>');
+          '<div class="empty first-project"><span class="wel-arts">' + ["roteiro", "csd", "mvp", "first"].map(MESA.deskArt).join("") + '</span><h2>Monte a mesa do seu primeiro projeto</h2><p>Um negócio que você quer tirar do papel ou um projeto de inovação na sua organização. Em poucos minutos, o assistente reúne o contexto e indica por onde começar.</p><button class="btn btn-accent" data-act="new-project">Criar meu primeiro projeto</button></div>');
     }).catch(fail);
   }
 
+  /* ---------- Novo projeto: assistente em etapas ---------- */
   function newProjectModal() {
-    modal('<h2>Novo projeto</h2><form class="form" id="np">' +
-      '<label class="field"><span>Nome do projeto</span><input class="input" name="name" required maxlength="120" placeholder="Ex.: Caixa da Clínica"></label>' +
-      '<fieldset class="field" style="border:0;padding:0;margin:0"><span>Tipo</span><div class="row">' +
-      '<label class="chip" style="cursor:pointer"><input type="radio" name="kind" value="empreendedor" checked> Projeto empreendedor</label>' +
-      '<label class="chip" style="cursor:pointer"><input type="radio" name="kind" value="inovacao"> Inovação em uma organização</label></div></fieldset>' +
-      '<label class="field"><span>Em uma frase, qual é a ideia?</span><input class="input" name="ideia" maxlength="300" placeholder="Opcional, dá para preencher depois"></label>' +
-      '<div class="row"><span class="spacer"></span><button type="button" class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-primary">Criar</button></div></form>',
-      function (box, close) {
-        box.querySelector("#np").onsubmit = function (e) {
-          e.preventDefault(); var f = e.target; var name = f.name.value.trim(); if (!name) return f.name.focus();
-          var ctx = {}; if (f.ideia.value.trim()) ctx.ideia = f.ideia.value.trim();
-          sb.from("projects").insert({ name: name, kind: f.kind.value, context: ctx }).select().single().then(function (r) {
-            if (r.error) return fail(r.error);
-            close(); track("project_created", { kind: f.kind.value }); state.p = null; go("#/p/" + r.data.id);
+    var wz = { name: "", kind: "empreendedor", start: "", ctx: {}, hipotese: "" }, step = 0;
+    var FIELD = {}; MESA.CONTEXT_FIELDS.forEach(function (f) { FIELD[f.id] = f; });
+    var STEPS = [{ title: "Começo" }, { title: "Momento" }].concat(MESA.WIZARD_STEPS).concat([{ title: "Pronto" }]);
+    function fieldHtml(id) {
+      var f = FIELD[id]; if (!f || (f.kind && f.kind !== wz.kind)) return "";
+      var v = wz.ctx[id] || "", a = 'data-w="' + id + '" placeholder="' + esc(f.ph || "") + '"';
+      var input = f.options ? '<select class="select" data-w="' + id + '">' + f.options.map(function (o) { return '<option value="' + o[0] + '"' + (v === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>"
+        : f.long ? '<textarea class="textarea" ' + a + ">" + esc(v) + "</textarea>" : '<input class="input" ' + a + ' value="' + esc(v) + '">';
+      return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint || "") + "</small>" + input + "</label>";
+    }
+    function filledCount() { return MESA.CONTEXT_FIELDS.filter(function (f) { return (!f.kind || f.kind === wz.kind) && (wz.ctx[f.id] || "").trim(); }).length; }
+    function totalFields() { return MESA.CONTEXT_FIELDS.filter(function (f) { return !f.kind || f.kind === wz.kind; }).length; }
+    function body() {
+      var s = STEPS[step];
+      if (step === 0) return '<h2>Novo projeto</h2><p class="muted">Quanto mais contexto agora, melhores ficam as ferramentas, os prompts e as sugestões da mesa. Tudo pode ser editado depois.</p>' +
+        '<label class="field"><span>Nome do projeto</span><input class="input" data-wn="name" maxlength="120" placeholder="Ex.: Caixa da Clínica" value="' + esc(wz.name) + '"></label>' +
+        '<div class="field"><span>Tipo</span><div class="seg wseg" role="radiogroup" aria-label="Tipo de projeto"><button type="button" role="radio" data-kind="empreendedor" aria-checked="' + (wz.kind === "empreendedor") + '">Projeto empreendedor</button><button type="button" role="radio" data-kind="inovacao" aria-checked="' + (wz.kind === "inovacao") + '">Inovação em uma organização</button></div></div>' +
+        fieldHtml("ideia") +
+        '<details class="wimport"' + (wz.importOpen ? " open" : "") + '><summary><b>Atalho:</b> já tem um texto sobre o projeto? Pitch, resumo ou one-pager.</summary>' +
+          '<p class="small muted">Cole o texto, use o prompt na sua IA e cole a resposta: o assistente preenche os campos para você revisar. A IA não roda dentro da Mesa.</p>' +
+          '<textarea class="textarea" id="wz-src" placeholder="Cole aqui o texto sobre o projeto">' + esc(wz.src || "") + '</textarea>' +
+          '<div class="row"><button type="button" class="btn btn-line btn-sm" data-wact="prompt">Copiar prompt</button><a class="btn btn-ghost btn-sm" id="wz-claude" target="_blank" rel="noopener">Abrir no Claude</a><a class="btn btn-ghost btn-sm" id="wz-gpt" target="_blank" rel="noopener">Abrir no ChatGPT</a></div>' +
+          '<textarea class="textarea" id="wz-ans" placeholder="Cole aqui a resposta da IA"></textarea>' +
+          '<div class="row"><span class="spacer"></span><button type="button" class="btn btn-accent btn-sm" data-wact="import">Preencher com a resposta</button></div></details>';
+      if (step === 1) return '<h2>Em que momento o projeto está?</h2><p class="muted">Define por onde a mesa começa. Não é uma trilha: você pode visitar qualquer etapa depois.</p><div class="starts">' +
+        MESA.STARTS.map(function (st) { var t = TOOL[st.tool]; return '<button type="button" class="start' + (wz.start === st.id ? " is-on" : "") + '" data-start="' + st.id + '"><span class="start-art">' + MESA.deskArt(st.tool) + "</span><span><b>" + esc(st.title) + "</b><small>" + esc(st.desc) + '</small><em>Fase ' + MESA.PHASES.filter(function (p) { return p.lenses.indexOf(st.lens) !== -1; })[0].n + " · começa por " + esc(t.name) + "</em></span></button>"; }).join("") + "</div>";
+      if (s.fields) return "<h2>" + esc(s.title) + '</h2><p class="muted">' + esc(s.lead) + "</p>" + s.fields.map(fieldHtml).join("") +
+        (s.id === "evidencias" ? '<label class="field"><span>Sua aposta mais arriscada</span><small>O que precisa ser verdade para o projeto dar certo e ainda não foi provado? Vai direto para o quadro do projeto.</small><input class="input" data-wh="1" placeholder="Ex.: donas de clínica pagariam R$ 99/mês para não esquecer cobranças" value="' + esc(wz.hipotese) + '"></label>' : "");
+      var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0] || MESA.STARTS[0], rec = TOOL[st.tool], n = filledCount(), tot = totalFields();
+      return '<h2>Sua mesa está pronta</h2><div class="wdone"><div class="wmeter"><b>' + n + "/" + tot + '</b><span>campos de contexto</span><span class="pbar"><i style="width:' + Math.round(n / tot * 100) + '%"></i></span>' +
+        (n < 6 ? '<small class="muted">Dá para completar depois em Contexto. As ferramentas ficam mais precisas com pelo menos 6 campos.</small>' : '<small class="muted">Ótimo ponto de partida.</small>') + "</div>" +
+        '<div class="wrec"><span class="start-art">' + MESA.deskArt(rec.id) + '</span><div><p class="label">Primeiro objeto da sua mesa</p><b>' + esc(rec.name) + "</b><p>" + esc(rec.desc) + "</p></div></div>" +
+        (wz.hipotese ? '<p class="small">Sua aposta mais arriscada vai para o quadro como hipótese: <b>“' + esc(wz.hipotese) + '”</b></p>' : "") + "</div>";
+    }
+    function nav() {
+      var last = step === STEPS.length - 1;
+      return '<div class="wnav">' + (step ? '<button type="button" class="btn btn-ghost" data-wact="back">Voltar</button>' : '<button type="button" class="btn btn-ghost" data-close>Cancelar</button>') + '<span class="spacer"></span>' +
+        (step >= 1 && !last ? '<button type="button" class="btn btn-ghost" data-wact="create">Criar agora e completar depois</button>' : "") +
+        (last ? '<button type="button" class="btn btn-accent" data-wact="create">Criar projeto e abrir a mesa</button>' : '<button type="button" class="btn btn-primary" data-wact="next">' + (step === 0 ? "Continuar" : "Próximo") + "</button>") + "</div>";
+    }
+    modal('<div class="wizard"><ol class="wsteps">' + STEPS.map(function (s, i) { return "<li data-i=\"" + i + "\">" + esc(s.short || s.title) + "</li>"; }).join("") + '</ol><div class="wbody"></div><div class="wfoot"></div></div>', function (box, close) {
+      box.classList.add("wide");
+      var b = box.querySelector(".wbody"), foot = box.querySelector(".wfoot");
+      function collect() {
+        box.querySelectorAll("[data-w]").forEach(function (el) { var v = el.value.trim(); if (v) wz.ctx[el.dataset.w] = v; else delete wz.ctx[el.dataset.w]; });
+        var n = box.querySelector("[data-wn]"); if (n) wz.name = n.value.trim();
+        var h = box.querySelector("[data-wh]"); if (h) wz.hipotese = h.value.trim();
+        var src = box.querySelector("#wz-src"); if (src) wz.src = src.value;
+      }
+      function promptLinks() {
+        var src = box.querySelector("#wz-src"); if (!src) return;
+        var upd = function () { var q = encodeURIComponent(MESA.importPrompt(src.value, wz.kind)); box.querySelector("#wz-claude").href = "https://claude.ai/new?q=" + q; box.querySelector("#wz-gpt").href = "https://chatgpt.com/?q=" + q; };
+        src.oninput = upd; upd();
+      }
+      function render() {
+        b.innerHTML = body(); foot.innerHTML = nav();
+        box.querySelectorAll(".wsteps li").forEach(function (li, i) { li.className = i === step ? "is-cur" : i < step ? "is-done" : ""; });
+        promptLinks(); var first = b.querySelector("input, textarea, select"); if (first && step !== 1) first.focus();
+        box.scrollTop = 0;
+      }
+      function create(btn) {
+        collect();
+        if (!wz.name) { step = 0; render(); toast("Dê um nome ao projeto."); return box.querySelector("[data-wn]").focus(); }
+        var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0];
+        btn.disabled = true;
+        sb.from("projects").insert({ name: wz.name, kind: wz.kind, focus: st ? st.lens : "entender", context: wz.ctx }).select().single().then(function (r) {
+          if (r.error) { btn.disabled = false; return fail(r.error); }
+          var pid = r.data.id;
+          track("project_created", { kind: wz.kind, start: wz.start || "nao_informado", context_fields: filledCount(), imported: !!wz.imported });
+          var after = wz.hipotese ? sb.from("board_items").insert({ project_id: pid, kind: "hipotese", status: "aberto", title: wz.hipotese.slice(0, 300), body: "Registrada ao criar o projeto." }) : Promise.resolve({});
+          return after.then(function (r2) {
+            if (r2 && r2.error) fail(r2.error);
+            try { sessionStorage.setItem("mesa-novo-" + pid, "1"); } catch (e) {}
+            close(); state.p = null; go("#/p/" + pid);
           });
-        };
+        });
+      }
+      box.addEventListener("click", function (e) {
+        var t = e.target.closest("button"); if (!t) return;
+        if (t.dataset.kind) { collect(); wz.kind = t.dataset.kind; render(); }
+        else if (t.dataset.start) { wz.start = t.dataset.start; box.querySelectorAll(".start").forEach(function (x) { x.classList.toggle("is-on", x === t); }); }
+        else if (t.dataset.wact === "next") { collect(); if (step === 0 && !wz.name) { toast("Dê um nome ao projeto."); return box.querySelector("[data-wn]").focus(); } if (step === 1 && !wz.start) return toast("Escolha o momento do projeto."); step++; render(); }
+        else if (t.dataset.wact === "back") { collect(); step--; render(); }
+        else if (t.dataset.wact === "create") create(t);
+        else if (t.dataset.wact === "prompt") { var src = box.querySelector("#wz-src").value.trim(); if (!src) return toast("Cole o texto do projeto primeiro."); copy(MESA.importPrompt(src, wz.kind)).then(function () { toast("Prompt copiado. Cole na sua IA."); }); }
+        else if (t.dataset.wact === "import") {
+          var got = MESA.parseImport(box.querySelector("#wz-ans").value), keys = Object.keys(got);
+          if (!keys.length) return toast("Não encontrei campos na resposta. Confira se ela veio no formato “Campo: valor”.");
+          collect(); if (got.hipotese) { wz.hipotese = wz.hipotese || got.hipotese; delete got.hipotese; }
+          Object.keys(got).forEach(function (k) { if (FIELD[k] && !wz.ctx[k]) wz.ctx[k] = got[k]; });
+          wz.imported = true; wz.importOpen = false; render(); toast(keys.length + " campo(s) preenchido(s). Revise nas próximas etapas."); track("project_context_imported", { n: keys.length });
+        }
       });
+      box.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); var nx = box.querySelector('[data-wact="next"]') || box.querySelector('[data-wact="create"]'); if (nx) nx.click(); } });
+      render();
+    }, { sticky: true });
+  }
+
+  /* ---------- Boas-vindas na mesa (primeira visita) ---------- */
+  function welcome(rec) {
+    var slides = [
+      { art: '<span class="wel-arts">' + ["jtbd", "roteiro", "csd", "mvp"].map(MESA.deskArt).join("") + "</span>", t: "Esta é a sua mesa de trabalho", d: "Ela começa vazia. Cada ferramenta que você preenche traz um objeto para cá: post-its, telefone, lupa, ampulheta. Conforme o projeto avança, a mesa ganha vida." },
+      { art: '<span class="wel-arts">' + MESA.PHASES.map(function (p) { return '<b class="pn">' + p.n + "</b>"; }).join("") + "</span>", t: "Três fases, uma decisão por vez", d: "Discovery, Validation e Traction. Não é uma trilha rígida: o próximo passo sugerido aparece no cartão da parede e você pode visitar qualquer ferramenta pela Jornada." },
+      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pelo contexto", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro objeto chega à mesa." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
+    ];
+    var i = 0;
+    modal('<div class="welcome"></div>', function (box, close) {
+      var el = box.querySelector(".welcome");
+      function render() {
+        var s = slides[i];
+        el.innerHTML = '<div class="wel-art">' + s.art + "</div><h2>" + esc(s.t) + "</h2><p>" + esc(s.d) + '</p><div class="wel-dots">' + slides.map(function (x, k) { return "<i" + (k === i ? ' class="on"' : "") + "></i>"; }).join("") + '</div><div class="wnav"><button type="button" class="btn btn-ghost" data-close>Pular</button><span class="spacer"></span>' +
+          (i < slides.length - 1 ? '<button type="button" class="btn btn-primary" data-wel="next">Próximo</button>' : (rec ? '<a class="btn btn-accent" data-close href="#/p/' + state.p.id + "/ferramenta/" + rec + '">Abrir ' + esc(TOOL[rec].name) + " →</a>" : '<a class="btn btn-accent" data-close href="#/p/' + state.p.id + '/contexto">Preencher o contexto →</a>')) + "</div>";
+      }
+      el.addEventListener("click", function (e) { if (e.target.closest('[data-wel="next"]')) { i++; render(); } });
+      render();
+    });
   }
 
   /* ================= PROJETO ================= */
@@ -231,6 +331,18 @@
   function seenKey() { return "mesa-vista-" + state.p.id; }
   function readSeen() { try { return JSON.parse(localStorage.getItem(seenKey()) || "null"); } catch (e) { return null; } }
   function writeSeen(ids) { try { localStorage.setItem(seenKey(), JSON.stringify(ids)); } catch (e) {} }
+  function onboardHtml() {
+    var p = state.p; if ((p.context || {})._onb_off) return "";
+    var steps = MESA.firstSteps(p, state.artifacts, state.board, state.radar, state.workspaces), done = steps.filter(function (x) { return x.done; }).length;
+    if (done === steps.length) return "";
+    var next = steps.filter(function (x) { return !x.done; })[0];
+    return '<section class="onb" aria-label="Primeiros passos"><div class="onb-head"><div><p class="label">Primeiros passos</p><h2>' + done + " de " + steps.length + ' feitos</h2></div><span class="pbar"><i style="width:' + Math.round(done / steps.length * 100) + '%"></i></span><button class="btn btn-ghost btn-sm" data-onb-off>Ocultar</button></div><ol class="onb-list">' +
+      steps.map(function (x) {
+        var inner = '<span class="onb-check">' + (x.done ? "✓" : "") + "</span><span><b>" + esc(x.label) + "</b><small>" + esc(x.hint) + "</small></span>";
+        var cls = "onb-item" + (x.done ? " is-done" : "") + (x === next ? " is-next" : "");
+        return "<li>" + (x.done ? '<div class="' + cls + '">' + inner + "</div>" : x.act ? '<button class="' + cls + '" data-act="' + x.act + '">' + inner + "</button>" : '<a class="' + cls + '" href="#/p/' + p.id + "/" + x.href + '">' + inner + "</a>") + "</li>";
+      }).join("") + "</ol></section>";
+  }
   function viewMesa(main) {
     var p = state.p, ctx = p.context || {}, byTool = {};
     state.artifacts.forEach(function (a) { if (a.tool_id) (byTool[a.tool_id] = byTool[a.tool_id] || []).push(a); });
@@ -245,11 +357,12 @@
     var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces)[0];
     var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
 
+    var rec = MESA.recommendTool(p, state.artifacts, state.workspaces);
     var wip = {}; state.workspaces.forEach(function (w) { if (!byTool[w.tool_id]) wip[w.tool_id] = true; });
     var zoneHtml = function (l) {
       var objs = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).map(function (id) {
         var t = TOOL[id], n = (byTool[id] || []).length;
-        return '<button class="obj ' + (n ? "is-on" : wip[id] ? "is-wip" : "is-empty") + (fresh[id] ? " is-new" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
+        return '<button class="obj ' + (n ? "is-on" : wip[id] ? "is-wip" : "is-empty") + (fresh[id] ? " is-new" : "") + (id === rec && !n && !wip[id] ? " is-reco" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
           '<span class="art">' + MESA.deskArt(id) + '</span><span class="tag">' + esc(t.name) + "</span>" + (n > 1 ? '<span class="badge">' + n + "</span>" : "") + "</button>";
       }).join("");
       var n = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).length;
@@ -276,6 +389,7 @@
     main.innerHTML =
       '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div>' +
         '<ol class="msteps" aria-label="Etapas do método">' + steps + "</ol></div>" +
+      onboardHtml() +
       '<div class="scene' + (state.artifacts.length ? " is-lit" : "") + '">' +
         '<div class="wall">' +
           '<div class="window">' + MESA.sceneWindow() + "</div>" +
@@ -301,6 +415,11 @@
         "</div>" +
         '<div class="chair">' + MESA.chair() + "</div>" +
       "</div>";
+    var ob = main.querySelector("[data-onb-off]");
+    if (ob) ob.onclick = function () { p.context = p.context || {}; p.context._onb_off = true; saveContext(); main.querySelector(".onb").remove(); toast("Primeiros passos ocultos. As sugestões continuam no cartão da parede."); };
+    var isNew = false, seenTour = false;
+    try { isNew = sessionStorage.getItem("mesa-novo-" + p.id) === "1"; seenTour = localStorage.getItem("mesa-tour-v1") === "1"; } catch (e) { seenTour = true; }
+    if (isNew || !seenTour) { try { sessionStorage.removeItem("mesa-novo-" + p.id); localStorage.setItem("mesa-tour-v1", "1"); } catch (e) {} setTimeout(function () { welcome(rec); }, 350); }
     main.querySelectorAll("[data-act=mesa-focus]").forEach(function (b) { b.onclick = function () { setFocus(b.dataset.lens); viewMesa(main); }; });
 
     main.querySelectorAll(".obj").forEach(function (el) {

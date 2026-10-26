@@ -1,0 +1,87 @@
+/* Mesa de Trabalho · onboarding (complementa app.css) */
+
+/* Assistente de novo projeto */
+.modal-box.wide { max-width: 760px; }
+.wizard { display: flex; flex-direction: column; gap: 14px; }
+.wsteps { display: flex; gap: 4px; margin: -4px 0 4px; overflow-x: auto; }
+.wsteps li { flex: 1; min-width: 72px; padding: 8px 4px 0; border-top: 4px solid var(--line); font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.wsteps li.is-done { border-top-color: var(--ok); color: var(--ink-soft); }
+.wsteps li.is-cur { border-top-color: var(--pers); color: var(--ink); }
+.wbody { display: flex; flex-direction: column; gap: 14px; }
+.wbody h2 { margin-bottom: 0; }
+.wbody > p.muted { margin-top: -6px; }
+.wbody .textarea { min-height: 70px; }
+.wseg { display: inline-flex; flex-wrap: wrap; border: 1.5px solid var(--line-strong); border-radius: 12px; overflow: hidden; align-self: flex-start; }
+.wseg button { border: 0; background: var(--white); padding: 9px 14px; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+.wseg button + button { border-left: 1px solid var(--line); }
+.wseg button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
+.wimport { padding: 12px 14px; border: 1.5px dashed var(--line-strong); border-radius: 12px; background: var(--white); }
+.wimport > summary { cursor: pointer; font-size: 14.5px; }
+.wimport[open] { display: grid; gap: 10px; }
+.wimport[open] > summary { margin-bottom: 2px; }
+.wnav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
+.starts { display: grid; gap: 10px; }
+.start { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); text-align: left; cursor: pointer; }
+.start:hover { border-color: var(--ink); }
+.start.is-on { border-color: var(--pers); box-shadow: inset 0 0 0 1px var(--pers); background: #FFF6F1; }
+.start b { display: block; font-family: var(--serif); font-weight: 500; font-size: 18px; }
+.start small { display: block; color: var(--ink-soft); font-size: 14px; }
+.start em { display: block; margin-top: 4px; font-style: normal; font-size: 12.5px; font-weight: 600; color: var(--pers-ink); }
+.start-art svg { width: 100%; height: auto; display: block; }
+.wdone { display: grid; gap: 14px; }
+.wmeter { display: grid; gap: 4px; }
+.wmeter b { font: 500 32px/1 var(--serif); }
+.wrec { display: grid; grid-template-columns: 90px 1fr; gap: 16px; align-items: center; padding: 14px; border-radius: 12px; background: #FBEFC4; }
+.wrec b { display: block; font-family: var(--serif); font-weight: 500; font-size: 22px; margin-bottom: 2px; }
+.wrec p:not(.label) { font-size: 14.5px; color: var(--ink-soft); }
+
+/* Primeiros passos na mesa */
+.onb { margin-bottom: 18px; padding: 16px 18px; border-radius: var(--r); background: var(--white); border: 1.5px solid var(--ink); }
+.onb-head { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; margin-bottom: 12px; }
+.onb-head h2 { font-size: 20px; }
+.onb-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 1180px) { .onb-list { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } }
+.onb-item { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; width: 100%; height: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); text-decoration: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+a.onb-item:hover, button.onb-item:hover { border-color: var(--ink); }
+.onb-item b { display: block; font-size: 14.5px; line-height: 1.3; }
+.onb-item small { display: block; margin-top: 3px; font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.onb-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #FFF; }
+.onb-item.is-done { opacity: .7; cursor: default; }
+.onb-item.is-done .onb-check { background: var(--ok); border-color: var(--ok); }
+.onb-item.is-done b { text-decoration: line-through; text-decoration-color: rgba(47, 107, 58, .5); }
+.onb-item.is-next { border-color: var(--pers); background: #FFF6F1; box-shadow: inset 4px 0 0 var(--pers); }
+.onb-item.is-next .onb-check { border-color: var(--pers); }
+
+/* Ferramenta recomendada na mesa */
+.obj.is-reco .art { opacity: .55; filter: none; }
+.obj.is-reco::before { border-color: var(--pers-ink); border-style: solid; background: rgba(255, 246, 228, .35); animation: reco 2.2s ease-in-out infinite; }
+.obj.is-reco .tag { background: var(--pers); color: var(--ink); font-weight: 700; }
+.obj.is-reco .tag::after, .obj.is-reco:hover .tag::after { content: " · comece aqui"; color: var(--ink); }
+@keyframes reco { 0%, 100% { box-shadow: 0 0 0 0 rgba(224, 89, 42, .45); } 50% { box-shadow: 0 0 0 8px rgba(224, 89, 42, 0); } }
+
+/* Boas-vindas */
+.welcome { display: grid; gap: 12px; text-align: center; }
+.welcome p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; }
+.wel-art { display: flex; justify-content: center; padding: 18px 0 6px; border-radius: 14px; background: linear-gradient(180deg, #E4BD8F, #CF9F6C); }
+.wel-arts { display: inline-flex; gap: 6px; align-items: center; }
+.wel-arts svg { width: 86px; height: auto; filter: drop-shadow(0 6px 4px rgba(50, 25, 10, .3)); }
+.wel-arts.one svg { width: 130px; }
+.wel-arts .pn { width: 54px; height: 54px; font-size: 24px; margin: 10px 6px 18px; }
+.wel-dots { display: flex; gap: 6px; justify-content: center; }
+.wel-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
+.wel-dots i.on { background: var(--pers); width: 22px; border-radius: 999px; }
+.welcome .wnav { text-align: left; }
+.first-project .wel-arts svg { width: 76px; }
+
+@media (max-width: 600px) {
+  .wseg { display: grid; width: 100%; align-self: stretch; }
+  .wseg button + button { border-left: 0; border-top: 1px solid var(--line); }
+  .wnav .btn { flex: 1 1 auto; }
+  .wsteps li { min-width: 58px; font-size: 11px; }
+  .start { grid-template-columns: 48px 1fr; gap: 10px; }
+  .wrec { grid-template-columns: 64px 1fr; }
+  .onb-head { grid-template-columns: 1fr auto; }
+  .onb-head .pbar { grid-column: 1 / -1; grid-row: 2; }
+  .wel-arts svg { width: 62px; }
+}
+@media (prefers-reduced-motion: reduce) { .obj.is-reco::before { animation: none; } }
