@@ -7,7 +7,7 @@ O site pessoal de Miguel Nahas fica no repositório `miguelsnahas-ai.github.io` 
 | Página | Arquivo | O que é |
 | --- | --- | --- |
 | `/` | `index.html` | Redireciona para `/toolkit/` |
-| `/toolkit/` | `toolkit/index.html` | Mesa de Trabalho: três fases e 27 ferramentas, gratuita, com formulário de cadastro |
+| `/toolkit/` | `toolkit/index.html` | Mesa de Trabalho: três fases e 31 ferramentas, gratuita, com formulário de cadastro |
 | `/app/` | `app/` | Área interna da Mesa de Trabalho: projetos, ferramentas com IA, quadro, radar e mentoria (Supabase) |
 | `/admin/` | `admin/` | Painel de administração (somente contas em `public.admins` no Supabase) |
 | `/privacidade.html`, `/termos.html` | | Política de privacidade e termos de uso do toolkit |

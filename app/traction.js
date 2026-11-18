@@ -1,5 +1,5 @@
 /* =============================================================
-   MESA DE TRABALHO · Fase 3 — Traction
+   MESA DE TRABALHO · Fase 3 · Traction
    Sete ferramentas com área de trabalho estruturada (salva em
    tool_workspaces), reaproveitamento das etapas anteriores,
    entregável em Markdown e prompts de apoio de IA.
@@ -120,7 +120,7 @@ window.MESA = window.MESA || {};
   /* 1. FIRST CUSTOMERS */
   T.push({
     id: "first", lens: "vender", n: 1, name: "First Customers", object: "Agenda de contatos", board: "evidencia",
-    title: "First Customers — Conquiste seus primeiros clientes",
+    title: "First Customers: Conquiste seus primeiros clientes",
     desc: "Rede, lista priorizada, abordagens personalizadas e um tracker de conversas, objeções e resultados.",
     question: "Como consigo os primeiros clientes reais sem depender de uma máquina de marketing ou vendas que ainda não existe?",
     when: ["Você validou o problema e tem uma oferta inicial, mesmo que manual.", "Ainda não tem clientes pagantes, ou tem poucos e por acaso.", "Está tentado a “lançar e esperar” em vez de falar com compradores."],
@@ -220,7 +220,7 @@ window.MESA = window.MESA || {};
   ];
   T.push({
     id: "gtm", lens: "vender", n: 2, name: "Go-to-Market", object: "Bússola", board: "decisao",
-    title: "Go-to-Market — Desenhe sua estratégia de entrada no mercado",
+    title: "Go-to-Market: Desenhe sua estratégia de entrada no mercado",
     desc: "Segmento, posicionamento, oferta, motion de vendas, canais e um plano de 30 a 90 dias com hipóteses e critérios.",
     question: "Considerando o que aprendi com os primeiros clientes, como entro no mercado, alcanço os compradores certos e transformo a oferta em um processo comercial intencional?",
     when: ["Você já fez abordagens reais e tem aprendizados de First Customers.", "As vendas acontecem, mas de forma oportunista e sem foco.", "Precisa decidir onde colocar tempo e dinheiro nos próximos 30 a 90 dias."],
@@ -240,13 +240,13 @@ window.MESA = window.MESA || {};
         { id: "recursos", label: "Orçamento, horas por semana e pessoas envolvidas", long: true, ph: "Ex.: R$ 1.500/mês; fundador 20h/semana em vendas; sócia técnica na implantação" },
         { id: "riscos", label: "Riscos e condições para revisar a estratégia", long: true }
       ] },
-      { type: "list", id: "plano", title: "8. Execution — iniciativas de 30 a 90 dias", add: "Adicionar iniciativa", columns: [
+      { type: "list", id: "plano", title: "8. Execution: iniciativas de 30 a 90 dias", add: "Adicionar iniciativa", columns: [
         { id: "iniciativa", label: "Iniciativa" }, { id: "resp", label: "Responsável" }, { id: "prazo", label: "Prazo", type: "select", options: ["30 dias", "60 dias", "90 dias"] }, { id: "indicador", label: "Indicador" }, { id: "status", label: "Status", type: "select", options: ["A fazer", "Em andamento", "Feito"] }
       ] },
-      { type: "list", id: "medidas", title: "9. Measurement — indicadores e metas", add: "Adicionar indicador", columns: [
+      { type: "list", id: "medidas", title: "9. Measurement: indicadores e metas", add: "Adicionar indicador", columns: [
         { id: "indicador", label: "Indicador" }, { id: "base", label: "Linha de base" }, { id: "meta", label: "Meta" }, { id: "como", label: "Como medir" }
       ] },
-      { type: "list", id: "hipoteses", title: "10. Learning — hipóteses a testar antes de investir mais", add: "Adicionar hipótese", columns: [
+      { type: "list", id: "hipoteses", title: "10. Learning: hipóteses a testar antes de investir mais", add: "Adicionar hipótese", columns: [
         { id: "hipotese", label: "Hipótese" }, { id: "teste", label: "Como testar" }, { id: "continuar", label: "Continuar se…" }, { id: "abandonar", label: "Ajustar ou abandonar se…" }
       ] }
     ],
@@ -275,7 +275,7 @@ window.MESA = window.MESA || {};
   /* 3. SALES PLAYBOOK */
   T.push({
     id: "playbook", lens: "vender", n: 3, name: "Sales Playbook", object: "Fichário de vendas", board: "decisao",
-    title: "Sales Playbook — Estruture seu processo comercial",
+    title: "Sales Playbook: Estruture seu processo comercial",
     desc: "Pipeline com critérios por etapa, qualificação, roteiro SPIN, mensagens, proposta, objeções e motivos de perda.",
     question: "Como transformar as primeiras vendas em um processo que possa ser executado, acompanhado e melhorado?",
     when: ["Você já teve conversas comerciais e algumas propostas.", "Cada venda acontece de um jeito diferente e depende da sua memória.", "Quer que outra pessoa consiga vender, ou que você venda com mais consistência."],
@@ -339,7 +339,7 @@ window.MESA = window.MESA || {};
   /* 4. TRACTION CHANNELS */
   T.push({
     id: "channels", lens: "repetir", n: 4, name: "Traction Channels", object: "Megafone", board: "experimento",
-    title: "Traction Channels — Descubra seus canais de aquisição",
+    title: "Traction Channels: Descubra seus canais de aquisição",
     desc: "Matriz de canais (Bullseye), backlog de experimentos priorizado por ICE, resultados e decisões.",
     question: "Quais canais têm maior potencial para alcançar e converter os clientes definidos na estratégia de GTM?",
     when: ["O GTM aponta canais, mas você ainda não sabe quais funcionam.", "A rede pessoal começa a se esgotar.", "Quer investir em aquisição sem apostar tudo em um único canal."],
@@ -397,7 +397,7 @@ window.MESA = window.MESA || {};
   };
   T.push({
     id: "metrics", lens: "repetir", n: 5, name: "Traction Metrics", object: "Funil", board: "evidencia",
-    title: "Traction Metrics — Meça seu funil e identifique gargalos",
+    title: "Traction Metrics: Meça seu funil e identifique gargalos",
     desc: "Funil adaptado ao modelo de negócio, dicionário de métricas, linha de base, metas e o gargalo da vez.",
     question: "Quais indicadores mostram se a estratégia de aquisição e vendas está funcionando, e onde devo concentrar meus esforços?",
     when: ["Você já tem algum volume de contatos, testes ou clientes.", "Não sabe se está melhorando de uma semana para outra.", "Tem muitos números, mas nenhum orienta uma decisão."],
@@ -451,7 +451,7 @@ window.MESA = window.MESA || {};
   /* 6. UNIT ECONOMICS */
   T.push({
     id: "unit", lens: "repetir", n: 6, name: "Unit Economics", object: "Cofrinho", board: "hipotese",
-    title: "Unit Economics — Entenda a economia do seu negócio",
+    title: "Unit Economics: Entenda a economia do seu negócio",
     desc: "Margem de contribuição, CAC, payback e LTV em três cenários, com premissas explícitas e análise de sensibilidade.",
     question: "Adquirir e atender clientes pode gerar uma operação economicamente sustentável?",
     when: ["Você tem preço definido e alguma ideia do custo de entregar.", "Vai começar a investir em aquisição.", "Quer saber quais números precisam melhorar antes de acelerar."],
@@ -511,7 +511,7 @@ window.MESA = window.MESA || {};
   /* 7. ACTIVATION, RETENTION & TRACTION REVIEW */
   T.push({
     id: "review", lens: "repetir", n: 7, name: "Activation, Retention & Review", object: "Calendário de revisão", board: "decisao",
-    title: "Activation, Retention & Traction Review — Melhore o valor entregue e planeje o próximo ciclo",
+    title: "Activation, Retention & Traction Review: Melhore o valor entregue e planeje o próximo ciclo",
     desc: "Caminho até o primeiro valor, sinais de retenção, experimentos de melhoria, rotina de revisão e roadmap de 30 a 60 dias.",
     question: "Depois de conquistar clientes, eles percebem valor, continuam usando ou comprando e geram sinais de um negócio que pode crescer de forma sustentável?",
     when: ["Você já tem clientes usando ou comprando.", "Alguns clientes somem depois da primeira compra ou do primeiro mês.", "Quer uma rotina para decidir o que fazer no próximo ciclo."],
@@ -718,7 +718,9 @@ window.MESA = window.MESA || {};
 
   /* Registro: as ferramentas de Traction entram no catálogo geral */
   MESA.TRACTION = T;
-  MESA.TRACTION_BY = {}; T.forEach(function (t) { MESA.TRACTION_BY[t.id] = t; t.workspace = true; });
+  /* Bloqueios na voz do founder, usados na tela Desbloquear */
+  var BLOCKERS = { first: "Preciso conseguir os primeiros clientes", gtm: "Não sei como entrar no mercado", playbook: "Vendi algumas vezes, mas sem processo", channels: "Não sei em quais canais apostar", metrics: "Não sei se a aquisição está funcionando", unit: "Não sei se a conta fecha", review: "Tenho clientes e não sei o próximo passo" };
+  MESA.TRACTION_BY = {}; T.forEach(function (t) { MESA.TRACTION_BY[t.id] = t; t.workspace = true; t.blocker = BLOCKERS[t.id]; });
   MESA.UE_VARS = UE_VARS;
   MESA.ueCalc = ueCalc;
   MESA.TRACTION_SIGNALS = { fcStats: fcStats, chStats: chStats };
