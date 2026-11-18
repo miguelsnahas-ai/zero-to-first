@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mesa de Trabalho Zero to First: do zero ao primeiro cliente pagante | Miguel Nahas</title>
-<meta name="description" content="O método Zero to First na prática: ferramentas com IA para descobrir o que vender, para quem, e ir do zero ao primeiro cliente pagante.">
+<meta name="description" content="Diga o que está travando o seu projeto e leve um prompt pronto para a sua IA, com o contexto do negócio e os frameworks certos. Do zero ao primeiro cliente pagante, uma decisão por vez.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mesa de Trabalho Zero to First: do zero ao primeiro cliente pagante">
-<meta property="og:description" content="O método Zero to First na prática: ferramentas com IA para descobrir o que vender, para quem, e ir do zero ao primeiro cliente pagante.">
+<meta property="og:description" content="Diga o que está travando o seu projeto e leve um prompt pronto para a sua IA, com o contexto do negócio e os frameworks certos.">
 <meta property="og:image" content="https://miguelsnahas-ai.github.io/zero-to-first/assets/miguel-nahas.jpg">
 <link rel="canonical" href="https://miguelsnahas-ai.github.io/zero-to-first/toolkit/">
 <meta name="twitter:card" content="summary_large_image">
@@ -18,64 +18,240 @@
   1. Cadastro: o formulário da oferta envia nome, e-mail e WhatsApp para o serviço
      configurado em LEADS (no fim do arquivo). Sem serviço configurado, ele abre um
      e-mail pronto para miguelsnahas@gmail.com com os dados preenchidos.
-  2. Analytics: cole aqui o snippet do Google Analytics / Tag Manager / Meta Pixel.
+  2. Pagamento: CHECKOUT_URL (no fim do arquivo). Vazio = cadastro gratuito.
+  3. Analytics: cole aqui o snippet do Google Analytics / Tag Manager / Meta Pixel.
      Cada clique em CTA dispara o evento "cta_click" com o nome do botão (atributo data-cta).
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..500&amp;family=Instrument+Sans:wdth,wght@75..100,400..700&amp;display=swap" rel="stylesheet">
 <style>
-body{margin:0;background:#F5F0E8}
-a{color:#261729}a:hover{color:#352338}
+:root{--plum:#261729;--plum2:#352338;--plumline:#4D3A52;--onplum:#D9CDD6;--soft:#E6DCE4;--paper:#F5F0E8;--card:#FBF8F3;--line:#DCD2C4;--ink:#1D1820;--ink2:#463E48;--or:#E0592A;--or2:#F28A5E;--orink:#B13D16;--sage:#DDE4D3;--ok:#2E6B3A}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 'Instrument Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--plum)}
 html{scroll-behavior:smooth}
-.tbd{display:inline-block;background:#F8D9C6;color:#8A2F10;border:1px dashed #B13D16;border-radius:4px;padding:1px 8px;font-family:'Instrument Sans',sans-serif;font-size:0.85em;font-weight:500;line-height:1.5}
-.mono{font-family:'Instrument Sans',sans-serif;font-weight:600;letter-spacing:0.08em}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:4px 20px;padding:14px 0;border-top:1px solid #DCD2C4}
+img{max-width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding:96px 24px}
+.sec{border-top:1px solid var(--line)}
+.sec.white{background:#FFF}
+.sec.dark{background:var(--plum);color:#FFF;border-top-color:var(--plumline)}
+.kicker{margin:0;font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.dark .kicker{color:var(--or2)}
+.h2{margin:0;font-stretch:75%;font-weight:700;font-size:clamp(36px,4.5vw,54px);line-height:1;text-transform:uppercase;color:var(--plum)}
+.dark .h2{color:#FFF}
+.h2 em{font-style:normal;color:var(--orink)}
+.dark .h2 em{color:var(--or2)}
+.lead{margin:0;font-size:19px;color:var(--ink2);max-width:680px}
+.dark .lead{color:var(--soft)}
+.head{display:flex;flex-direction:column;gap:12px;max-width:780px;margin-bottom:40px}
+.mono{font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.tbd{display:inline-block;background:#F8D9C6;color:#8A2F10;border:1px dashed #B13D16;border-radius:4px;padding:1px 8px;font-size:.85em;font-weight:500;line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 26px;border-radius:6px;font-weight:600;font-size:17px;text-decoration:none;border:1.5px solid transparent}
+.btn-or{background:var(--or);color:var(--plum)}.btn-or:hover{background:#EA6D41;color:var(--plum)}
+.btn-ghost{border-color:#6B5670;color:#FFF}.btn-ghost:hover{border-color:#FFF;color:#FFF}
+.btn-dark{background:var(--plum);color:#FFF}.btn-dark:hover{background:var(--plum2);color:#FFF}
 summary{cursor:pointer;list-style:none}
 summary::-webkit-details-marker{display:none}
 details[open] .plus{transform:rotate(45deg)}
-a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3px}
+a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var(--or);outline-offset:3px}
 [hidden]{display:none !important}
-.lead-form{display:flex;flex-direction:column;gap:12px;border-top:1px solid #DCD2C4;padding-top:18px}
-.lead-form label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:#1D1820}
-.lead-form input[type=text],.lead-form input[type=email],.lead-form input[type=tel]{font:inherit;font-weight:400;font-size:16px;min-height:48px;padding:10px 14px;border:1.5px solid #B8AC9C;border-radius:8px;background:#FFFFFF;color:#1D1820}
-.lead-form input:focus-visible{outline:3px solid #E0592A;outline-offset:1px;border-color:#261729}
-.lead-form .lead-consent{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:13.5px;color:#463E48;line-height:1.45}
-.lead-form .lead-consent input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:#B13D16}
-.lead-form button{font:inherit;font-weight:600;font-size:18px;min-height:56px;border:0;border-radius:6px;background:#E0592A;color:#261729;cursor:pointer}
+
+/* nav */
+.nav{background:var(--plum);color:#FFF;border-bottom:1px solid var(--plumline)}
+.nav nav{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px}
+.brand{text-decoration:none;color:#FFF;display:flex;align-items:center;gap:10px}
+.brand span{font-stretch:75%;font-weight:700;font-size:26px;letter-spacing:.02em;line-height:1}
+.nav-r{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;font-size:15px}
+.nav-sec{display:flex;flex-wrap:wrap;gap:6px 22px}
+.nav-sec a{color:var(--onplum);text-decoration:none}
+.nav-sec a:hover,.nav-login:hover{color:#FFF}
+.nav-act{display:flex;align-items:center;gap:10px;padding-left:22px;border-left:1px solid var(--plumline)}
+.nav-login{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1.5px solid #6B5670;border-radius:6px;color:#FFF;text-decoration:none;font-weight:500}
+.nav-signup{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;background:var(--or);color:var(--plum);text-decoration:none;border-radius:6px;font-weight:600}
+.nav-signup:hover{background:var(--or2)}
+@media (max-width:960px){.nav-sec{display:none}.nav-act{padding-left:0;border-left:0}}
+@media (max-width:440px){.nav-login,.nav-signup{padding:0 12px;font-size:14px}}
+
+/* hero */
+.hero{background:var(--plum);color:#FFF}
+.hero .wrap{padding:72px 24px 96px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:56px;align-items:center}
+.hero h1{margin:0;font-stretch:75%;font-weight:700;font-size:clamp(44px,6vw,76px);line-height:.98;letter-spacing:-.01em;text-transform:uppercase}
+.hero h1 span{color:var(--or2)}
+.hero-copy{display:flex;flex-direction:column;gap:24px}
+.hero-copy .lead{color:var(--soft)}
+.ctas{display:flex;flex-wrap:wrap;gap:12px}
+.aud{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none;font-size:15px;color:var(--onplum)}
+.aud li{display:flex;gap:8px;align-items:center}
+.aud li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--or)}
+.login{margin:0;font-size:15px;color:var(--onplum)}
+.login a{color:var(--or2);font-weight:600}
+@media (max-width:980px){.hero .wrap{grid-template-columns:1fr}}
+
+/* mock do produto */
+.app{background:#F5F0E8;color:var(--ink);border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.55);border:1px solid var(--plumline);font-size:14px;line-height:1.45}
+.app-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#1C1020;color:var(--onplum);font-size:12px}
+.app-bar i{width:9px;height:9px;border-radius:50%;background:var(--plumline)}
+.app-bar b{margin-left:10px;font-stretch:75%;letter-spacing:.04em;color:#FFF;font-size:13px}
+.app-body{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+.app-l{padding:16px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--line)}
+.app-l .mono{font-size:10.5px;color:var(--ink2)}
+.blk{padding:9px 11px;border-radius:8px;border:1.5px solid var(--line);background:#FFF;font-family:'Fraunces',serif;font-size:14.5px;line-height:1.25}
+.blk small{display:block;font-family:'Instrument Sans',sans-serif;font-size:11.5px;color:#695F66;margin-top:3px}
+.blk.on{border-color:var(--or);background:#FFF6F1;box-shadow:inset 3px 0 0 var(--or)}
+.base{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);margin-bottom:4px}
+.base .bar{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.base .bar span{display:block;width:60%;height:100%;background:var(--ok)}
+.app-r{background:var(--plum);color:var(--onplum);padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.app-r .tools{display:flex;flex-wrap:wrap;gap:6px}
+.app-r .tools span{border:1px solid var(--plumline);border-radius:6px;padding:3px 9px;font-size:11.5px;color:#FFF}
+.app-r .tools span.c{background:var(--or);border-color:var(--or);color:var(--plum);font-weight:600}
+.app-r pre{margin:0;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;color:var(--onplum)}
+.app-r pre b{color:#FFF}
+.app-r pre i{font-style:normal;color:var(--or2)}
+.app-r .meta{font-size:11px;opacity:.75}
+@media (max-width:560px){.app-body{grid-template-columns:1fr}.app-l{border-right:0;border-bottom:1px solid var(--line)}.blk.hide-s{display:none}}
+
+/* problema */
+.pains{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.pain{background:#FFF;border:1px solid var(--line);border-radius:8px;padding:24px;display:flex;gap:16px}
+.pain span{font-weight:600;letter-spacing:.08em;font-size:13px;color:var(--orink);padding-top:3px}
+.pain p{margin:0;font-size:18px;line-height:1.45}
+.punch{margin-top:16px;background:var(--plum);color:#FFF;border-radius:10px;padding:clamp(28px,4vw,48px)}
+.punch p{margin:0;font-stretch:75%;font-weight:700;font-size:clamp(30px,4vw,46px);line-height:1.05;text-transform:uppercase}
+.punch span{color:var(--or2)}
+
+/* como funciona */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0;padding:0;list-style:none;counter-reset:s}
+.step{border-top:3px solid var(--plum);padding-top:18px;display:flex;flex-direction:column;gap:8px}
+.step:nth-child(3){border-top-color:var(--or)}
+.step .n{font-stretch:75%;font-weight:700;font-size:40px;line-height:1;color:var(--orink)}
+.step h3{margin:0;font-size:20px;line-height:1.25}
+.step p{margin:0;font-size:15.5px;color:var(--ink2)}
+.step .ex{margin-top:4px;font-family:'Fraunces',serif;font-size:16px;color:var(--plum)}
+@media (max-width:980px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.steps{grid-template-columns:1fr}}
+.anatomy{margin-top:48px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:32px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:clamp(22px,3vw,36px)}
+.anatomy h3{margin:0 0 8px;font-stretch:75%;font-weight:700;font-size:30px;line-height:1.05;text-transform:uppercase;color:var(--plum)}
+.anatomy p{margin:0;color:var(--ink2)}
+.parts{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.parts li{background:#FFF;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:15px}
+.parts b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--orink);margin-bottom:2px}
+@media (max-width:800px){.anatomy{grid-template-columns:1fr}.parts{grid-template-columns:1fr}}
+
+/* recursos */
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.feat{background:#FFF;border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.feat svg{width:28px;height:28px;color:var(--orink)}
+.feat h3{margin:0;font-size:19px;line-height:1.25}
+.feat p{margin:0;font-size:15.5px;color:var(--ink2)}
+.feat.big{grid-column:span 2;background:var(--plum);color:#FFF;border-color:var(--plum)}
+.feat.big p{color:var(--soft)}
+.feat.big svg{color:var(--or2)}
+.feat.wide{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 18px}
+.feat.wide p{grid-column:2}
+.feat.wide h3{grid-column:2}
+.feat.wide svg{grid-row:1/3}
+.feat.wide .btn{grid-row:1/3;grid-column:3;min-height:44px}
+@media (max-width:980px){.feats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.feat.wide{display:flex}}
+@media (max-width:620px){.feats{grid-template-columns:1fr}.feat.big{grid-column:auto}}
+
+/* fases */
+.phases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.ph{background:#FFF;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.ph-h{padding:24px 24px 20px;display:flex;flex-direction:column;gap:8px;background:var(--plum);color:#FFF}
+.ph:nth-child(2) .ph-h{background:var(--or);color:var(--plum)}
+.ph:nth-child(3) .ph-h{background:var(--sage);color:var(--plum)}
+.ph-h .mono{font-size:12px;opacity:.85}
+.ph-h h3{margin:0;font-stretch:75%;font-weight:700;font-size:42px;line-height:1;text-transform:uppercase}
+.ph-h p{margin:0;font-weight:600;line-height:1.4}
+.ph ul{margin:0;padding:18px 24px 24px;list-style:none;display:flex;flex-direction:column;gap:0}
+.ph li{padding:8px 0;border-bottom:1px solid #EFE8DD;font-size:15px;display:flex;justify-content:space-between;gap:10px}
+.ph li:last-child{border-bottom:0}
+.ph li q{font-family:'Fraunces',serif;quotes:"“" "”";color:var(--ink)}
+.ph li small{color:#695F66;white-space:nowrap;font-size:13px}
+.note{margin:20px 0 0;font-size:15px;color:var(--ink2)}
+@media (max-width:980px){.phases{grid-template-columns:1fr}}
+
+/* embasamento */
+.refs{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.refs li{border:1px solid var(--plumline);background:var(--plum2);border-radius:6px;padding:8px 14px;font-size:15px;color:#FFF}
+.refs li small{color:var(--onplum);margin-left:6px}
+
+/* para quem */
+.fit{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:20px}
+.fit>div{background:#FFF;border:2px solid var(--plum);border-radius:10px;padding:32px;display:flex;flex-direction:column;gap:16px}
+.fit>div.no{background:transparent;border:2px dashed #B8AC9C}
+.fit h3{margin:0;font-stretch:75%;font-weight:700;font-size:30px;text-transform:uppercase;color:var(--plum)}
+.fit .no h3{color:var(--ink2)}
+.fit ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.fit li{display:flex;gap:12px}
+.fit svg{flex:none;margin-top:2px}
+
+/* sobre */
+.about{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.about>img{flex:0 1 360px;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 25%;border-radius:10px;border-bottom:6px solid var(--or);display:block;min-width:0}
+.about>div{flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:20px}
+.orgs{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.orgs li{background:#FFF;border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-height:120px}
+.orgs li div{height:48px;display:flex;align-items:center}
+.orgs img{display:block;width:auto;max-width:100%;object-fit:contain}
+.orgs span{font-size:14px;color:var(--ink2);border-top:1px solid var(--line);padding-top:10px}
+
+/* oferta */
+.offer{display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start}
+.offer>div:first-child{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.offer h2{margin:0;font-stretch:75%;font-weight:700;font-size:clamp(40px,5vw,64px);line-height:.98;text-transform:uppercase}
+.offer h2 span{color:var(--or2)}
+.card{flex:1 1 440px;min-width:0;background:#FFF;color:var(--ink);border-radius:12px;overflow:hidden;border-top:6px solid var(--or)}
+.card-in{padding:32px;display:flex;flex-direction:column;gap:20px}
+.card h3{margin:4px 0 0;font-stretch:75%;font-weight:700;font-size:36px;line-height:1;text-transform:uppercase;color:var(--plum)}
+.inc{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.inc li{display:flex;gap:10px}
+.inc li::before{content:"→";color:var(--orink);font-weight:700}
+.lead-form{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:18px}
+.lead-form label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink)}
+.lead-form input[type=text],.lead-form input[type=email],.lead-form input[type=tel]{font:inherit;font-weight:400;font-size:16px;min-height:48px;padding:10px 14px;border:1.5px solid #B8AC9C;border-radius:8px;background:#FFF;color:var(--ink)}
+.lead-form input:focus-visible{outline:3px solid var(--or);outline-offset:1px;border-color:var(--plum)}
+.lead-form .lead-consent{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;font-size:13.5px;color:var(--ink2);line-height:1.45}
+.lead-form .lead-consent input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--orink)}
+.lead-form button{font:inherit;font-weight:600;font-size:18px;min-height:56px;border:0;border-radius:6px;background:var(--or);color:var(--plum);cursor:pointer}
 .lead-form button:hover{background:#EA6D41}
 .lead-form button[disabled]{opacity:.6;cursor:progress}
-.checkout-btn{display:flex;align-items:center;justify-content:center;min-height:56px;padding:0 24px;border-radius:6px;background:#E0592A;color:#261729;font-weight:600;font-size:18px;text-decoration:none}
+.checkout-btn{display:flex;align-items:center;justify-content:center;min-height:56px;padding:0 24px;border-radius:6px;background:var(--or);color:var(--plum);font-weight:600;font-size:18px;text-decoration:none}
 .checkout-btn:hover{background:#EA6D41}
 .lead-form [aria-invalid=true]{border-color:#A1341A !important}
-.lead-msg{margin:0;font-size:14.5px;line-height:1.45;color:#463E48}
+.lead-msg{margin:0;font-size:14.5px;line-height:1.45;color:var(--ink2)}
 .lead-msg.ok{color:#2F6B3A;font-weight:600}
 .lead-msg.err{color:#A1341A;font-weight:600}
-.nav-sec{display:flex;flex-wrap:wrap;gap:6px 22px}
-.nav-sec a{color:#D9CDD6;text-decoration:none}
-.nav-sec a:hover,.nav-login:hover{color:#FFFFFF}
-.nav-act{display:flex;align-items:center;gap:10px;padding-left:22px;border-left:1px solid #4D3A52}
-.nav-login{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 14px;border:1.5px solid #6B5670;border-radius:6px;color:#FFFFFF;text-decoration:none;font-weight:500}
-.nav-signup{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;background:#E0592A;color:#261729;text-decoration:none;border-radius:6px;font-weight:600}
-.nav-signup:hover{background:#F28A5E}
-@media (max-width:900px){.nav-sec{display:none}.nav-act{padding-left:0;border-left:0}}
-@media (max-width:440px){.nav-login,.nav-signup{padding:0 12px;font-size:14px}}
+
+/* faq */
+.faq{max-width:880px}
+.qa{border-top:2px solid var(--plum)}
+.qa details{border-bottom:1px solid var(--line)}
+.qa summary{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:64px;font-weight:600;font-size:18px}
+.qa .plus{font-size:26px;color:var(--orink);transition:transform .15s}
+.qa p{margin:0 0 20px;color:var(--ink2)}
+.faq-end{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding-top:28px}
+.faq-end span{color:var(--ink2);font-size:15px}
+
+footer{background:var(--plum);color:var(--onplum);border-top:1px solid var(--plumline)}
+footer .in{max-width:1200px;margin:0 auto;padding:32px 24px;display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between;align-items:center;font-size:14px}
+footer a{color:var(--onplum)}
+footer b{font-stretch:75%;font-weight:700;font-size:20px;color:#FFF;letter-spacing:.02em}
+@media (max-width:600px){.wrap{padding:72px 20px}}
 </style>
 </head>
 <body>
-<div style="font-family: 'Instrument Sans', system-ui, sans-serif; color: #1D1820; background: #F5F0E8; font-size: 17px; line-height: 1.6">
 
-<!-- NAV -->
-<header style="background: #261729; color: #FFFFFF; border-bottom: 1px solid #4D3A52">
-<nav aria-label="Principal" style="max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px">
-<a href="#topo" style="text-decoration: none; color: #FFFFFF; display: flex; align-items: center; gap: 10px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 26px; letter-spacing: 0.02em; line-height: 1">MESA DE TRABALHO</span>
-<svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" style="margin-top: -10px"><path d="M10 1.5v17M2.64 5.75l14.72 8.5M2.64 14.25l14.72-8.5" stroke="#E0592A" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg>
-</a>
-<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; font-size: 15px">
+<header class="nav">
+<nav aria-label="Principal">
+<a class="brand" href="#topo"><span>MESA DE TRABALHO</span><svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" style="margin-top:-10px"><path d="M10 1.5v17M2.64 5.75l14.72 8.5M2.64 14.25l14.72-8.5" stroke="#E0592A" stroke-width="3.2" stroke-linecap="round" fill="none"/></svg></a>
+<div class="nav-r">
 <div class="nav-sec">
-<a href="#problema">O problema</a>
-<a href="#caminho">O caminho</a>
-<a href="#conteudo">Conteúdo</a>
+<a href="#como-funciona">Como funciona</a>
+<a href="#recursos">O que tem dentro</a>
+<a href="#metodo">O método</a>
 <a href="#sobre">Sobre</a>
 <a href="#faq">FAQ</a>
 </div>
@@ -87,85 +263,54 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </nav>
 </header>
 
+<main>
 <!-- HERO -->
-<section id="topo" style="background: #261729; color: #FFFFFF">
-<div style="max-width: 1200px; margin: 0 auto; padding: 72px 24px 96px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
-<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #F28A5E">Método Zero to First</p>
-<h1 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(44px, 6vw, 76px); line-height: 0.98; letter-spacing: -0.01em; text-transform: uppercase">Do zero ao <span style="color: #F28A5E">primeiro cliente pagante.</span></h1>
-<p style="margin: 0; font-size: 19px; line-height: 1.6; color: #E6DCE4; max-width: 560px">As ferramentas do método Zero to First, com IA, para descobrir o que vender, para quem, e fechar a primeira venda.</p>
-<div style="display: flex; flex-wrap: wrap; gap: 10px">
-<div style="flex: 1 1 220px; display: flex; gap: 12px; align-items: flex-start; background: #352338; border: 1px solid #4D3A52; border-radius: 8px; padding: 14px 16px">
-<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E0592A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"></path></svg>
-<div><strong style="display: block; font-size: 15px">Empreendedores</strong><span style="font-size: 14px; color: #D9CDD6; line-height: 1.4">Tirando uma ideia do papel</span></div>
+<section id="topo" class="hero">
+<div class="wrap">
+<div class="hero-copy">
+<p class="kicker" style="color:var(--or2)">Mesa de Trabalho · Método Zero to First</p>
+<h1>Do zero ao <span>primeiro cliente pagante.</span></h1>
+<p class="lead">Diga o que está travando o seu projeto. A Mesa monta o prompt certo para a sua IA, com o contexto do seu negócio e os frameworks que embasam cada decisão. O que você aprende fica registrado no projeto.</p>
+<ul class="aud" aria-label="Para quem">
+<li>Empreendedores tirando uma ideia do papel</li>
+<li>Líderes de inovação em empresas</li>
+</ul>
+<div class="ctas">
+<a class="btn btn-or" href="#oferta" data-cta="hero_primary">Quero a Mesa de Trabalho</a>
+<a class="btn btn-ghost" href="#como-funciona" data-cta="hero_secondary">Ver como funciona</a>
 </div>
-<div style="flex: 1 1 220px; display: flex; gap: 12px; align-items: flex-start; background: #352338; border: 1px solid #4D3A52; border-radius: 8px; padding: 14px 16px">
-<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E0592A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M3 13h18"></path></svg>
-<div><strong style="display: block; font-size: 15px">Líderes de inovação</strong><span style="font-size: 14px; color: #D9CDD6; line-height: 1.4">Novos projetos dentro de empresas</span></div>
-</div>
-</div>
-<div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
-<a href="#oferta" data-cta="hero_primary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #E0592A; color: #261729; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 17px">Quero a Mesa de Trabalho</a>
-<a href="#conteudo" data-cta="hero_secondary" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 22px; border: 1.5px solid #6B5670; color: #FFFFFF; text-decoration: none; font-weight: 500; border-radius: 6px; font-size: 17px">Veja o que vou aprender</a>
-</div>
-<p style="margin: 0; font-size: 15px; color: #D9CDD6">Já tem conta? <a href="../app/" data-cta="hero_login" style="color: #F28A5E; font-weight: 600">Entrar na Mesa</a></p>
+<p class="login">Já tem conta? <a href="../app/" data-cta="hero_login">Entrar na Mesa</a></p>
 </div>
 
-<!-- Hero visual: quadro de ferramentas -->
-<div role="img" aria-label="Ilustração das ferramentas: matriz CSD, matriz de importância versus satisfação, uma hipótese e um experimento com critério de saída" style="flex: 1 1 500px; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; background: #352338; border: 1px solid #4D3A52; border-radius: 12px; padding: 18px">
+<div class="app" role="img" aria-label="Tela da Mesa de Trabalho: à esquerda, a lista de bloqueios com “Não sei quanto cobrar” selecionado; à direita, o prompt pronto com papel, contexto, embasamento e tarefa, e os botões Copiar, .md, Claude e ChatGPT">
+<div class="app-bar" aria-hidden="true"><i></i><i></i><i></i><b>MESA DE TRABALHO</b><span>· Desbloquear</span></div>
+<div class="app-body" aria-hidden="true">
+<div class="app-l">
+<div class="base"><span>Base do negócio</span><span class="bar"><span></span></span><span>9 de 15</span></div>
+<span class="mono">O que está travando você?</span>
+<div class="blk hide-s">“Não sei quem são meus concorrentes”<small>Benchmarks e concorrentes</small></div>
+<div class="blk">“Não sei o que construir primeiro”<small>MVP</small></div>
+<div class="blk on">“Não sei quanto cobrar”<small>Precificação e WTP</small></div>
+<div class="blk hide-s">“Preciso conseguir os primeiros clientes”<small>First Customers · área de trabalho</small></div>
+</div>
+<div class="app-r">
+<div class="tools"><span class="c">Copiar</span><span>.md</span><span>Claude</span><span>ChatGPT</span></div>
+<pre><b># Precificação e WTP</b>
 
-<div style="grid-column: 1 / -1; background: #FFFFFF; color: #1D1820; border-radius: 8px; padding: 14px 16px">
-<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 20px; text-transform: uppercase">Matriz CSD</span>
-<span class="mono" style="font-size: 11px; color: #463E48">DISCOVERY</span>
-</div>
-<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="mono" style="font-size: 11px; color: #463E48">CERTEZAS</span>
-<span style="background: #DDE4D3; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35">O público já tenta resolver isso sozinho</span>
-<span style="background: #DDE4D3; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35">A dor aparece toda semana</span>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="mono" style="font-size: 11px; color: #463E48">SUPOSIÇÕES</span>
-<span style="background: #F8D9C6; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35; transform: rotate(-1.5deg)">Pagariam para economizar tempo</span>
-<span style="background: #F8D9C6; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35">Quem usa é quem decide</span>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="mono" style="font-size: 11px; color: #463E48">DÚVIDAS</span>
-<span style="background: #E4DAEE; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35">Qual canal alcança esse público?</span>
-<span style="background: #E4DAEE; padding: 8px; border-radius: 3px; font-size: 13px; line-height: 1.35; transform: rotate(1deg)">Quanto vale resolver?</span>
-</div>
-</div>
-</div>
+<i>## Seu papel</i>
+Especialista em precificação, com a
+abordagem de Monetizing Innovation.
 
-<div style="background: #FFFFFF; color: #1D1820; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 18px; text-transform: uppercase; line-height: 1.1">Importância × Satisfação</span>
-<div style="position: relative; height: 150px; border-left: 2px solid #1D1820; border-bottom: 2px solid #1D1820; background: #FBF8F3">
-<div style="position: absolute; left: 0; top: 0; width: 50%; height: 50%; background: #F8D9C6"></div>
-<span class="mono" style="position: absolute; left: 6px; top: 6px; font-size: 10px; color: #8A2F10">OPORTUNIDADE</span>
-<span style="position: absolute; left: 18%; top: 22%; width: 14px; height: 14px; border-radius: 50%; background: #261729; border: 3px solid #E0592A"></span>
-<span style="position: absolute; left: 34%; top: 38%; width: 10px; height: 10px; border-radius: 50%; background: #261729"></span>
-<span style="position: absolute; left: 62%; top: 30%; width: 10px; height: 10px; border-radius: 50%; background: #9C9099"></span>
-<span style="position: absolute; left: 72%; top: 66%; width: 10px; height: 10px; border-radius: 50%; background: #9C9099"></span>
-<span style="position: absolute; left: 40%; top: 72%; width: 10px; height: 10px; border-radius: 50%; background: #9C9099"></span>
-</div>
-<div class="mono" style="display: flex; justify-content: space-between; font-size: 10px; color: #463E48"><span>↑ importância</span><span>satisfação →</span></div>
-</div>
+<i>## Contexto (informado pelo founder)</i>
+- Cliente, problema, preço, evidências…
 
-<div style="display: flex; flex-direction: column; gap: 14px">
-<div style="background: #E0592A; color: #261729; border-radius: 8px; padding: 14px 16px">
-<span class="mono" style="font-size: 11px">HIPÓTESE #03</span>
-<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.45; font-weight: 500">Acreditamos que <strong>[segmento]</strong> vai <strong>[comportamento]</strong> porque <strong>[motivo]</strong>.</p>
-</div>
-<div style="background: #FFFFFF; color: #1D1820; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
-<div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 18px; text-transform: uppercase">Experimento</span>
-<span class="mono" style="font-size: 10px; background: #261729; color: #F28A5E; padding: 2px 6px; border-radius: 3px">SMOKE TEST</span>
-</div>
-<div style="font-size: 13px; line-height: 1.4; display: flex; flex-direction: column; gap: 4px">
-<span><strong style="color: #2E6B3A">Seguir</strong> se ≥ [X]% clicarem em “quero”</span>
-<span><strong style="color: #9B3D1E">Parar</strong> se &lt; [Y]% em [N] dias</span>
-</div>
+<i>## Embasamento</i>
+- Monetizing Innovation · $100M Offers
+- Value Proposition Canvas
+
+<i>## Sua tarefa</i>
+1. Compare 2 a 3 modelos de receita…</pre>
+<span class="meta">Funciona no Claude, ChatGPT e Gemini</span>
 </div>
 </div>
 </div>
@@ -173,150 +318,295 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 </section>
 
 <!-- PROBLEMA -->
-<section id="problema" style="background: #F5F0E8">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; gap: 12px; max-width: 760px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">01 · O problema</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Alguma dessas parece familiar?</h2>
+<section id="problema" class="sec">
+<div class="wrap">
+<div class="head">
+<p class="kicker">01 · O problema</p>
+<h2 class="h2">Alguma dessas parece familiar?</h2>
 </div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px">
-<div style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 24px; display: flex; gap: 16px">
-<span class="mono" style="font-size: 13px; color: #B13D16; padding-top: 3px">A</span>
-<p style="margin: 0; font-size: 18px; line-height: 1.45">Muitas ideias, nenhuma prioridade.</p>
+<div class="pains">
+<div class="pain"><span>A</span><p>Muitas ideias, nenhuma prioridade.</p></div>
+<div class="pain"><span>B</span><p>Construindo antes de ouvir clientes.</p></div>
+<div class="pain"><span>C</span><p>Elogios confundidos com demanda.</p></div>
+<div class="pain"><span>D</span><p>Perguntas genéricas para a IA, respostas genéricas de volta.</p></div>
 </div>
-<div style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 24px; display: flex; gap: 16px">
-<span class="mono" style="font-size: 13px; color: #B13D16; padding-top: 3px">B</span>
-<p style="margin: 0; font-size: 18px; line-height: 1.45">Construindo antes de ouvir clientes.</p>
+<div class="punch"><p>O problema não é falta de ideias. <span>É falta de evidências para decidir.</span></p></div>
 </div>
-<div style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 24px; display: flex; gap: 16px">
-<span class="mono" style="font-size: 13px; color: #B13D16; padding-top: 3px">C</span>
-<p style="margin: 0; font-size: 18px; line-height: 1.45">Elogios confundidos com demanda.</p>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona" class="sec white">
+<div class="wrap">
+<div class="head">
+<p class="kicker">02 · Como funciona</p>
+<h2 class="h2">Do bloqueio ao próximo passo <em>em minutos</em></h2>
+<p class="lead">Você não precisa saber qual framework usar. Comece pelo que está travando e a Mesa leva você até a ferramenta certa.</p>
 </div>
-<div style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 24px; display: flex; gap: 16px">
-<span class="mono" style="font-size: 13px; color: #B13D16; padding-top: 3px">D</span>
-<p style="margin: 0; font-size: 18px; line-height: 1.45">Sem saber o que testar primeiro.</p>
+<ol class="steps">
+<li class="step"><span class="n">1</span><h3>Monte a base do negócio</h3><p>Cliente, problema, solução, preço, evidências e hipóteses. Você preenche uma vez e todos os prompts usam essas informações.</p></li>
+<li class="step"><span class="n">2</span><h3>Escolha o que está travando</h3><p>Os bloqueios estão escritos do jeito que o founder pensa, organizados nas três fases do método.</p><span class="ex">“Não sei por qual segmento começar”</span></li>
+<li class="step"><span class="n">3</span><h3>Leve o prompt pronto para a sua IA</h3><p>Copie, baixe em .md ou abra direto no Claude ou no ChatGPT. Os detalhes do objetivo já vêm preenchidos com a sua base.</p></li>
+<li class="step"><span class="n">4</span><h3>Registre o que aprendeu</h3><p>Cole a resposta e ela vira um artefato do projeto. A Mesa mostra o que já foi feito e sugere o próximo passo.</p></li>
+</ol>
+
+<div class="anatomy">
+<div>
+<h3>Um prompt que pensa como um especialista</h3>
+<p>Cada prompt segue a mesma estrutura, para que a IA responda sobre o seu caso, com método, e diga o que é fato e o que é estimativa.</p>
 </div>
-</div>
-<div style="background: #261729; color: #FFFFFF; border-radius: 10px; padding: clamp(28px, 4vw, 48px); display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline">
-<p style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(30px, 4vw, 46px); line-height: 1.05; text-transform: uppercase">O problema não é falta de ideias. <span style="color: #F28A5E">É falta de evidências para decidir.</span></p>
+<ul class="parts">
+<li><b>## Seu papel</b>O especialista certo para o problema, com a abordagem que ele segue.</li>
+<li><b>## Contexto</b>Só o que você informou, sem repetir e sem campos vazios.</li>
+<li><b>## Embasamento</b>Frameworks e autores de referência para guiar a análise.</li>
+<li><b>## Sua tarefa</b>Passos claros, do diagnóstico à recomendação.</li>
+<li><b>## Formato</b>Resumo, tabelas e listas prontas para usar.</li>
+<li><b>## Regras</b>Nada de conselho genérico. Números estimados vêm marcados.</li>
+</ul>
 </div>
 </div>
 </section>
 
-<!-- CAMINHO -->
-<section id="caminho" style="background: #FFFFFF; border-top: 1px solid #DCD2C4; border-bottom: 1px solid #DCD2C4">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-wrap: wrap; gap: 16px 48px; justify-content: space-between; align-items: flex-end">
-<div style="display: flex; flex-direction: column; gap: 12px; max-width: 680px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">02 · O caminho</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Uma decisão por vez</h2>
+<!-- RECURSOS -->
+<section id="recursos" class="sec">
+<div class="wrap">
+<div class="head">
+<p class="kicker">03 · O que tem dentro</p>
+<h2 class="h2">Uma área de trabalho para o seu projeto</h2>
+<p class="lead">Além dos prompts, a Mesa guarda as decisões, as hipóteses e os números do projeto em um só lugar.</p>
+</div>
+<div class="feats">
+<div class="feat big">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+<h3>Desbloquear</h3>
+<p>31 objetivos nas três fases, cada um com o bloqueio que ele resolve. Os de Discovery e Validation geram um prompt pronto. Os de Traction abrem uma área de trabalho estruturada.</p>
+</div>
+<div class="feat">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17.5h7M17.5 14v7"/></svg>
+<h3>Painel do projeto</h3>
+<p>Cada objetivo concluído aparece no painel. Você vê em que fase está, o que falta e qual é o próximo passo sugerido.</p>
+</div>
+<div class="feat">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 10h16M10 10v10"/></svg>
+<h3>Quadro de hipóteses</h3>
+<p>Hipóteses, experimentos, evidências, decisões e perguntas, com status de aberto, testando, validado ou refutado.</p>
+</div>
+<div class="feat">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+<h3>Áreas de trabalho de tração</h3>
+<p>Tracker de primeiros clientes, plano de GTM, sales playbook, experimentos de canais, painel de métricas e unit economics em cenários.</p>
+</div>
+<div class="feat">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 12l6-6"/></svg>
+<h3>Radar de sinais</h3>
+<p>Um prompt que busca negócios comparáveis, tendências e mudanças do mercado ligadas ao seu projeto. Os sinais ficam salvos.</p>
+</div>
+<div class="feat wide">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+<h3>Mentoria com o Miguel</h3>
+<p>Quando quiser um olhar de fora, envie o tema e os artefatos do projeto e agende uma conversa.</p>
+<a class="btn btn-dark" href="#oferta" data-cta="feat_offer">Começar</a>
 </div>
 </div>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px">
-<div style="padding: 26px 24px; border-radius: 10px; background: #261729; color: #FFFFFF; display: flex; flex-direction: column; gap: 10px">
-<span class="mono" style="font-size: 12px; color: #F28A5E">FASE 1 · DESCOBERTA</span>
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 46px; line-height: 1; text-transform: uppercase">Discovery</span>
-<p style="margin: 0; font-weight: 600; line-height: 1.4">Entenda o problema, o cliente e a oportunidade.</p>
-<span class="mono" style="font-size: 11px; margin-top: auto; opacity: .8">ENTENDER · EXPLORAR</span>
-</div>
-<div style="padding: 26px 24px; border-radius: 10px; background: #E0592A; color: #261729; display: flex; flex-direction: column; gap: 10px">
-<span class="mono" style="font-size: 12px; color: #261729">FASE 2 · VALIDAÇÃO</span>
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 46px; line-height: 1; text-transform: uppercase">Validation</span>
-<p style="margin: 0; font-weight: 600; line-height: 1.4">Teste as hipóteses críticas e decida o que construir.</p>
-<span class="mono" style="font-size: 11px; margin-top: auto; opacity: .8">EXPERIMENTAR · VALIDAR · AVANÇAR</span>
-</div>
-<div style="padding: 26px 24px; border-radius: 10px; background: #DDE4D3; color: #261729; display: flex; flex-direction: column; gap: 10px">
-<span class="mono" style="font-size: 12px; color: #2E6B3A">FASE 3 · TRAÇÃO</span>
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 46px; line-height: 1; text-transform: uppercase">Traction</span>
-<p style="margin: 0; font-weight: 600; line-height: 1.4">Conquiste os primeiros clientes e descubra o que pode se repetir.</p>
-<span class="mono" style="font-size: 11px; margin-top: auto; opacity: .8">VENDER · REPETIR</span>
-</div>
-</div>
-<p style="margin: 0; font-size: 15px; color: #463E48">Não é uma trilha rígida: volte a uma fase sempre que a evidência pedir. Tração não é escala: é descobrir o que se repete.</p>
 </div>
 </section>
 
-<!-- CONTEÚDO -->
-<section id="conteudo" style="background: #F5F0E8">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; gap: 12px; max-width: 760px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">03 · O que está incluído</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Três fases, 31 ferramentas</h2>
+<!-- MÉTODO -->
+<section id="metodo" class="sec white">
+<div class="wrap">
+<div class="head">
+<p class="kicker">04 · O método</p>
+<h2 class="h2">Três fases, <em>31 objetivos</em></h2>
+<p class="lead">Não é uma trilha rígida: comece pela fase em que o projeto está e volte sempre que a evidência pedir. Alguns dos bloqueios de cada fase:</p>
 </div>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px">
-<article style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column">
-<div style="background: #261729; color: #FFFFFF; padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 8px">
-<span class="mono" style="font-size: 12px; color: #F28A5E">FASE 1 · 12 FERRAMENTAS</span>
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 40px; line-height: 1; text-transform: uppercase">Discovery</h3>
-<p style="margin: 0">Entenda o problema, o cliente e a oportunidade.</p>
-</div>
-<div style="padding: 22px 26px 26px">
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Avaliação da oportunidade</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Deep-dive de mercado</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Benchmarks e concorrentes</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">ICP e persona</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Roteiro de entrevista</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Análise de entrevistas</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Journey Map</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Beachhead Market</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Matriz CSD</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Problem Statement</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Importância × satisfação</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Proposta de valor</li>
+<div class="phases">
+<article class="ph">
+<div class="ph-h"><span class="mono">Fase 1 · Descoberta · 12 objetivos</span><h3>Discovery</h3><p>Entenda o problema, o cliente e a oportunidade.</p></div>
+<ul>
+<li><q>Não sei se essa ideia vale a pena</q><small>Oportunidade</small></li>
+<li><q>Não sei quem são meus concorrentes</q><small>Benchmarks</small></li>
+<li><q>Não sei o que perguntar ao cliente</q><small>Entrevistas</small></li>
+<li><q>Não sei exatamente quem é meu cliente</q><small>ICP</small></li>
+<li><q>Não sei por qual segmento começar</q><small>Beachhead</small></li>
+<li><q>Não sei por que o cliente escolheria a minha solução</q><small>Proposta de valor</small></li>
 </ul>
-</div>
 </article>
-<article style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column">
-<div style="background: #E0592A; color: #261729; padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 8px">
-<span class="mono" style="font-size: 12px; color: #261729">FASE 2 · 12 FERRAMENTAS</span>
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 40px; line-height: 1; text-transform: uppercase">Validation</h3>
-<p style="margin: 0">Teste as hipóteses críticas e decida o que construir.</p>
-</div>
-<div style="padding: 22px 26px 26px">
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Working Backwards</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">MVP</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Landing page de teste</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Critérios de saída</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Registro de experimento</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">CSD atualizada</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Funil e métricas (AARRR)</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Precificação e WTP</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Oferta</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Stress test</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Modelo de negócio</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Pitch deck</li>
+<article class="ph">
+<div class="ph-h"><span class="mono">Fase 2 · Validação · 12 objetivos</span><h3>Validation</h3><p>Teste as hipóteses críticas e decida o que construir.</p></div>
+<ul>
+<li><q>Não sei o que construir primeiro</q><small>MVP</small></li>
+<li><q>Preciso de uma página para testar a demanda</q><small>Landing page</small></li>
+<li><q>Rodei um teste e não sei o que ele me diz</q><small>Experimentos</small></li>
+<li><q>Não sei quanto cobrar</q><small>Precificação</small></li>
+<li><q>Não sei montar uma oferta que o cliente compre</q><small>Oferta</small></li>
+<li><q>Vou apresentar para investidores ou patrocinadores</q><small>Pitch deck</small></li>
 </ul>
-</div>
 </article>
-<article style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column">
-<div style="background: #DDE4D3; color: #261729; padding: 26px 26px 22px; display: flex; flex-direction: column; gap: 8px">
-<span class="mono" style="font-size: 12px; color: #2E6B3A">FASE 3 · 7 FERRAMENTAS</span>
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 40px; line-height: 1; text-transform: uppercase">Traction</h3>
-<p style="margin: 0">Conquiste os primeiros clientes e descubra o que pode se repetir.</p>
-</div>
-<div style="padding: 22px 26px 26px">
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">First Customers</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Go-to-Market</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Sales Playbook</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Traction Channels</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Traction Metrics</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Unit Economics</li>
-<li style="background: #FBF8F3; border: 1.5px solid #DCD2C4; border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 500">Activation, Retention & Review</li>
+<article class="ph">
+<div class="ph-h"><span class="mono">Fase 3 · Tração · 7 áreas de trabalho</span><h3>Traction</h3><p>Conquiste os primeiros clientes e descubra o que se repete.</p></div>
+<ul>
+<li><q>Preciso conseguir os primeiros clientes</q><small>First Customers</small></li>
+<li><q>Não sei como entrar no mercado</q><small>Go-to-Market</small></li>
+<li><q>Vendi algumas vezes, mas sem processo</q><small>Sales Playbook</small></li>
+<li><q>Não sei em quais canais apostar</q><small>Channels</small></li>
+<li><q>Não sei se a conta fecha</q><small>Unit Economics</small></li>
+<li><q>Tenho clientes e não sei o próximo passo</q><small>Review</small></li>
 </ul>
-</div>
 </article>
 </div>
-<p style="margin: 0; font-size: 15px; color: #463E48">Na Fase 3, cada ferramenta tem área de trabalho própria: tracker de clientes, plano de GTM, pipeline, experimentos de canais, painel de métricas e unit economics em cenários. Tudo salvo no seu projeto, reaproveitando o que você já registrou.</p>
+<p class="note">Tração não é escala: é descobrir o que se repete.</p>
+</div>
+</section>
 
+<!-- EMBASAMENTO -->
+<section class="sec dark">
+<div class="wrap">
+<div class="head">
+<p class="kicker">05 · Embasamento</p>
+<h2 class="h2">As referências que <em>guiam cada prompt</em></h2>
+<p class="lead">Cada objetivo traz de quatro a cinco referências públicas, com links quando existem. A IA é orientada a dizer qual framework está usando e a não inventar dados.</p>
+</div>
+<ul class="refs">
+<li>The Mom Test<small>Rob Fitzpatrick</small></li>
+<li>Jobs to Be Done<small>Clayton Christensen</small></li>
+<li>Disciplined Entrepreneurship<small>Bill Aulet</small></li>
+<li>Crossing the Chasm<small>Geoffrey Moore</small></li>
+<li>Continuous Discovery Habits<small>Teresa Torres</small></li>
+<li>Value Proposition Canvas<small>Strategyzer</small></li>
+<li>The Lean Startup<small>Eric Ries</small></li>
+<li>Testing Business Ideas<small>Bland e Osterwalder</small></li>
+<li>The Right It<small>Alberto Savoia</small></li>
+<li>Working Backwards<small>Bryar e Carr</small></li>
+<li>Monetizing Innovation<small>Madhavan Ramanujam</small></li>
+<li>$100M Offers<small>Alex Hormozi</small></li>
+<li>Obviously Awesome<small>April Dunford</small></li>
+<li>Business Model Canvas<small>Strategyzer</small></li>
+<li>Pre-mortem<small>Gary Klein</small></li>
+<li>Do Things That Don't Scale<small>Paul Graham</small></li>
+</ul>
+</div>
+</section>
 
+<!-- PARA QUEM -->
+<section class="sec">
+<div class="wrap">
+<div class="head">
+<p class="kicker">06 · Para quem</p>
+<h2 class="h2">Seja honesto com você mesmo</h2>
+</div>
+<div class="fit">
+<div>
+<h3>É para você se…</h3>
+<ul>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Quer tirar uma ideia do papel</li>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Lidera inovação e precisa de evidências</li>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Já usa IA e quer respostas melhores para o seu caso</li>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Aprende fazendo, no seu caso real</li>
+</ul>
+</div>
+<div class="no">
+<h3>Não é para você se…</h3>
+<ul>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Espera uma fórmula mágica</li>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Quer que a IA decida por você</li>
+<li><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Só quer confirmar o que já decidiu</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
 
-<!-- Comunidade paga: oculta até o lançamento. Para mostrar de novo, remova o atributo hidden abaixo. -->
-<div hidden style="background: #261729; color: #FFFFFF; border-radius: 10px; padding: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; gap: 32px 56px">
+<!-- SOBRE -->
+<section id="sobre" class="sec white">
+<div class="wrap about">
+<img loading="lazy" decoding="async" src="../assets/miguel-nahas.jpg" alt="Miguel Nahas">
+<div>
+<p class="kicker">07 · Quem facilita</p>
+<h2 class="h2">Miguel Nahas</h2>
+<p class="mono" style="margin:0;font-size:13px;color:var(--orink)">Estratégia · Empreendedorismo · Venture building</p>
+<p style="margin:0">Facilitador do Zero to First, cofundador da Future Dojo e Ventures Lead na Link School of Business. Mais de 100 startups mentoradas. A Mesa reúne o método que ele usa com founders e times de inovação. <a href="https://miguelsnahas-ai.github.io/" style="color:var(--orink)">Conheça a trajetória</a></p>
+<p class="mono" style="margin:8px 0 0;font-size:12px;color:var(--ink2)">Onde essa experiência foi construída</p>
+<ul class="orgs">
+<li><div><img loading="lazy" decoding="async" src="../assets/link.png" alt="Link School of Business" style="height:30px"></div><span>Ventures Lead</span></li>
+<li><div><img loading="lazy" decoding="async" src="../assets/ace.png" alt="ACE Ventures" style="height:44px"></div><span>Partner</span></li>
+<li><div><img loading="lazy" decoding="async" src="../assets/dojo.png" alt="Future Dojo" style="height:44px"></div><span>Cofundador</span></li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- OFERTA -->
+<section id="oferta" class="sec dark">
+<div class="wrap offer">
+<div>
+<p class="kicker">08 · Acesso</p>
+<h2>Pare de adivinhar. <span>Comece a testar.</span></h2>
+<p class="lead">Valide antes de construir algo que ninguém pediu.</p>
+</div>
+<div class="card"><div class="card-in">
+<div>
+<p class="mono" style="margin:0;font-size:12px;color:var(--orink)"><span data-free>Gratuito</span><span data-paid hidden>R$ 27,90 · pagamento único</span></p>
+<h3>Mesa de Trabalho</h3>
+<p style="margin:4px 0 0;font-weight:600;color:var(--ink2)">Prompts prontos + área de trabalho do projeto</p>
+</div>
+<ul class="inc">
+<li>31 objetivos em Discovery, Validation e Traction</li>
+<li>Prompts com o contexto do seu negócio e embasamento</li>
+<li>Painel, quadro de hipóteses, radar e histórico de prompts</li>
+<li>Áreas de trabalho de tração com métricas e unit economics</li>
+<li>Vídeos de como aplicar as ferramentas</li>
+</ul>
+<a class="checkout-btn" href="#oferta" data-paid data-checkout data-cta="offer_checkout" hidden>Comprar por R$ 27,90</a>
+<form class="lead-form" id="cadastro" data-free novalidate>
+<p class="mono" style="margin:0;font-size:12px;color:var(--ink2)">Receba o acesso</p>
+<label>Nome<input name="nome" type="text" autocomplete="name" required></label>
+<label>E-mail<input name="email" type="email" autocomplete="email" required></label>
+<label>WhatsApp<input name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 90000-0000" required></label>
+<label class="lead-consent"><input name="consentimento" type="checkbox" required><span>Aceito receber o material e conteúdos relacionados, conforme a <a href="../privacidade.html">política de privacidade</a>.</span></label>
+<button type="submit" data-cta="offer_signup">Quero a Mesa de Trabalho</button>
+<p class="lead-msg" role="status" aria-live="polite"></p>
+</form>
+<p style="margin:0;font-size:13px;color:var(--ink2)"><span data-free>Sem custo e sem cartão.</span><span data-paid hidden>Pagamento único de R$ 27,90, processado pela Stripe em checkout externo.</span> Já tem conta? <a href="../app/" data-cta="form_login" style="color:var(--orink);font-weight:600">Entrar</a></p>
+</div></div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="sec">
+<div class="wrap faq">
+<div class="head">
+<p class="kicker">09 · Perguntas frequentes</p>
+<h2 class="h2">Antes de decidir</h2>
+</div>
+<div class="qa">
+<details><summary>Preciso já ter um negócio?<span class="plus" aria-hidden="true">+</span></summary><p>Não. A Mesa começa antes da solução: basta uma ideia ou um território de interesse. Os primeiros objetivos ajudam a avaliar se a ideia vale a investigação.</p></details>
+<details><summary>Com qual IA funciona?<span class="plus" aria-hidden="true">+</span></summary><p>Com a que você já usa. Os prompts funcionam no Claude, no ChatGPT e no Gemini. Você pode copiar, baixar em .md ou abrir direto no Claude ou no ChatGPT.</p></details>
+<details><summary>A Mesa envia meus dados para a IA?<span class="plus" aria-hidden="true">+</span></summary><p>Não. A Mesa monta o prompt e você decide onde usá-lo. Os botões do Claude e do ChatGPT só abrem o site com o prompt preenchido.</p></details>
+<details><summary>Serve para inovação dentro de empresas?<span class="plus" aria-hidden="true">+</span></summary><p>Sim. Projetos de inovação ganham um campo para o contexto da organização, e os prompts consideram patrocinador, área e restrições.</p></details>
+<details><summary>Preciso saber programar?<span class="plus" aria-hidden="true">+</span></summary><p>Não. Vários MVPs, como Concierge e Smoke Test, testam hipóteses sem software.</p></details>
+<details><summary>Como receberei os materiais?<span class="plus" aria-hidden="true">+</span></summary><p>Depois do cadastro, você cria sua conta e já usa a Mesa. Os vídeos chegam por e-mail e WhatsApp em até 24h.</p></details>
+</div>
+<div class="faq-end">
+<a class="btn btn-dark" href="#oferta" data-cta="faq_offer">Quero a Mesa de Trabalho</a>
+<span>Outra dúvida? <a href="mailto:miguelsnahas@gmail.com">miguelsnahas@gmail.com</a></span>
+</div>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="in">
+<b>MESA DE TRABALHO</b>
+<span>© 2026 <a href="https://miguelsnahas-ai.github.io/">Miguel Nahas</a></span>
+<div style="display:flex;flex-wrap:wrap;gap:8px 20px">
+<a href="../privacidade.html">Política de privacidade</a>
+<a href="../termos.html">Termos de uso</a>
+</div>
+</div>
+</footer>
+
+<!-- Comunidade: oculta até o lançamento. Para mostrar, remova o atributo hidden da seção. -->
+<section hidden class="sec"><div class="wrap">
+<div style="background: #261729; color: #FFFFFF; border-radius: 10px; padding: clamp(28px, 4vw, 44px); display: flex; flex-wrap: wrap; gap: 32px 56px">
 <div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
 <span class="mono" style="font-size: 12px; color: #F28A5E">+ COMUNIDADE</span>
 <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(32px, 3.5vw, 42px); line-height: 1; text-transform: uppercase">Você não aplica sozinho</h3>
@@ -334,176 +624,8 @@ a:focus-visible,summary:focus-visible{outline:3px solid #E0592A;outline-offset:3
 <div style="background: #352338; border: 1px solid #4D3A52; border-radius: 8px; padding: 16px"><dt class="mono" style="font-size: 11px; color: #D9CDD6">FREQUÊNCIA</dt><dd style="margin: 8px 0 0"><span class="tbd">[FREQUÊNCIA]</span></dd></div>
 <div style="background: #352338; border: 1px solid #4D3A52; border-radius: 8px; padding: 16px"><dt class="mono" style="font-size: 11px; color: #D9CDD6">REGRAS DA COMUNIDADE</dt><dd style="margin: 8px 0 0"><span class="tbd">[REGRAS]</span></dd></div>
 </dl>
-</div>
-</div>
-</section>
+</div></div></section>
 
-<!-- COMO FUNCIONA -->
-<section id="como-funciona" style="background: #FFFFFF; border-top: 1px solid #DCD2C4; border-bottom: 1px solid #DCD2C4">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 48px">
-<div style="flex: 1 1 100%; min-width: 0; display: flex; flex-direction: column; gap: 28px">
-<div style="display: flex; flex-direction: column; gap: 12px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">04 · Como funciona</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Simples assim</h2>
-</div>
-<ol style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0 24px">
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">1</span><div><strong><span data-free>Cadastre-se grátis.</span><span data-paid hidden>Faça o pagamento único e crie sua conta.</span></strong></div></li>
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">2</span><div><strong>Acesse ferramentas e vídeos.</strong></div></li>
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">3</span><div><strong>Aplique no seu projeto.</strong></div></li>
-<li style="display: flex; gap: 20px; padding: 18px 0; border-top: 1px solid #DCD2C4"><span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 32px; line-height: 1; color: #B13D16; min-width: 28px">4</span><div><strong>Peça mentoria quando precisar.</strong></div></li>
-</ol>
-</div>
-</div>
-</section>
-
-<!-- PARA QUEM -->
-<section style="background: #F5F0E8">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 32px">
-<div style="display: flex; flex-direction: column; gap: 12px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">05 · Para quem</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Seja honesto com você mesmo</h2>
-</div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px">
-<div style="background: #FFFFFF; border: 2px solid #261729; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 30px; text-transform: uppercase; color: #261729">É para você se…</h3>
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg>Quer tirar uma ideia do papel</li>
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg>Lidera inovação e precisa de evidências</li>
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6B3A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg>Aprende fazendo, no seu caso real</li>
-</ul>
-</div>
-<div style="background: transparent; border: 2px dashed #B8AC9C; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
-<h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 30px; text-transform: uppercase; color: #463E48">Não é para você se…</h3>
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px">
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round" style="flex: none; margin-top: 2px"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Espera uma fórmula mágica</li>
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round" style="flex: none; margin-top: 2px"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Quer garantia de investimento</li>
-<li style="display: flex; gap: 12px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9B3D1E" stroke-width="2.5" stroke-linecap="round" style="flex: none; margin-top: 2px"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg>Só quer confirmar o que já decidiu</li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-
-<!-- SOBRE -->
-<section id="sobre" style="background: #FFFFFF; border-top: 1px solid #DCD2C4">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
-<div style="flex: 0 1 360px; min-width: 0; width: 100%; display: flex; flex-direction: column; gap: 12px">
-<img loading="lazy" decoding="async" src="../assets/miguel-nahas.jpg" alt="Miguel Nahas" style="display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 25%; border-radius: 10px; border-bottom: 6px solid #E0592A">
-</div>
-<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">06 · Quem facilita</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Miguel Nahas</h2>
-<p class="mono" style="margin: 0; font-size: 13px; color: #B13D16">ESTRATÉGIA · EMPREENDEDORISMO · VENTURE BUILDING</p>
-<p style="margin: 0">Facilitador do Zero to First, cofundador da Future Dojo e Ventures Lead na Link School of Business. Mais de 100 startups mentoradas. <a href="https://miguelsnahas-ai.github.io/" style="color: #B13D16">Conheça a trajetória</a></p>
-<p class="mono" style="margin: 8px 0 0; font-size: 12px; color: #463E48">ONDE ESSA EXPERIÊNCIA FOI CONSTRUÍDA</p>
-<ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px">
-<li style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 120px">
-<div style="height: 48px; display: flex; align-items: center"><img loading="lazy" decoding="async" src="../assets/link.png" alt="Link School of Business" style="display: block; height: 30px; width: auto; max-width: 100%; object-fit: contain"></div>
-<span style="font-size: 14px; color: #463E48; border-top: 1px solid #DCD2C4; padding-top: 10px">Ventures Lead</span>
-</li>
-<li style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 120px">
-<div style="height: 48px; display: flex; align-items: center"><img loading="lazy" decoding="async" src="../assets/ace.png" alt="ACE Ventures" style="display: block; height: 44px; width: auto; max-width: 100%; object-fit: contain"></div>
-<span style="font-size: 14px; color: #463E48; border-top: 1px solid #DCD2C4; padding-top: 10px">Partner</span>
-</li>
-<li style="background: #FFFFFF; border: 1px solid #DCD2C4; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 120px">
-<div style="height: 48px; display: flex; align-items: center"><img loading="lazy" decoding="async" src="../assets/dojo.png" alt="Future Dojo" style="display: block; height: 44px; width: auto; max-width: 100%; object-fit: contain"></div>
-<span style="font-size: 14px; color: #463E48; border-top: 1px solid #DCD2C4; padding-top: 10px">Cofundador</span>
-</li>
-
-</ul>
-</div>
-</div>
-</section>
-
-<!-- OFERTA -->
-<section id="oferta" style="background: #261729; color: #FFFFFF">
-<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
-<div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #F28A5E">07 · Acesso</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(40px, 5vw, 64px); line-height: 0.98; text-transform: uppercase">Pare de adivinhar. <span style="color: #F28A5E">Comece a testar.</span></h2>
-<p style="margin: 0; color: #E6DCE4; max-width: 520px">Valide antes de construir algo que ninguém pediu.</p>
-</div>
-<div style="flex: 1 1 440px; min-width: 0; background: #FFFFFF; color: #1D1820; border-radius: 12px; overflow: hidden; border-top: 6px solid #E0592A">
-<div style="padding: 32px; display: flex; flex-direction: column; gap: 20px">
-<div>
-<p class="mono" style="margin: 0; font-size: 12px; color: #B13D16"><span data-free>GRATUITO</span><span data-paid hidden>R$ 27,90 · PAGAMENTO ÚNICO</span></p>
-<h3 style="margin: 4px 0 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 36px; line-height: 1; text-transform: uppercase; color: #261729">Mesa de Trabalho</h3>
-<p style="margin: 4px 0 0; font-weight: 600; color: #463E48">Ferramentas + área de projetos</p>
-</div>
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px">
-<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Discovery, Validation e Traction: 31 ferramentas</li>
-<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Vídeos de como aplicar cada uma</li>
-<li style="display: flex; gap: 10px"><span aria-hidden="true" style="color: #B13D16; font-weight: 700">→</span>Área de projetos com IA</li>
-</ul>
-<a class="checkout-btn" href="#oferta" data-paid data-checkout data-cta="offer_checkout" hidden>Comprar por R$ 27,90</a>
-<form class="lead-form" id="cadastro" data-free novalidate>
-<p class="mono" style="margin: 0; font-size: 12px; color: #463E48">RECEBA O ACESSO</p>
-<label>Nome<input name="nome" type="text" autocomplete="name" required></label>
-<label>E-mail<input name="email" type="email" autocomplete="email" required></label>
-<label>WhatsApp<input name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 90000-0000" required></label>
-<label class="lead-consent"><input name="consentimento" type="checkbox" required><span>Aceito receber o material e conteúdos relacionados, conforme a <a href="../privacidade.html">política de privacidade</a>.</span></label>
-<button type="submit" data-cta="offer_signup">Quero a Mesa de Trabalho</button>
-<p class="lead-msg" role="status" aria-live="polite"></p>
-</form>
-<p style="margin: 0; font-size: 13px; color: #463E48"><span data-free>Sem custo e sem cartão.</span><span data-paid hidden>Pagamento único de R$ 27,90, processado pela Stripe em checkout externo.</span> Já tem conta? <a href="../app/" data-cta="form_login" style="color: #B13D16; font-weight: 600">Entrar</a></p>
-</div>
-</div>
-</div>
-</section>
-
-<!-- FAQ -->
-<section id="faq" style="background: #F5F0E8">
-<div style="max-width: 880px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 28px">
-<div style="display: flex; flex-direction: column; gap: 12px">
-<p class="mono" style="margin: 0; font-size: 13px; text-transform: uppercase; color: #463E48">08 · Perguntas frequentes</p>
-<h2 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: clamp(36px, 4.5vw, 54px); line-height: 1; text-transform: uppercase; color: #261729">Antes de decidir</h2>
-</div>
-<div style="display: flex; flex-direction: column; border-top: 2px solid #261729">
-<details style="border-bottom: 1px solid #DCD2C4; padding: 0">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Preciso já ter um negócio?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Não. Ela começa antes da solução: basta uma ideia ou um território de interesse.</p>
-</details>
-<details style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Serve para inovação dentro de empresas?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Sim. Vale para qualquer iniciativa nova que precise de evidências antes de pedir investimento.</p>
-</details>
-<details style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Preciso saber programar?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Não. Vários MVPs, como Concierge e Smoke Test, testam hipóteses sem software.</p>
-</details>
-<details hidden style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como funciona a comunidade?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">É um espaço complementar para compartilhar desafios, discutir hipóteses e trocar aprendizados com outras pessoas aplicando as ferramentas. Plataforma: <span class="tbd">[PLATAFORMA]</span> · Formato: <span class="tbd">[FORMATO]</span> · Frequência: <span class="tbd">[FREQUÊNCIA]</span></p>
-</details>
-<details hidden style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Por quanto tempo terei acesso?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">O acesso à comunidade de empreendedores e inovadores é de 3 meses a partir do cadastro. Ferramentas e conteúdos gravados: <span class="tbd">[PRAZO]</span></p>
-</details>
-<details style="border-bottom: 1px solid #DCD2C4">
-<summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; font-weight: 600; font-size: 18px">Como receberei os materiais?<span class="plus" aria-hidden="true" style="font-size: 26px; color: #B13D16; transition: transform 0.15s">+</span></summary>
-<p style="margin: 0 0 20px; color: #463E48">Depois do cadastro, você cria sua conta e já usa as ferramentas. Os vídeos chegam por e-mail e WhatsApp em até 24h.</p>
-</details>
-</div>
-<div style="display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding-top: 12px">
-<a href="#oferta" data-cta="faq_offer" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; background: #261729; color: #FFFFFF; text-decoration: none; font-weight: 600; border-radius: 6px">Quero a Mesa de Trabalho</a>
-<span style="color: #463E48; font-size: 15px">Outra dúvida? <a href="mailto:miguelsnahas@gmail.com">miguelsnahas@gmail.com</a></span>
-</div>
-</div>
-</section>
-
-<!-- FOOTER -->
-<footer style="background: #261729; color: #D9CDD6; border-top: 1px solid #4D3A52">
-<div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px; display: flex; flex-wrap: wrap; gap: 12px 32px; justify-content: space-between; align-items: center; font-size: 14px">
-<span style="font-family: 'Instrument Sans', sans-serif; font-stretch: 75%; font-weight: 700; font-size: 20px; color: #FFFFFF; letter-spacing: 0.02em">MESA DE TRABALHO</span>
-<span>© 2026 <a href="https://miguelsnahas-ai.github.io/" style="color: #D9CDD6">Miguel Nahas</a></span>
-<div style="display: flex; flex-wrap: wrap; gap: 8px 20px">
-<a href="../privacidade.html" style="color: #D9CDD6">Política de privacidade</a>
-<a href="../termos.html" style="color: #D9CDD6">Termos de uso</a>
-</div>
-</div>
-</footer>
-
-</div>
 <script>
   /* CADASTRO: nome, e-mail e WhatsApp vão para a tabela leads_mesa_trabalho no Supabase.
      A chave abaixo é pública (publishable): a tabela só aceita inserir, ninguém lê pela página.
