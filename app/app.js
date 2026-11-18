@@ -203,7 +203,7 @@
       var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0] || MESA.STARTS[0], rec = TOOL[st.tool], n = filledCount(), tot = totalFields();
       return '<h2>Sua mesa está pronta</h2><div class="wdone"><div class="wmeter"><b>' + n + "/" + tot + '</b><span>campos de contexto</span><span class="pbar"><i style="width:' + Math.round(n / tot * 100) + '%"></i></span>' +
         (n < 6 ? '<small class="muted">Dá para completar depois em Contexto. As ferramentas ficam mais precisas com pelo menos 6 campos.</small>' : '<small class="muted">Ótimo ponto de partida.</small>') + "</div>" +
-        '<div class="wrec"><span class="start-art">' + MESA.deskArt(rec.id) + '</span><div><p class="label">Primeiro objeto da sua mesa</p><b>' + esc(rec.name) + "</b><p>" + esc(rec.desc) + "</p></div></div>" +
+        '<div class="wrec"><span class="start-art">' + MESA.deskArt(rec.id) + '</span><div><p class="label">Primeiro objetivo sugerido</p><b>' + esc(rec.name) + "</b><p>" + esc(rec.desc) + "</p></div></div>" +
         (wz.hipotese ? '<p class="small">Sua aposta mais arriscada vai para o quadro como hipótese: <b>“' + esc(wz.hipotese) + '”</b></p>' : "") + "</div>";
     }
     function nav() {
@@ -274,9 +274,9 @@
   /* ---------- Boas-vindas na mesa (primeira visita) ---------- */
   function welcome(rec) {
     var slides = [
-      { art: '<span class="wel-arts">' + ["jtbd", "roteiro", "csd", "mvp"].map(MESA.deskArt).join("") + "</span>", t: "Esta é a sua mesa de trabalho", d: "Ela começa vazia. Cada ferramenta que você preenche traz um objeto para cá: post-its, telefone, lupa, ampulheta. Conforme o projeto avança, a mesa ganha vida." },
-      { art: '<span class="wel-arts">' + MESA.PHASES.map(function (p) { return '<b class="pn">' + p.n + "</b>"; }).join("") + "</span>", t: "Três fases, uma decisão por vez", d: "Discovery, Validation e Traction. Não é uma trilha rígida: o próximo passo sugerido aparece no cartão da parede e você pode visitar qualquer ferramenta pela Jornada." },
-      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pelo contexto", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro objeto chega à mesa." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
+      { art: '<span class="wel-arts">' + ["jtbd", "roteiro", "csd", "mvp"].map(MESA.deskArt).join("") + "</span>", t: "Este é o painel do seu projeto", d: "Cada objetivo concluído desbloqueia um bloco aqui. Você vê em que fase está, o que já foi feito e qual é o próximo passo sugerido." },
+      { art: '<span class="wel-arts">' + MESA.PHASES.map(function (p) { return '<b class="pn">' + p.n + "</b>"; }).join("") + "</span>", t: "Três fases, uma decisão por vez", d: "Discovery, Validation e Traction. Não é uma trilha rígida: o próximo passo sugerido aparece no painel e você pode abrir qualquer objetivo pela tela Desbloquear." },
+      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pelo contexto", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro bloco do painel fica pronto." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
     ];
     var i = 0;
     modal('<div class="welcome"></div>', function (box, close) {
@@ -327,8 +327,6 @@
   }
 
   /* ---------- Mesa ---------- */
-  var BOARD_COLOR = { hipotese: "#F3D46B", experimento: "#F8D9C6", evidencia: "#DDE4D3", decisao: "#E4DAEE", pergunta: "#FFFDF8" };
-  function tilt(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 997; return (h % 11) - 5; }
   function seenKey() { return "mesa-vista-" + state.p.id; }
   function readSeen() { try { return JSON.parse(localStorage.getItem(seenKey()) || "null"); } catch (e) { return null; } }
   function writeSeen(ids) { try { localStorage.setItem(seenKey(), JSON.stringify(ids)); } catch (e) {} }
@@ -347,77 +345,59 @@
   function viewMesa(main) {
     var p = state.p, ctx = p.context || {}, byTool = {};
     state.artifacts.forEach(function (a) { if (a.tool_id) (byTool[a.tool_id] = byTool[a.tool_id] || []).push(a); });
-    var done = MESA.DESK_ORDER.filter(function (id) { return byTool[id]; });
-    var ctxFilled = MESA.CONTEXT_FIELDS.filter(function (f) { return (ctx[f.id] || "").trim(); }).length;
-    var life = done.length + (ctxFilled >= 3 ? 1 : 0) + (state.radar.length ? 1 : 0) + (state.board.length ? 1 : 0) + (state.pedidos.length ? 1 : 0);
-    var plant = life === 0 ? 0 : life < 6 ? 1 : life < 16 ? 2 : 3;
-    var dayAgo = Date.now() - 864e5;
-    var warm = state.artifacts.concat(state.board).some(function (x) { return new Date(x.created_at).getTime() > dayAgo; });
+    var wip = {}; state.workspaces.forEach(function (w) { if (!byTool[w.tool_id]) wip[w.tool_id] = w.status === "concluido" ? "done" : "wip"; });
+    var isDone = function (id) { return !!byTool[id] || wip[id] === "done"; };
+    var done = MESA.DESK_ORDER.filter(isDone);
     var seen = readSeen(), fresh = {};
     if (seen) done.forEach(function (id) { if (seen.indexOf(id) === -1) fresh[id] = true; });
     var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces)[0];
     var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
-
+    var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Completar a base";
     var rec = MESA.recommendTool(p, state.artifacts, state.workspaces);
-    var wip = {}; state.workspaces.forEach(function (w) { if (!byTool[w.tool_id]) wip[w.tool_id] = true; });
-    var zoneHtml = function (l) {
-      var objs = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).map(function (id) {
-        var t = TOOL[id], n = (byTool[id] || []).length;
-        return '<button class="obj ' + (n ? "is-on" : wip[id] ? "is-wip" : "is-empty") + (fresh[id] ? " is-new" : "") + (id === rec && !n && !wip[id] ? " is-reco" : "") + '" data-tool="' + id + '" style="--rot:' + tilt(id) + 'deg" title="' + esc(MESA.DESK_OBJECT[id] + " · " + t.name) + '">' +
-          '<span class="art">' + MESA.deskArt(id) + '</span><span class="tag">' + esc(t.name) + "</span>" + (n > 1 ? '<span class="badge">' + n + "</span>" : "") + "</button>";
-      }).join("");
-      var n = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && TOOL[id].lens === l.id; }).length;
-      return '<section class="zone' + (p.focus === l.id ? " is-focus" : "") + '" style="--n:' + n + '" aria-label="' + l.name + '"><h3 class="hand">' + l.name + MESA.arrow() + (p.focus === l.id ? " <em>foco agora</em>" : "") + '</h3><div class="objs">' + objs + "</div></section>";
+    var base = MESA.baseFilledCount(p), total = MESA.DESK_ORDER.length, cur = currentPhase();
+    var stat = function (k, s) { return state.board.filter(function (b) { return b.kind === k && (!s || b.status === s); }).length; };
+    var pct = function (a, b) { return b ? Math.round(a / b * 100) : 0; };
+
+    var tile = function (id) {
+      var t = TOOL[id], n = (byTool[id] || []).length, st = isDone(id) ? "is-on" : wip[id] ? "is-wip" : "is-empty";
+      var sub = n ? (n > 1 ? n + " artefatos" : "Concluído") : wip[id] === "done" ? "Concluído" : wip[id] ? "Em andamento" : id === rec ? "Comece aqui" : t.workspace ? "Área de trabalho" : "Disponível";
+      return '<button class="obj ' + st + (fresh[id] ? " is-new" : "") + (id === rec && st === "is-empty" ? " is-reco" : "") + '" data-tool="' + id + '" title="' + esc(t.name + (t.blocker ? ": " + t.blocker : "")) + '">' +
+        '<span class="art ico">' + MESA.deskArt(id) + '</span><span class="tag"><b>' + esc(t.name) + "</b><small>" + sub + "</small></span>" + (st === "is-on" ? '<span class="tick" aria-label="concluído">✓</span>' : "") + "</button>";
     };
-    var zones = MESA.PHASES.map(function (ph) {
-      return '<div class="phase-band"><p class="phase-name"><span>' + ph.n + "</span>" + ph.name + " <small>" + ph.pt + '</small></p><div class="zones">' + ph.lenses.map(function (lid) { return zoneHtml(LENS[lid]); }).join("") + "</div></div>";
+    var phases = MESA.PHASES.map(function (ph) {
+      var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(isDone).length;
+      return '<section class="pboard' + (ph.id === cur ? " is-cur" : "") + '" aria-label="Fase ' + ph.n + ": " + ph.name + '"><header><span class="pn">' + ph.n + '</span><div><h2>' + ph.name + ' <span class="muted">· ' + ph.pt + "</span></h2><p>" + esc(ph.goal) + '</p></div><div class="pscore"><b>' + n + "/" + ids.length + '</b><span class="xp"><i style="width:' + pct(n, ids.length) + '%"></i></span></div></header>' +
+        ph.lenses.map(function (lid) {
+          var ls = ids.filter(function (id) { return TOOL[id].lens === lid; });
+          return '<div class="drow' + (p.focus === lid ? " is-focus" : "") + '"><p class="lname">' + LENS[lid].name + (p.focus === lid ? " <em>foco</em>" : "") + '</p><div class="objs">' + ls.map(tile).join("") + "</div></div>";
+        }).join("") + "</section>";
     }).join("");
 
-    var notes = state.board.slice(0, 7).map(function (b) {
-      return '<button class="pin" data-act="edit-item" data-id="' + b.id + '" style="--bg:' + BOARD_COLOR[b.kind] + ";--rot:" + tilt(b.id) + 'deg"><small>' + KINDS[b.kind] + '</small><span class="pt">' + esc(b.title) + "</span></button>";
-    }).join("");
-
-    var BOOKS = [["problema", "Problema"], ["persona", "Cliente"], ["mercado", "Mercado"], ["beachhead", "Segmento"], ["solucao", "Solução"], ["modelo", "Receita"]];
-    var books = BOOKS.map(function (b, i) { return '<span class="book' + ((ctx[b[0]] || "").trim() ? " is-on" : "") + '" style="--i:' + i + '">' + b[1] + "</span>"; }).join("");
     var steps = MESA.PHASES.map(function (ph) {
-      var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(function (id) { return byTool[id]; }).length;
-      var cur = LENS[p.focus] && LENS[p.focus].phase === ph.id;
-      return '<li><button data-act="mesa-focus" data-lens="' + ph.lenses[0] + '"' + (cur ? ' aria-current="step"' : "") + ' title="' + esc(ph.goal) + '"><span class="dot' + (n ? " has" : "") + (n === ids.length ? " full" : "") + '">' + ph.n + "</span><b>" + ph.name + "</b><small>" + n + "/" + ids.length + "</small></button></li>";
+      var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(isDone).length;
+      return '<li><button data-act="mesa-focus" data-lens="' + ph.lenses[0] + '"' + (ph.id === cur ? ' aria-current="step"' : "") + ' title="' + esc(ph.goal) + '"><span class="dot' + (n ? " has" : "") + (n === ids.length ? " full" : "") + '">' + ph.n + "</span><b>" + ph.name + "</b><small>" + n + "/" + ids.length + "</small></button></li>";
     }).join("");
-    var moveIcon = move.action.type === "tool" ? MESA.deskArt(move.action.id) : MESA.bulb();
-    var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Preencher o contexto";
+    var recent = state.board.slice(0, 5).map(function (b) {
+      return '<button class="qrow" data-act="edit-item" data-id="' + b.id + '"><span class="kdot k-' + b.kind + '"></span><span class="qt">' + esc(b.title) + '</span><small>' + KINDS[b.kind] + " · " + (STATUS[b.status] || "") + "</small></button>";
+    }).join("");
 
     main.innerHTML =
-      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div>' +
-        '<ol class="msteps" aria-label="Etapas do método">' + steps + "</ol></div>" +
+      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div><ol class="msteps" aria-label="Fases do método">' + steps + "</ol></div>" +
       onboardHtml() +
-      '<div class="scene' + (state.artifacts.length ? " is-lit" : "") + '">' +
-        '<div class="wall">' +
-          '<div class="window">' + MESA.sceneWindow() + "</div>" +
-          '<div class="wall-plant">' + MESA.scenePlant() + "</div>" +
-          '<div class="wall-mid"><p class="hand slogan">Uma decisão por vez.</p>' +
-          '<div class="mural" aria-label="Quadro do projeto">' + notes + '<button class="pin pin-add" data-act="add-item">+ Hipótese</button><a class="mural-link" href="#/p/' + p.id + '/quadro">Abrir quadro →</a></div></div>' +
-          '<aside class="next-card"><a class="nc-head" href="' + moveHref + '">Próximo passo <span aria-hidden="true">→</span></a>' +
-            '<div class="nc-box"><span class="nc-icon">' + moveIcon + "</span><b>" + esc(move.text) + "</b></div>" +
-            '<p class="small muted">' + (done.length ? done.length + " de " + MESA.DESK_ORDER.length + " objetos na mesa." : "A mesa começa vazia. Cada atividade preenchida traz um objeto.") + '</p>' +
-            '<div class="life" aria-label="Vida da mesa"><span style="width:' + Math.round(Math.min(life, 31) / 31 * 100) + '%"></span></div>' +
-            '<a class="btn btn-primary btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></aside>" +
-        "</div>" +
-        '<div class="tabletop">' +
-          '<div class="bands">' + zones + "</div>" +
-          '<div class="front">' +
-            '<span class="prop lamp">' + MESA.deskLamp() + "</span>" +
-            '<a class="stack" href="#/p/' + p.id + '/contexto" title="Contexto do projeto"><span class="books">' + books + '</span><span class="cup">' + MESA.pencup() + "</span></a>" +
-            '<a class="notebook' + (ctxFilled ? " is-on" : "") + '" href="#/p/' + p.id + '/contexto"><span class="spiral"></span><span class="page"><small>Caderno do projeto</small><b>' + esc(ctx.ideia || "Escreva aqui a ideia") + "</b>" + (ctx.problema ? "<span>" + esc(ctx.problema) + "</span>" : "<span>" + (ctxFilled ? "" : "Contexto: problema, cliente, segmento…") + "</span>") + "</span></a>" +
-            '<a class="prop' + (state.radar.length ? " is-on" : " is-empty") + '" href="#/p/' + p.id + '/radar" title="Radar: buscar sinais">' + MESA.deskLaptop(state.radar.length > 0) + '<span class="tag">Radar' + (state.radar.length ? " · " + state.radar.length : "") + "</span></a>" +
-            '<a class="prop" href="#/p/' + p.id + '/mentoria" title="Mentoria com o Miguel">' + MESA.deskMugs(state.pedidos.length > 0, warm) + '<span class="tag">' + (state.pedidos.length ? "Mentoria pedida" : "Chamar o Miguel") + "</span></a>" +
-            '<span class="prop plant">' + MESA.deskPlant(plant) + "</span>" +
-          "</div>" +
-        "</div>" +
-        '<div class="chair">' + MESA.chair() + "</div>" +
-      "</div>";
+      '<div class="hud">' +
+        '<div class="hcard hmain"><p class="label">Progresso do projeto</p><div class="hnum"><b>' + done.length + '</b><span>de ' + total + ' objetivos</span></div><span class="xp big"><i style="width:' + pct(done.length, total) + '%"></i></span><small>Fase atual: ' + MESA.PHASES.filter(function (x) { return x.id === cur; })[0].name + "</small></div>" +
+        '<a class="hcard" href="#/p/' + p.id + '/desbloquear"><p class="label">Base do negócio</p><div class="hnum"><b>' + base.filled + '</b><span>de ' + base.total + ' campos</span></div><span class="xp"><i style="width:' + pct(base.filled, base.total) + '%"></i></span><small>' + (base.filled < 6 ? "Complete para prompts mais precisos" : "Usada em todos os prompts") + "</small></a>" +
+        '<a class="hcard" href="#/p/' + p.id + '/quadro"><p class="label">Quadro</p><div class="hnum"><b>' + stat("hipotese", "aberto") + '</b><span>hipóteses abertas</span></div><small>' + stat("experimento", "testando") + " experimento(s) em teste · " + stat("hipotese", "validado") + " validada(s)</small></a>" +
+        '<a class="hcard" href="#/p/' + p.id + '/radar"><p class="label">Radar</p><div class="hnum"><b>' + state.radar.length + '</b><span>sinais salvos</span></div><small>' + (state.radar.length ? "Negócios, tendências e mudanças" : "Rode o radar para buscar sinais") + "</small></a>" +
+      "</div>" +
+      '<div class="dash"><div class="boards">' + phases + "</div>" +
+        '<aside class="dside">' +
+          '<section class="mission"><p class="label">Próximo passo</p><div class="mrow"><span class="ico mi">' + (move.action.type === "tool" ? MESA.deskArt(move.action.id) : "") + "</span><b>" + esc(move.text) + '</b></div><a class="btn btn-accent btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></section>" +
+          '<section class="scard"><div class="scard-h"><h3>Quadro</h3><a class="small" href="#/p/' + p.id + '/quadro">Abrir →</a></div>' + (recent || '<p class="small muted">Registre hipóteses, experimentos e decisões do projeto.</p>') + '<button class="btn btn-line btn-sm" data-act="add-item">+ Hipótese</button></section>' +
+          '<section class="scard"><div class="scard-h"><h3>Mentoria</h3></div><p class="small muted">' + (state.pedidos.length ? "Pedido enviado. Acompanhe na aba Mentoria." : "Leve os artefatos do projeto para uma conversa com o Miguel.") + '</p><a class="btn btn-line btn-sm" href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver pedidos" : "Pedir mentoria") + "</a></section>" +
+        "</aside></div>";
     var ob = main.querySelector("[data-onb-off]");
-    if (ob) ob.onclick = function () { p.context = p.context || {}; p.context._onb_off = true; saveContext(); main.querySelector(".onb").remove(); toast("Primeiros passos ocultos. As sugestões continuam no cartão da parede."); };
+    if (ob) ob.onclick = function () { p.context = p.context || {}; p.context._onb_off = true; saveContext(); main.querySelector(".onb").remove(); toast("Primeiros passos ocultos. O próximo passo continua no painel."); };
     var isNew = false, seenTour = false;
     try { isNew = sessionStorage.getItem("mesa-novo-" + p.id) === "1"; seenTour = localStorage.getItem("mesa-tour-v1") === "1"; } catch (e) { seenTour = true; }
     if (isNew || !seenTour) { try { sessionStorage.removeItem("mesa-novo-" + p.id); localStorage.setItem("mesa-tour-v1", "1"); } catch (e) {} setTimeout(function () { welcome(rec); }, 350); }
@@ -428,7 +408,7 @@
         var id = el.dataset.tool, t = TOOL[id], list = byTool[id] || [];
         if (!list.length || t.workspace) return go("#/p/" + p.id + "/ferramenta/" + id);
         if (list.length === 1) return go("#/p/" + p.id + "/artefato/" + list[0].id);
-        modal('<div class="obj-modal"><span class="art">' + MESA.deskArt(id) + "</span><div><p class=\"label\">" + esc(MESA.DESK_OBJECT[id]) + "</p><h2>" + esc(t.name) + "</h2></div></div>" +
+        modal('<div class="obj-modal"><span class="art ico">' + MESA.deskArt(id) + "</span><div><p class=\"label\">" + esc(LENS[t.lens].name) + "</p><h2>" + esc(t.name) + "</h2></div></div>" +
           '<div class="list" data-close style="margin:16px 0">' + list.map(artifactRow).join("") + "</div>" +
           '<div class="row"><span class="spacer"></span><button class="btn btn-ghost" data-close>Fechar</button><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + id + '" data-close>Usar de novo</a></div>');
       };
@@ -545,7 +525,7 @@
           '<button class="btn btn-accent btn-sm" data-d="copy">Copiar</button><button class="btn btn-line btn-sm" data-d="md">.md</button>' +
           '<a class="btn btn-line btn-sm" data-ai="claude" target="_blank" rel="noopener">Claude</a><a class="btn btn-line btn-sm" data-ai="chatgpt" target="_blank" rel="noopener">ChatGPT</a></div>' +
           '<p class="dmeta">Funciona no Claude, ChatGPT e Gemini · <span id="d-chars"></span> caracteres</p><pre id="prompt"></pre><div id="d-mentor"></div>' +
-          '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e um objeto na mesa."></textarea>' +
+          '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e conclui o objetivo no painel."></textarea>' +
           '<div class="row"><input class="input" id="atitle" style="flex:1;min-width:180px" value="' + esc(t.name) + '" aria-label="Título do artefato"><button class="btn btn-accent" data-d="save">Salvar artefato</button></div></div>' +
         "</section></div></section>";
     }
@@ -637,7 +617,7 @@
       sb.from("artifacts").insert({ project_id: p.id, tool_id: t.id, stage: t.lens, title: title, content: content }).select().single().then(function (r) {
         e.target.disabled = false; if (r.error) return fail(r.error);
         state.artifacts.unshift(r.data); track("artifact_saved", { tool: t.id });
-        toast(MESA.DESK_OBJECT[t.id] ? MESA.DESK_OBJECT[t.id] + " na mesa. Clique nele para ver o artefato." : "Artefato salvo.");
+        toast("Artefato salvo. " + t.name + " concluído no painel.");
         go("#/p/" + p.id + "/mesa");
       });
     };
@@ -813,13 +793,13 @@
       else if (b.hasAttribute("data-copy-md")) { copy(MESA.tractionDeliverable(t, d, env())).then(function () { toast("Entregável copiado em Markdown."); }); }
       else if (b.hasAttribute("data-download")) { var blob = new Blob([MESA.tractionDeliverable(t, d, env())], { type: "text/markdown" }), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (p.name + " - " + t.name).replace(/[^\wÀ-ú -]+/g, "").trim() + ".md"; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(a.href); }, 1500); track("traction_deliverable_downloaded", { tool: toolId }); }
       else if (b.hasAttribute("data-save-art")) { b.disabled = true; saveDeliverable().then(function () { b.disabled = false; rerender(); }); }
-      else if (b.hasAttribute("data-conclude")) { w.status = "concluido"; saveWorkspace(w); flushWorkspace().then(saveDeliverable).then(function () { track("traction_tool_done", { tool: toolId }); toast(MESA.DESK_OBJECT[toolId] + " na mesa. Ferramenta concluída."); rerender(); }); }
+      else if (b.hasAttribute("data-conclude")) { w.status = "concluido"; saveWorkspace(w); flushWorkspace().then(saveDeliverable).then(function () { track("traction_tool_done", { tool: toolId }); toast(TOOL[toolId].name + " concluída no painel."); rerender(); }); }
       else if (b.hasAttribute("data-reopen")) { w.status = "em_andamento"; saveWorkspace(w); rerender(); }
     });
     function saveDeliverable() {
       var content = MESA.tractionDeliverable(t, d, env()), art = state.artifacts.filter(function (a) { return a.tool_id === toolId; })[0];
       var q = art ? sb.from("artifacts").update({ content: content }).eq("id", art.id).select().single() : sb.from("artifacts").insert({ project_id: p.id, tool_id: toolId, stage: t.lens, title: t.name + " · entregável", content: content }).select().single();
-      return q.then(function (r) { if (r.error) return fail(r.error); if (art) Object.assign(art, r.data); else state.artifacts.unshift(r.data); toast(art ? "Entregável atualizado na Mesa." : MESA.DESK_OBJECT[toolId] + " na mesa: entregável salvo."); });
+      return q.then(function (r) { if (r.error) return fail(r.error); if (art) Object.assign(art, r.data); else state.artifacts.unshift(r.data); toast(art ? "Entregável atualizado." : "Entregável salvo no projeto."); });
     }
     render();
   }

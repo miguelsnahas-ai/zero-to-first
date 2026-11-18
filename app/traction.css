@@ -109,7 +109,7 @@
 .dec-q span { font-size: 14px; color: var(--ink-soft); }
 .dec .textarea { min-height: 64px; }
 .dec-meta { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; }
-.seg { display: inline-flex; border: 1.5px solid var(--line-strong); border-radius: 999px; overflow: hidden; }
+.seg { display: inline-flex; border: 1.5px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
 .seg button { border: 0; background: var(--white); padding: 7px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
@@ -168,16 +168,6 @@
 .next-step { grid-column: 1 / -1; background: var(--white); border-color: var(--ink); }
 .next-step p { margin: 6px 0 12px; }
 .btn[disabled] { opacity: .45; cursor: not-allowed; }
-
-/* Mesa: faixas por fase e objetos em andamento */
-.phase-band + .phase-band { margin-top: 18px; padding-top: 14px; border-top: 2px dashed rgba(60, 30, 10, .22); }
-.phase-name { display: flex; align-items: baseline; gap: 10px; margin: 0 6px 6px; font: 700 30px/1 "Caveat", cursive; color: rgba(40, 20, 6, .88); }
-.phase-name span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: #FFF; font: 600 15px/1 var(--sans); transform: translateY(-3px); }
-.phase-name small { font-size: 21px; color: rgba(40, 20, 6, .55); }
-.obj.is-wip { transform: none; }
-.obj.is-wip .art { opacity: .6; filter: saturate(.55); }
-.obj.is-wip .tag { background: rgba(255, 253, 248, .6); }
-.obj.is-wip .tag::after { content: " · em andamento"; color: var(--pers-ink); font-weight: 600; }
 
 @media (max-width: 900px) {
   .pstrip { flex-direction: column; }

@@ -21,7 +21,7 @@
 .wimport[open] > summary { margin-bottom: 2px; }
 .wnav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
 .starts { display: grid; gap: 10px; }
-.start { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); text-align: left; cursor: pointer; }
+.start { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: center; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); text-align: left; cursor: pointer; }
 .start:hover { border-color: var(--ink); }
 .start.is-on { border-color: var(--pers); box-shadow: inset 0 0 0 1px var(--pers); background: #FFF6F1; }
 .start b { display: block; font-family: var(--serif); font-weight: 500; font-size: 18px; }
@@ -31,7 +31,9 @@
 .wdone { display: grid; gap: 14px; }
 .wmeter { display: grid; gap: 4px; }
 .wmeter b { font: 500 32px/1 var(--serif); }
-.wrec { display: grid; grid-template-columns: 90px 1fr; gap: 16px; align-items: center; padding: 14px; border-radius: 12px; background: #FBEFC4; }
+.wrec { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: center; padding: 14px; border-radius: 10px; background: var(--white); border: 1px solid var(--line); box-shadow: inset 3px 0 0 var(--pers); }
+.wrec .start-art { padding: 8px; border-radius: 10px; background: var(--plum); }
+.wrec .start-art svg { color: #FFF; --ico-fill: rgba(224, 89, 42, .55); }
 .wrec b { display: block; font-family: var(--serif); font-weight: 500; font-size: 22px; margin-bottom: 2px; }
 .wrec p:not(.label) { font-size: 14.5px; color: var(--ink-soft); }
 
@@ -52,26 +54,19 @@ a.onb-item:hover, button.onb-item:hover { border-color: var(--ink); }
 .onb-item.is-next { border-color: var(--pers); background: #FFF6F1; box-shadow: inset 4px 0 0 var(--pers); }
 .onb-item.is-next .onb-check { border-color: var(--pers); }
 
-/* Ferramenta recomendada na mesa */
-.obj.is-reco .art { opacity: .55; filter: none; }
-.obj.is-reco::before { border-color: var(--pers-ink); border-style: solid; background: rgba(255, 246, 228, .35); animation: reco 2.2s ease-in-out infinite; }
-.obj.is-reco .tag { background: var(--pers); color: var(--ink); font-weight: 700; }
-.obj.is-reco .tag::after, .obj.is-reco:hover .tag::after { content: " · comece aqui"; color: var(--ink); }
-@keyframes reco { 0%, 100% { box-shadow: 0 0 0 0 rgba(224, 89, 42, .45); } 50% { box-shadow: 0 0 0 8px rgba(224, 89, 42, 0); } }
-
 /* Boas-vindas */
 .welcome { display: grid; gap: 12px; text-align: center; }
 .welcome p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; }
-.wel-art { display: flex; justify-content: center; padding: 18px 0 6px; border-radius: 14px; background: linear-gradient(180deg, #E4BD8F, #CF9F6C); }
+.wel-art { display: flex; justify-content: center; padding: 22px 0 16px; border-radius: 12px; background: var(--plum); }
 .wel-arts { display: inline-flex; gap: 6px; align-items: center; }
-.wel-arts svg { width: 86px; height: auto; filter: drop-shadow(0 6px 4px rgba(50, 25, 10, .3)); }
-.wel-arts.one svg { width: 130px; }
-.wel-arts .pn { width: 54px; height: 54px; font-size: 24px; margin: 10px 6px 18px; }
+.wel-arts svg { width: 64px; height: auto; color: #FFF; --ico-fill: rgba(224, 89, 42, .55); padding: 8px; border-radius: 10px; background: var(--plum-2); border: 1px solid var(--plum-line); }
+.wel-arts.one svg { width: 96px; }
+.wel-arts .pn { width: 54px; height: 54px; font-size: 24px; margin: 6px; border-radius: 10px; background: var(--plum-2); border: 1px solid var(--plum-line); }
 .wel-dots { display: flex; gap: 6px; justify-content: center; }
 .wel-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
 .wel-dots i.on { background: var(--pers); width: 22px; border-radius: 999px; }
 .welcome .wnav { text-align: left; }
-.first-project .wel-arts svg { width: 76px; }
+.first-project .wel-arts svg { width: 60px; background: var(--plum); }
 
 @media (max-width: 600px) {
   .wseg { display: grid; width: 100%; align-self: stretch; }
@@ -79,9 +74,9 @@ a.onb-item:hover, button.onb-item:hover { border-color: var(--ink); }
   .wnav .btn { flex: 1 1 auto; }
   .wsteps li { min-width: 58px; font-size: 11px; }
   .start { grid-template-columns: 48px 1fr; gap: 10px; }
-  .wrec { grid-template-columns: 64px 1fr; }
+  .wrec { grid-template-columns: 52px 1fr; }
   .onb-head { grid-template-columns: 1fr auto; }
   .onb-head .pbar { grid-column: 1 / -1; grid-row: 2; }
-  .wel-arts svg { width: 62px; }
+  .wel-arts svg { width: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { .obj.is-reco::before { animation: none; } }
