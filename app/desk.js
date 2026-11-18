@@ -57,6 +57,11 @@ window.MESA = window.MESA || {};
       '<path d="M86 22c5 5 5 13 0 18M93 16c9 9 9 21 0 30" stroke="' + O + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>'),
     // TRACTION
     first: svg(r(18, 62, 84, 26, 6, P) + c(30, 75, 5, O) + c(90, 75, 5, O) + '<g transform="rotate(-10 46 44)">' + r(26, 22, 44, 34, 3, PE) + "</g>" + '<g transform="rotate(8 74 44)">' + r(52, 22, 44, 34, 3, LI) + "</g>" + r(36, 18, 48, 40, 3, W) + c(48, 30, 5, SA) + txt(57, 28, 22, 2, 6) + txt(42, 42, 36, 2, 6) + ln(36, 18, 84, 18, 3, O)),
+    // Objetivos novos: binóculo, página web, etiqueta de preço, caixa de oferta
+    concorrentes: svg(r(18, 40, 34, 44, 12, P) + r(68, 40, 34, 44, 12, P) + r(46, 46, 28, 18, 4, SD) + c(35, 72, 11, LI) + c(85, 72, 11, LI) + r(24, 26, 22, 16, 4, O) + r(74, 26, 22, 16, 4, O) + '<path d="M30 68a6 6 0 0 1 6-6M80 68a6 6 0 0 1 6-6" stroke="#FFFDF8" stroke-width="2.4" fill="none" stroke-linecap="round"/>'),
+    landing: svg(r(12, 14, 96, 74, 6, W) + '<rect x="12" y="14" width="96" height="14" rx="6" fill="' + SD + '" stroke="' + K + '" stroke-width="2.4"/>' + c(21, 21, 2, O, ' stroke-width="0"') + c(28, 21, 2, Y, ' stroke-width="0"') + c(35, 21, 2, SA, ' stroke-width="0"') + ln(24, 40, 80, 40, 4) + txt(24, 50, 56, 2, 7) + r(24, 66, 34, 12, 6, O) + r(70, 38, 28, 30, 3, PE, ' stroke-width="1.8"')),
+    precificacao: svg(s("M20 50L56 14H98V56L62 92Z", Y) + c(84, 28, 6, W) + s("M84 22C96 4 112 8 108 20", "none", ' stroke-width="2"') + '<text x="58" y="62" text-anchor="middle" transform="rotate(-45 58 58)" font-family="Georgia,serif" font-size="18" font-weight="700" fill="' + K + '">R$</text>'),
+    oferta: svg(s("M16 40H104V90H16Z", PE) + s("M10 28H110V42H10Z", O) + r(53, 28, 14, 62, 0, Y) + s("M60 28C48 10 32 12 36 22C40 30 60 28 60 28ZM60 28C72 10 88 12 84 22C80 30 60 28 60 28Z", Y)),
     gtm: svg(c(60, 52, 38, W) + c(60, 52, 30, "none", ' stroke-width="1.6" opacity=".4"') + '<text x="60" y="27" text-anchor="middle" font-family="Georgia,serif" font-size="10" font-weight="700" fill="' + K + '">N</text>' + s("M60 52L72 30L64 54Z", O) + s("M60 52L48 74L56 50Z", P) + c(60, 52, 4, W) + ln(60, 14, 60, 8, 3) + c(60, 6, 3, Y)),
     playbook: svg(r(26, 10, 66, 82, 5, P) + r(32, 14, 58, 74, 3, W) + [22, 40, 58, 76].map(function (y) { return c(32, y, 4, SD); }).join("") + r(90, 18, 12, 14, 2, O) + r(90, 36, 12, 14, 2, SA) + r(90, 54, 12, 14, 2, LI) + '<text x="62" y="34" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="9" fill="' + K + '">PLAYBOOK</text>' + txt(44, 46, 38, 4, 9)),
     channels: svg(s("M22 44L76 20V84L22 60Z", O) + r(12, 42, 14, 20, 3, P) + s("M30 62L38 84H48L42 64", W) + '<path d="M86 40c6 6 6 18 0 24M94 32c10 10 10 30 0 40M102 26c13 13 13 39 0 52" stroke="' + K + '" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".75"/>'),
@@ -66,9 +71,9 @@ window.MESA = window.MESA || {};
   };
 
   // Ordem na mesa, por lente do método (a mesa não é uma trilha: os objetos podem chegar em qualquer ordem)
-  MESA.DESK_ORDER = ["territorio", "mercado", "jtbd", "roteiro", "analisador", "journey", "beachhead", "csd", "problema", "importancia", "resultados", "working", "mvp", "criterios", "bml", "csd2", "metricas", "stress", "modelo", "pitch", "first", "gtm", "playbook", "channels", "metrics", "unit", "review"];
+  MESA.DESK_ORDER = ["territorio", "mercado", "concorrentes", "jtbd", "roteiro", "analisador", "journey", "beachhead", "csd", "problema", "importancia", "resultados", "working", "mvp", "landing", "criterios", "bml", "csd2", "metricas", "precificacao", "oferta", "stress", "modelo", "pitch", "first", "gtm", "playbook", "channels", "metrics", "unit", "review"];
   MESA.DESK_OBJECT = {
-    territorio: "Mapa", mercado: "Calculadora", jtbd: "Post-its", roteiro: "Telefone", analisador: "Fones", journey: "Linha da jornada",
+    territorio: "Mapa", mercado: "Calculadora", concorrentes: "Binóculo", landing: "Página web", precificacao: "Etiqueta de preço", oferta: "Caixa de presente", jtbd: "Post-its", roteiro: "Telefone", analisador: "Fones", journey: "Linha da jornada",
     beachhead: "Alvo", csd: "Matriz de post-its", problema: "Lupa", importancia: "Papel quadriculado", resultados: "Prancheta", working: "Jornal",
     mvp: "Blocos de montar", criterios: "Ampulheta", bml: "Frasco de teste", csd2: "Post-its revisados", metricas: "Tablet",
     stress: "Balança", modelo: "Planta baixa", pitch: "Microfone",

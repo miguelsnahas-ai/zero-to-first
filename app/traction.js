@@ -718,7 +718,9 @@ window.MESA = window.MESA || {};
 
   /* Registro: as ferramentas de Traction entram no catálogo geral */
   MESA.TRACTION = T;
-  MESA.TRACTION_BY = {}; T.forEach(function (t) { MESA.TRACTION_BY[t.id] = t; t.workspace = true; });
+  /* Bloqueios na voz do founder, usados na tela Desbloquear */
+  var BLOCKERS = { first: "Preciso conseguir os primeiros clientes", gtm: "Não sei como entrar no mercado", playbook: "Vendi algumas vezes, mas sem processo", channels: "Não sei em quais canais apostar", metrics: "Não sei se a aquisição está funcionando", unit: "Não sei se a conta fecha", review: "Tenho clientes e não sei o próximo passo" };
+  MESA.TRACTION_BY = {}; T.forEach(function (t) { MESA.TRACTION_BY[t.id] = t; t.workspace = true; t.blocker = BLOCKERS[t.id]; });
   MESA.UE_VARS = UE_VARS;
   MESA.ueCalc = ueCalc;
   MESA.TRACTION_SIGNALS = { fcStats: fcStats, chStats: chStats };

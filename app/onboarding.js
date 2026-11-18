@@ -18,8 +18,8 @@ window.MESA = window.MESA || {};
   /* Campos do assistente, agrupados por etapa (ids de MESA.CONTEXT_FIELDS) */
   MESA.WIZARD_STEPS = [
     { id: "cliente", short: "Cliente", title: "Cliente e problema", lead: "Quem sente a dor e como ela aparece hoje.", fields: ["persona", "problema", "jornada", "beachhead"] },
-    { id: "solucao", short: "Solução", title: "Solução e negócio", lead: "Pode ser hipótese: escreva o que você acredita hoje.", fields: ["solucao", "proposta", "tipo", "modelo", "mercado"] },
-    { id: "evidencias", short: "Evidências", title: "O que você já sabe", lead: "Evidências separam o que é fato do que é aposta.", fields: ["evidencias", "org"] }
+    { id: "solucao", short: "Solução", title: "Solução e negócio", lead: "Pode ser hipótese: escreva o que você acredita hoje.", fields: ["solucao", "proposta", "tipo", "modelo", "preco", "mercado"] },
+    { id: "evidencias", short: "Evidências", title: "O que você já sabe", lead: "Evidências separam o que é fato do que é aposta.", fields: ["evidencias", "refs", "org"] }
   ];
 
   /* Ferramenta recomendada: a de partida da etapa atual ou a próxima ainda não usada */
@@ -42,7 +42,7 @@ window.MESA = window.MESA || {};
   var IMPORT_FIELDS = [
     ["ideia", "Ideia"], ["problema", "Problema"], ["persona", "Cliente"], ["beachhead", "Segmento inicial"], ["jornada", "Como resolvem hoje"],
     ["solucao", "Solução"], ["proposta", "Proposta de valor"], ["modelo", "Receita"], ["mercado", "Mercado"], ["tipo", "Modelo de negócio"],
-    ["evidencias", "Evidências"], ["hipotese", "Aposta mais arriscada"], ["org", "Contexto da organização"]
+    ["preco", "Preço"], ["evidencias", "Evidências"], ["refs", "Site e links"], ["hipotese", "Aposta mais arriscada"], ["org", "Contexto da organização"]
   ];
   var TIPO_ALIASES = { saas: /saas|software|assinatura|app/i, b2b_servico: /servi[cç]o\s*b2b|consultoria|ag[eê]ncia/i, b2c: /b2c|consumidor/i, marketplace: /marketplace|plataforma de dois lados/i, transacional: /e-?commerce|transacional|loja/i };
 
@@ -91,10 +91,10 @@ window.MESA = window.MESA || {};
     var recTool = rec && MESA.TOOLS.filter(function (t) { return t.id === rec; })[0];
     return [
       { id: "contexto", label: "Complete o contexto do projeto", hint: filled + " de " + fields.length + " campos. Todas as ferramentas usam essas informações.", done: filled >= goal, href: "contexto" },
-      { id: "ferramenta", label: recTool ? "Use sua primeira ferramenta: " + recTool.name : "Use sua primeira ferramenta", hint: "Cada ferramenta preenchida traz um objeto para a mesa.", done: tools > 0, href: rec ? "ferramenta/" + rec : "ferramentas" },
+      { id: "ferramenta", label: recTool ? "Use sua primeira ferramenta: " + recTool.name : "Use sua primeira ferramenta", hint: "Cada ferramenta preenchida traz um objeto para a mesa.", done: tools > 0, href: rec ? "ferramenta/" + rec : "desbloquear" },
       { id: "hipotese", label: "Registre sua aposta mais arriscada no quadro", hint: "O que precisa ser verdade para o projeto dar certo?", done: (board || []).some(function (b) { return b.kind === "hipotese"; }), act: "add-item" },
       { id: "radar", label: "Rode o radar de sinais", hint: "Referências e movimentos do mercado ligados ao projeto.", done: (radar || []).length > 0, href: "radar" },
-      { id: "tres", label: "Leve três objetos para a mesa", hint: "Três artefatos salvos já mostram o desenho do projeto.", done: (artifacts || []).filter(function (a) { return a.tool_id; }).length >= 3, href: "ferramentas" }
+      { id: "tres", label: "Leve três objetos para a mesa", hint: "Três artefatos salvos já mostram o desenho do projeto.", done: (artifacts || []).filter(function (a) { return a.tool_id; }).length >= 3, href: "desbloquear" }
     ];
   };
 })();

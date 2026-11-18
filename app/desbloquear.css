@@ -1,0 +1,54 @@
+/* Mesa de Trabalho · Desbloquear (complementa app.css) */
+.dstep { margin-bottom: 18px; }
+.dstep-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+.dstep-head h2 { margin: 0; }
+.dstep-head p.muted { margin-top: 4px; }
+.d3 .dstep-head h2 { font-size: 26px; }
+.d-proj { align-items: flex-end; gap: 10px; margin-bottom: 12px; }
+.dfields { display: grid; }
+.dbase { border-top: 1px solid var(--line); padding-top: 12px; }
+.dbase > summary { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; cursor: pointer; font-size: 14.5px; list-style: none; }
+.dbase > summary::-webkit-details-marker { display: none; }
+.dbase-toggle { color: var(--pers-ink); font-weight: 600; }
+.dbase[open] > summary { margin-bottom: 14px; }
+.dbase .fgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.dbase .field.wide { grid-column: 1 / -1; }
+.dbase .textarea { min-height: 72px; }
+
+.dphase { border: 1.5px solid var(--line); border-radius: 12px; background: var(--white); margin-top: 10px; }
+.dphase > summary { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; list-style: none; }
+.dphase > summary::-webkit-details-marker { display: none; }
+.dphase > summary small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.dphase[open] > summary { border-bottom: 1px solid var(--line); }
+.dprog { font-weight: 700; font-size: 13px; color: var(--muted); }
+.dlens { padding: 12px 14px 4px; }
+.dlens h4 { font-size: 14px; margin: 0 0 8px; }
+.dblockers { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; padding-bottom: 8px; }
+.dblock { text-align: left; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; font: inherit; color: inherit; }
+.dblock:hover { border-color: var(--ink); }
+.dblock b { display: block; font-family: var(--serif); font-weight: 500; font-size: 16px; line-height: 1.3; }
+.dblock small { display: block; margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+.dblock.is-done small { color: var(--ok); }
+.dblock.is-on { border-color: var(--pers); background: #FFF6F1; box-shadow: inset 0 0 0 1px var(--pers); }
+
+.d3 .prompt pre { max-height: 460px; }
+.dmeta { margin: 0; padding: 10px 16px 0; font-size: 12.5px; color: var(--on-plum); opacity: .85; }
+.dmentor { display: grid; gap: 4px; margin: 0 16px 14px; padding: 12px 14px; border-radius: 10px; background: var(--plum-2); border: 1px solid var(--plum-line); }
+.dmentor span { font-size: 13.5px; color: var(--on-plum); }
+.dmentor .btn { justify-self: start; margin-top: 6px; }
+.dmat { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.dmat > summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.dmat ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.dmat li b { display: block; font-size: 14px; }
+.dmat li small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+.dgen { flex-wrap: wrap; }
+.dview { max-height: 60vh; overflow: auto; white-space: pre-wrap; font: 12.5px/1.5 var(--mono); background: var(--sand); padding: 12px; border-radius: 8px; margin: 12px 0; }
+
+@media (max-width: 700px) {
+  .dbase .fgrid { grid-template-columns: 1fr; }
+  .dblockers { grid-template-columns: 1fr; }
+  .d3 .dstep-head h2 { font-size: 22px; }
+  .dgen .btn { flex: 1 1 auto; }
+}
+.dstep { scroll-margin-top: calc(var(--top) + 16px); }
+@media (max-width: 1000px) { .dstep { scroll-margin-top: calc(var(--top) + 72px); } }

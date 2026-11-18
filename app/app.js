@@ -10,8 +10,8 @@
     supabaseUrl: "https://urdgezmqopcvxtaupdgz.supabase.co",
     // Chave pública (anon). Os dados são protegidos por RLS: cada pessoa só acessa os próprios.
     supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZGdlem1xb3Bjdnh0YXVwZGd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1NDUzMDUsImV4cCI6MjA5NzEyMTMwNX0.Lwb1lgEWG2lkbvsuHfeEVHeVnOBV3aaosAv8oLQ4h3E",
-    // Link de agendamento da mentoria (Calendly). Vazio = o pedido fica registrado e Miguel responde por e-mail.
-    mentoriaUrl: "",
+    // Link de agendamento da mentoria (Google Agenda). Vazio = o pedido fica registrado e Miguel responde por e-mail.
+    mentoriaUrl: "https://calendar.app.google/6Qih7Yp9AqVi8UQE8",
     contato: "miguelsnahas@gmail.com"
   };
 
@@ -20,7 +20,7 @@
   });
 
   var $app = document.getElementById("app");
-  var state = { session: null, projects: [], p: null, artifacts: [], board: [], radar: [], pedidos: [], workspaces: [], toolFilter: "todas", boardFilter: "todas", tTab: {}, aiVar: {} };
+  var state = { generations: [], genFor: null, session: null, projects: [], p: null, artifacts: [], board: [], radar: [], pedidos: [], workspaces: [], toolFilter: "todas", boardFilter: "todas", tTab: {}, aiVar: {} };
   var LENS = {}; MESA.LENSES.forEach(function (l) { LENS[l.id] = l; });
   var TOOL = {}; MESA.TOOLS.forEach(function (t) { TOOL[t.id] = t; });
   var KINDS = { hipotese: "Hipótese", experimento: "Experimento", evidencia: "Evidência", decisao: "Decisão", pergunta: "Pergunta" };
@@ -237,6 +237,7 @@
         if (!wz.name) { step = 0; render(); toast("Dê um nome ao projeto."); return box.querySelector("[data-wn]").focus(); }
         var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0];
         btn.disabled = true;
+        if (wz.hipotese && !String(wz.ctx.hipoteses || "").trim()) wz.ctx.hipoteses = wz.hipotese;
         sb.from("projects").insert({ name: wz.name, kind: wz.kind, focus: st ? st.lens : "entender", context: wz.ctx }).select().single().then(function (r) {
           if (r.error) { btn.disabled = false; return fail(r.error); }
           var pid = r.data.id;
@@ -294,7 +295,7 @@
   var TABS = [
     { id: "mesa", name: "Mesa" },
     { id: "visao", name: "Visão geral" },
-    { id: "ferramentas", name: "Jornada" },
+    { id: "desbloquear", name: "Desbloquear" },
     { id: "artefatos", name: "Artefatos" },
     { id: "quadro", name: "Quadro" },
     { id: "radar", name: "Radar" },
@@ -304,14 +305,14 @@
   function renderProject(tab, sub) {
     var p = state.p;
     var cnt = { artefatos: state.artifacts.length, quadro: state.board.length, radar: state.radar.length };
-    var activeTab = tab === "ferramenta" ? "ferramentas" : tab === "artefato" ? "artefatos" : tab;
+    var activeTab = tab === "ferramenta" || tab === "ferramentas" ? "desbloquear" : tab === "artefato" ? "artefatos" : tab;
     var side = '<nav class="side" aria-label="Seções do projeto">' + TABS.map(function (t) {
       return '<a href="#/p/' + p.id + "/" + t.id + '"' + (t.id === activeTab ? ' aria-current="page"' : "") + ">" + t.name + (cnt[t.id] ? '<span class="count">' + cnt[t.id] + "</span>" : "") + "</a>";
     }).join("") + '<div class="sep"></div><div class="side-cta"><b>Precisa de um olhar de fora?</b><span class="muted">Peça feedback do Miguel sobre o projeto.</span><a class="btn btn-accent btn-sm" href="#/p/' + p.id + '/mentoria">Pedir mentoria</a></div></nav>';
     $app.innerHTML = topbar('<a href="#/">Projetos</a><span>/</span><strong>' + esc(p.name) + "</strong>") +
       '<div class="proj">' + side + '<main class="main" id="main"></main></div>';
     var main = document.getElementById("main");
-    var views = { mesa: viewMesa, visao: viewVisao, ferramentas: viewFerramentas, ferramenta: function (m, id) { return TOOL[id] && TOOL[id].workspace ? viewTraction(m, id) : viewFerramenta(m, id); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    var views = { mesa: viewMesa, visao: viewVisao, desbloquear: viewDesbloquear, ferramentas: function (m) { setObjective(null); viewDesbloquear(m); }, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewDesbloquear(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
     (views[tab] || viewMesa)(main, sub);
     window.scrollTo(0, 0);
   }
@@ -459,7 +460,7 @@
         '<p class="small muted" style="margin-top:12px">' + stat("hipotese", "validado") + " validada(s) · " + stat("hipotese", "refutado") + " refutada(s) · " + stat("experimento", "testando") + " experimento(s) em andamento</p></section>" +
       '<section class="panel"><div class="panel-head"><h2>No radar</h2><a class="small" href="#/p/' + p.id + '/radar">Abrir radar</a></div><div class="list">' +
         radar.map(function (r) { return '<div class="item"><span class="chip">' + esc(r.item.type) + '</span><span class="t">' + esc(r.item.t) + "</span></div>"; }).join("") + "</div></section></div>" +
-      '<section class="panel"><div class="panel-head"><h2>Artefatos recentes</h2><a class="small" href="#/p/' + p.id + '/ferramentas">+ Usar uma ferramenta</a></div>' +
+      '<section class="panel"><div class="panel-head"><h2>Artefatos recentes</h2><a class="small" href="#/p/' + p.id + '/desbloquear">+ Usar uma ferramenta</a></div>' +
         (recent ? '<div class="list">' + recent + "</div>" : '<p class="muted">Nenhum artefato ainda. Escolha uma ferramenta para começar.</p>') + "</section>";
     main.querySelector("[data-act=focus]").onchange = function (e) { setFocus(e.target.value); };
   }
@@ -479,34 +480,167 @@
   function phaseTools(ph) { return MESA.TOOLS.filter(function (t) { return LENS[t.lens] && LENS[t.lens].phase === ph.id; }); }
   function phaseProgress(ph) { var ts = phaseTools(ph), d = ts.filter(function (t) { return toolState(t.id).k === "done"; }).length; return { done: d, total: ts.length }; }
   function currentPhase() { var l = LENS[state.p.focus]; return (l && l.phase) || "discovery"; }
-  function viewFerramentas(main) {
-    var p = state.p, cur = currentPhase();
-    var strip = MESA.PHASES.map(function (ph) {
-      var pr = phaseProgress(ph);
-      return '<a class="pstrip-item' + (ph.id === cur ? " is-current" : "") + '" href="#fase-' + ph.id + '" data-act="scroll" data-target="fase-' + ph.id + '"><span class="pn">' + ph.n + '</span><span><b>' + ph.name + "</b><small>" + ph.pt + " · " + pr.done + "/" + pr.total + '</small></span><span class="pbar"><i style="width:' + Math.round(pr.done / pr.total * 100) + '%"></i></span>' + (ph.id === cur ? '<em>você está aqui</em>' : "") + "</a>";
-    }).join('<span class="parrow" aria-hidden="true">→</span>');
-    var sections = MESA.PHASES.map(function (ph, i) {
-      var pr = phaseProgress(ph), prev = MESA.PHASES[i - 1], next = MESA.PHASES[i + 1], tools;
-      if (ph.id === "traction") {
-        var nextTodo = MESA.TRACTION.filter(function (t) { return toolState(t.id).k !== "done"; })[0];
-        tools = '<ol class="tsteps">' + MESA.TRACTION.map(function (t) {
-          var st = toolState(t.id);
-          return '<li class="tstep is-' + st.k + (nextTodo && nextTodo.id === t.id ? " is-next" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + t.id + '"><span class="tn">' + t.n + '</span><span class="tb"><b>' + esc(t.name) + '</b><span>' + esc(t.question) + '</span></span><span class="tst">' + st.label + (nextTodo && nextTodo.id === t.id ? " · próxima" : "") + "</span></a></li>";
-        }).join("") + "</ol>";
-      } else {
-        tools = ph.lenses.map(function (lid) {
-          var ts = MESA.TOOLS.filter(function (t) { return t.lens === lid; });
-          return '<div class="psub"><h4>' + LENS[lid].name + ' <span class="muted">· ' + esc(LENS[lid].q) + '</span></h4><div class="grid-cards">' + ts.map(function (t) {
-            var st = toolState(t.id);
-            return '<a class="tcard" href="#/p/' + p.id + "/ferramenta/" + t.id + '"><div class="row"><span class="chip ' + (st.k === "done" ? "pers" : "") + '">' + st.label + "</span></div><h3>" + esc(t.name) + "</h3><p>" + esc(t.desc) + '</p><span class="go">Abrir ferramenta →</span></a>';
-          }).join("") + "</div></div>";
-        }).join("");
-      }
-      return '<section class="panel phase" id="fase-' + ph.id + '"><div class="phase-head"><span class="pn big">' + ph.n + '</span><div><p class="label">Fase ' + ph.n + " · " + ph.pt + "</p><h2>" + ph.name + "</h2><p>" + esc(ph.goal) + '</p></div><div class="phase-prog"><b>' + pr.done + "/" + pr.total + '</b><span class="small muted">ferramentas ' + (ph.id === "traction" ? "concluídas" : "com artefato") + '</span><span class="pbar"><i style="width:' + Math.round(pr.done / pr.total * 100) + '%"></i></span></div></div>' +
-        '<div class="phase-info"><div><h4>O que você vai aprender</h4><p>' + esc(ph.learn) + "</p></div><div><h4>Entregáveis</h4><ul>" + ph.deliverables.map(function (d) { return "<li>" + esc(d) + "</li>"; }).join("") + "</ul></div><div><h4>Pode avançar quando</h4><p>" + esc(ph.exit) + '</p><p class="small muted">' + (prev ? "Vem de: Fase " + prev.n + " · " + prev.name + ". " : "") + (next ? "Leva a: Fase " + next.n + " · " + next.name + "." : "Depois: novos ciclos de revisão e melhoria.") + "</p></div></div>" + tools + "</section>";
-    }).join("");
-    main.innerHTML = head("Jornada Zero to First", "Três fases oficiais, da descoberta do problema aos primeiros sinais de tração. Não é uma trilha rígida: volte a uma fase sempre que a evidência pedir.") +
-      '<nav class="pstrip" aria-label="Fases">' + strip + "</nav>" + sections;
+  /* ---------- Desbloquear: base do negócio → bloqueio → prompt pronto ---------- */
+  function hashParam(name) { var q = (location.hash.split("?")[1]) || ""; return new URLSearchParams(q).get(name); }
+  function setObjective(id) {
+    var h = "#/p/" + state.p.id + "/desbloquear" + (id ? "?objetivo=" + id : "");
+    if (location.hash !== h) history.replaceState(null, "", h);
+  }
+  function loadGenerations() {
+    var pid = state.p.id;
+    if (state.genFor === pid) return Promise.resolve();
+    return sb.from("tool_generations").select("id, objective, inputs, prompt, created_at").eq("project_id", pid).order("created_at", { ascending: false }).limit(30).then(function (r) {
+      state.genFor = pid; state.generations = r.error ? [] : (r.data || []); state.genOff = !!r.error;
+      if (r.error) console.warn("Histórico indisponível:", r.error.message);
+    });
+  }
+  function downloadMd(name, text) {
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function viewDesbloquear(main) {
+    var p = state.p, ctx = p.context = p.context || {};
+    var objId = hashParam("objetivo"), t = objId && TOOL[objId] && !TOOL[objId].workspace ? TOOL[objId] : null;
+    if (objId && !t) setObjective(null);
+    state.dInputs = state.dInputs || {};
+    var baseFields = MESA.contextFields(p), cnt = MESA.baseFilledCount(p);
+    var openBase = cnt.filled < 4 || state.baseOpen;
+
+    function fieldInput(f, val, attr) {
+      if (f.options) return '<select class="select" ' + attr + ">" + f.options.map(function (o) { return '<option value="' + esc(o[0]) + '"' + ((val || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>";
+      if (f.long) return '<textarea class="textarea" ' + attr + ' placeholder="' + esc(f.ph || "") + '">' + esc(val || "") + "</textarea>";
+      return '<input class="input" ' + attr + ' placeholder="' + esc(f.ph || "") + '" value="' + esc(val || "") + '">';
+    }
+    var projOpts = state.projects.length ? state.projects : [p];
+    if (!projOpts.some(function (x) { return x.id === p.id; })) projOpts = [p].concat(projOpts);
+    var step1 = '<section class="panel dstep" id="d-base"><div class="dstep-head"><span class="pn">1</span><div><h2>Base do negócio</h2><p class="muted">Preencha uma vez. Todos os prompts usam essas informações.</p></div></div>' +
+      '<div class="row d-proj"><label class="field" style="flex:1;min-width:220px"><span>Projeto</span><select class="select" id="d-proj">' + projOpts.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.id ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + '</select></label><button class="btn btn-line" data-act="new-project">Criar do zero</button></div>' +
+      '<details class="dbase"' + (openBase ? " open" : "") + '><summary><b id="d-count">' + cnt.filled + " de " + cnt.total + '</b> campos preenchidos <span class="ws-save" id="d-save"></span><span class="spacer"></span><span class="small dbase-toggle">' + (openBase ? "Recolher" : "Ver e editar") + "</span></summary>" +
+        '<div class="fgrid">' + baseFields.map(function (f) { return '<label class="field' + (f.long ? " wide" : "") + '"><span>' + esc(f.label) + "</span><small>" + esc(f.hint || "") + "</small>" + fieldInput(f, ctx[f.id], 'data-base="' + f.id + '"') + "</label>"; }).join("") + "</div></details></section>";
+
+    var step2 = '<section class="panel dstep" id="d-obj"><div class="dstep-head"><span class="pn">2</span><div><h2>O que está travando você?</h2><p class="muted">Escolha o bloqueio. As três fases do Zero to First estão aqui, mas você pode começar por qualquer uma.</p></div></div>' +
+      MESA.PHASES.map(function (ph) {
+        var pr = phaseProgress(ph), cur = currentPhase() === ph.id || (t && LENS[t.lens].phase === ph.id);
+        return '<details class="dphase"' + (cur ? " open" : "") + '><summary><span class="pn">' + ph.n + '</span><span><b>' + ph.name + '</b> <span class="muted">· ' + ph.pt + '</span><small>' + esc(ph.goal) + '</small></span><span class="dprog">' + pr.done + "/" + pr.total + "</span></summary>" +
+          ph.lenses.map(function (lid) {
+            var ts = MESA.TOOLS.filter(function (x) { return x.lens === lid; });
+            return '<div class="dlens"><h4>' + LENS[lid].name + ' <span class="muted">· ' + esc(LENS[lid].q) + '</span></h4><div class="dblockers">' + ts.map(function (x) {
+              var st = toolState(x.id), on = t && t.id === x.id;
+              return '<button class="dblock' + (on ? " is-on" : "") + (st.k === "done" ? " is-done" : "") + '" data-obj="' + x.id + '"' + (on ? ' aria-pressed="true"' : "") + '><b>“' + esc(x.blocker || x.name) + '”</b><small>' + esc(x.name) + (x.workspace ? " · área de trabalho" : "") + (st.k !== "todo" ? " · " + st.label : "") + "</small></button>";
+            }).join("") + "</div></div>";
+          }).join("") + "</details>";
+      }).join("") + "</section>";
+
+    var step3 = "";
+    if (t) {
+      var inputs = state.dInputs[t.id] = state.dInputs[t.id] || MESA.initialInputs(t, p);
+      step3 = '<section class="dstep d3" id="d-prompt"><div class="dstep-head"><span class="pn">3</span><div><p class="label">' + LENS[t.lens].name + " · " + esc(t.name) + '</p><h2>“' + esc(t.blocker) + '”</h2><p class="muted">' + esc(t.desc) + '</p></div></div><div class="tool">' +
+        '<section class="panel"><div class="form">' + ((t.fields || []).length ? '<p class="label">Detalhes deste objetivo <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· opcionais</span></p>' : "") +
+          (t.fields || []).map(function (f) {
+            var base = f.fromBase ? baseFields.filter(function (b) { return b.id === f.fromBase; })[0] : null, ff = base ? Object.assign({}, base, f, { options: base.options, ph: f.ph || base.ph }) : f;
+            return '<label class="field"><span>' + esc(ff.label) + "</span>" + (base ? "<small>Vem da base. Se mudar aqui, vale só para este prompt.</small>" : "") + fieldInput(ff, inputs[f.id], 'data-in="' + f.id + '"') + "</label>";
+          }).join("") +
+          '<details class="dmat"><summary>Embasamento: ' + t.materials.length + " referências usadas no prompt</summary><ul>" + t.materials.map(function (k) { var m = MESA.MATERIALS[k]; return "<li><b>" + (m.url ? '<a href="' + esc(m.url) + '" target="_blank" rel="noopener">' + esc(m.name) + "</a>" : esc(m.name)) + "</b><small>" + esc(m.label) + " · " + esc(m.desc) + "</small></li>"; }).join("") + "</ul></details>" +
+        '</div></section><section class="prompt" aria-label="Prompt pronto"><div class="prompt-head"><span class="label">Prompt pronto</span><span class="spacer"></span>' +
+          '<button class="btn btn-accent btn-sm" data-d="copy">Copiar</button><button class="btn btn-line btn-sm" data-d="md">.md</button>' +
+          '<a class="btn btn-line btn-sm" data-ai="claude" target="_blank" rel="noopener">Claude</a><a class="btn btn-line btn-sm" data-ai="chatgpt" target="_blank" rel="noopener">ChatGPT</a></div>' +
+          '<p class="dmeta">Funciona no Claude, ChatGPT e Gemini · <span id="d-chars"></span> caracteres</p><pre id="prompt"></pre><div id="d-mentor"></div>' +
+          '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e um objeto na mesa."></textarea>' +
+          '<div class="row"><input class="input" id="atitle" style="flex:1;min-width:180px" value="' + esc(t.name) + '" aria-label="Título do artefato"><button class="btn btn-accent" data-d="save">Salvar artefato</button></div></div>' +
+        "</section></div></section>";
+    }
+    var hist = '<section class="panel" id="d-hist"><div class="panel-head"><h2>Prompts gerados</h2></div><div id="d-hist-list" class="list" style="margin-top:12px"><p class="small muted">Carregando…</p></div></section>';
+
+    main.innerHTML = head("Desbloquear", "Diga o que está travando o projeto e leve um prompt pronto para a sua IA, com o contexto do negócio e os melhores frameworks como base.") + step1 + step2 + step3 + hist;
+
+    /* passo 1: base */
+    var countEl = document.getElementById("d-count");
+    main.querySelectorAll("[data-base]").forEach(function (el) {
+      el.oninput = el.onchange = function () {
+        ctx[el.dataset.base] = el.value; saveContext();
+        var c = MESA.baseFilledCount(p); countEl.textContent = c.filled + " de " + c.total;
+        var sv = document.getElementById("d-save"); sv.textContent = "Salvando…"; sv.className = "ws-save";
+        clearTimeout(sv._t); sv._t = setTimeout(function () { sv.textContent = "Salvo"; sv.className = "ws-save ok"; }, 900);
+        if (t) refresh();
+      };
+    });
+    var det = main.querySelector(".dbase");
+    det.addEventListener("toggle", function () { state.baseOpen = det.open; det.querySelector(".dbase-toggle").textContent = det.open ? "Recolher" : "Ver e editar"; });
+    if (state.projects.length < 2) loadProjects().then(function () {
+      var sel = document.getElementById("d-proj"); if (!sel || state.projects.length < 2) return;
+      sel.innerHTML = state.projects.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.id ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("");
+    }).catch(function () {});
+    document.getElementById("d-proj").onchange = function (e) { flushContext(); go("#/p/" + e.target.value + "/desbloquear"); };
+
+    /* passo 2: objetivo */
+    main.querySelectorAll("[data-obj]").forEach(function (b) {
+      b.onclick = function () {
+        var x = TOOL[b.dataset.obj]; track("blocker_selected", { tool: x.id });
+        if (x.workspace) return go("#/p/" + p.id + "/ferramenta/" + x.id);
+        setObjective(x.id); viewDesbloquear(main);
+        var target = document.getElementById("d-prompt"); if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+    });
+
+    /* histórico */
+    function histRender() {
+      var box = document.getElementById("d-hist-list"); if (!box) return;
+      if (state.genOff) { box.innerHTML = '<p class="small muted">O histórico não está disponível agora.</p>'; return; }
+      box.innerHTML = state.generations.length ? state.generations.map(function (g) {
+        var x = TOOL[g.objective];
+        return '<div class="item dgen"><span style="flex:1;min-width:0"><span class="t">' + esc(x ? x.name : g.objective) + '</span><br><span class="meta">' + fmtDate(g.created_at) + " · " + g.prompt.length + ' caracteres</span></span><button class="btn btn-ghost btn-sm" data-g="ver" data-id="' + g.id + '">Ver</button><button class="btn btn-ghost btn-sm" data-g="copy" data-id="' + g.id + '">Copiar</button><button class="btn btn-ghost btn-sm" data-g="md" data-id="' + g.id + '">.md</button><button class="btn btn-ghost btn-sm btn-danger" data-g="del" data-id="' + g.id + '">Apagar</button></div>';
+      }).join("") : '<p class="small muted">Os prompts que você copiar ou baixar ficam aqui, para usar de novo.</p>';
+      box.querySelectorAll("[data-g]").forEach(function (b) {
+        b.onclick = function () {
+          var g = state.generations.filter(function (x) { return x.id === b.dataset.id; })[0]; if (!g) return;
+          var x = TOOL[g.objective] || { id: g.objective, name: g.objective };
+          if (b.dataset.g === "ver") modal('<h2>' + esc(x.name) + '</h2><p class="small muted">' + fmtDate(g.created_at) + '</p><pre class="dview">' + esc(g.prompt) + '</pre><div class="row"><span class="spacer"></span><button class="btn btn-ghost" data-close>Fechar</button></div>');
+          else if (b.dataset.g === "copy") copy(g.prompt).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: x.id, from: "historico" }); });
+          else if (b.dataset.g === "md") { downloadMd(MESA.mdFilename(x, p), g.prompt); track("prompt_downloaded", { tool: x.id, from: "historico" }); }
+          else if (b.dataset.g === "del") { if (!confirm("Apagar este prompt do histórico?")) return; sb.from("tool_generations").delete().eq("id", g.id).then(function (r) { if (r.error) return fail(r.error); state.generations = state.generations.filter(function (y) { return y.id !== g.id; }); histRender(); toast("Prompt apagado do histórico."); }); }
+        };
+      });
+    }
+    loadGenerations().then(histRender);
+
+    if (!t) return;
+    /* passo 3: prompt */
+    var pre = document.getElementById("prompt"), inputsNow = state.dInputs[t.id];
+    function refresh() {
+      var text = MESA.composePrompt(t, p, inputsNow); pre.textContent = text;
+      document.getElementById("d-chars").textContent = text.length.toLocaleString("pt-BR");
+      var q = encodeURIComponent(text);
+      main.querySelector("[data-ai=claude]").href = "https://claude.ai/new?q=" + q;
+      main.querySelector("[data-ai=chatgpt]").href = "https://chatgpt.com/?q=" + q;
+    }
+    function record() {
+      var text = pre.textContent; if (state.genOff || state.lastGen === text) return; state.lastGen = text;
+      var inp = {}; Object.keys(inputsNow).forEach(function (k) { if (String(inputsNow[k] || "").trim()) inp[k] = inputsNow[k]; });
+      sb.from("tool_generations").insert({ project_id: p.id, objective: t.id, inputs: inp, prompt: text }).select("id, objective, inputs, prompt, created_at").single().then(function (r) {
+        if (r.error) { console.warn(r.error.message); state.lastGen = null; return; }
+        state.generations.unshift(r.data); histRender();
+      });
+    }
+    function mentorCard() {
+      try { if (sessionStorage.getItem("mesa-mentor-card")) return; sessionStorage.setItem("mesa-mentor-card", "1"); } catch (e) {}
+      document.getElementById("d-mentor").innerHTML = '<div class="dmentor"><b>Quer um olhar de fora sobre a resposta?</b><span>Leve o artefato para uma conversa com o Miguel.</span><a class="btn btn-accent btn-sm" href="#/p/' + p.id + '/mentoria">Pedir mentoria</a></div>';
+    }
+    main.querySelectorAll("[data-in]").forEach(function (el) { el.oninput = el.onchange = function () { inputsNow[el.dataset.in] = el.value; refresh(); }; });
+    refresh();
+    main.querySelector("[data-d=copy]").onclick = function () { copy(pre.textContent).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: t.id }); record(); mentorCard(); }); };
+    main.querySelector("[data-d=md]").onclick = function () { downloadMd(MESA.mdFilename(t, p), pre.textContent); track("prompt_downloaded", { tool: t.id }); record(); };
+    main.querySelectorAll("[data-ai]").forEach(function (a) { a.addEventListener("click", function () { track("prompt_opened", { tool: t.id, ai: a.dataset.ai }); record(); }); });
+    main.querySelector("[data-d=save]").onclick = function (e) {
+      var content = document.getElementById("answer").value.trim(), title = document.getElementById("atitle").value.trim() || t.name;
+      if (!content) { toast("Cole a resposta da IA antes de salvar."); return document.getElementById("answer").focus(); }
+      e.target.disabled = true;
+      sb.from("artifacts").insert({ project_id: p.id, tool_id: t.id, stage: t.lens, title: title, content: content }).select().single().then(function (r) {
+        e.target.disabled = false; if (r.error) return fail(r.error);
+        state.artifacts.unshift(r.data); track("artifact_saved", { tool: t.id });
+        toast(MESA.DESK_OBJECT[t.id] ? MESA.DESK_OBJECT[t.id] + " na mesa. Clique nele para ver o artefato." : "Artefato salvo.");
+        go("#/p/" + p.id + "/mesa");
+      });
+    };
   }
 
   /* ---------- Ferramentas de Traction: área de trabalho estruturada ---------- */
@@ -548,7 +682,7 @@
     var idx = MESA.TRACTION.indexOf(t), next = t.next && TOOL[t.next];
     var stepper = '<ol class="tmini" aria-label="Ferramentas da Fase 3">' + MESA.TRACTION.map(function (x) { var st = toolState(x.id); return '<li class="is-' + st.k + (x.id === toolId ? " is-cur" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + x.id + '" title="' + esc(x.n + ". " + x.name + " · " + st.label) + '"><span>' + x.n + "</span><b>" + esc(x.name) + "</b></a></li>"; }).join("") + "</ol>";
     var st = toolState(toolId);
-    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/ferramentas">← Jornada</a> <span class="muted">· Fase 3 · Traction · ferramenta ' + t.n + " de 7</span></p>" + stepper +
+    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/desbloquear">← Desbloquear</a> <span class="muted">· Fase 3 · Traction · ferramenta ' + t.n + " de 7</span></p>" + stepper +
       '<div class="thead"><div><h1>' + esc(t.title) + '</h1><p class="tq"><span class="label">Pergunta central</span>' + esc(t.question) + '</p></div><div class="tstatus"><span class="chip" id="ws-status"></span><span class="ws-save" id="ws-save">' + (isNew ? "Nada salvo ainda" : "Salvo") + "</span></div></div>" +
       '<div class="ttabs" role="tablist">' + [["guia", "Guia"], ["trabalho", "Área de trabalho"], ["resultado", "Resultado"]].map(function (x) { return '<button role="tab" data-tab="' + x[0] + '" aria-selected="' + (tab === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div>" +
       '<div id="tbody"></div>';
@@ -632,7 +766,7 @@
           (w.status === "concluido" ? '<p class="small"><b>Concluída.</b> O entregável está na Mesa.</p><button class="btn btn-ghost btn-sm" data-reopen>Reabrir</button>' : '<button class="btn btn-primary" data-conclude' + (all ? "" : " disabled") + ">Marcar como concluída</button>" + (all ? "" : '<p class="small muted">Complete os itens acima na área de trabalho para concluir.</p>')) + "</section>" +
         '<section class="panel"><h2>Próxima ação</h2><p class="small muted">Sugestão: ' + esc(t.nextAction) + '</p><div class="fgrid"><label class="field span2"><span>Minha próxima ação, fora da ferramenta</span><input class="input" data-f="_acao" value="' + esc(d._acao || "") + '"></label><label class="field"><span>Até quando</span><input class="input" type="date" data-f="_acao_data" value="' + esc(d._acao_data || "") + '"></label></div></section>' +
         '<section class="panel next-step"><h2>Próxima etapa</h2>' + (next ? '<p><b>' + next.n + ". " + esc(next.name) + "</b> · " + esc(next.question) + '</p><p class="small muted">Vai reaproveitar o que você registrou aqui.</p><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + next.id + '">Ir para ' + esc(next.name) + " →</a>" :
-          '<p>Você chegou ao fim da Fase 3. A partir daqui, a tração vira ciclo: mantenha a rotina de revisão, volte a First Customers e Traction Channels quando o roadmap pedir, e reveja Discovery e Validation se a evidência mudar.</p><a class="btn btn-line" href="#/p/' + p.id + '/ferramentas">Ver a jornada</a>') + "</section></div>";
+          '<p>Você chegou ao fim da Fase 3. A partir daqui, a tração vira ciclo: mantenha a rotina de revisão, volte a First Customers e Traction Channels quando o roadmap pedir, e reveja Discovery e Validation se a evidência mudar.</p><a class="btn btn-line" href="#/p/' + p.id + '/desbloquear">Ver a jornada</a>') + "</section></div>";
     }
     function updateStatus() {
       var s2 = toolState(toolId), el = document.getElementById("ws-status"); if (!el) return;
@@ -690,68 +824,17 @@
     render();
   }
 
-  /* ---------- Ferramenta ---------- */
-  function viewFerramenta(main, toolId) {
-    var t = TOOL[toolId]; if (!t) return go("#/p/" + state.p.id + "/ferramentas");
-    var p = state.p, ctx = p.context = p.context || {}, extra = {};
-    var fields = (t.uses || []).map(function (fid) { return MESA.CONTEXT_FIELDS.filter(function (x) { return x.id === fid; })[0]; })
-      .filter(function (f) { return f && (!f.kind || f.kind === p.kind); });
-    function fieldHtml(f, val, isExtra) {
-      var input = f.long ? '<textarea class="textarea" data-' + (isExtra ? "extra" : "ctx") + '="' + f.id + '" placeholder="' + esc(f.ph || "") + '">' + esc(val || "") + "</textarea>"
-        : '<input class="input" data-' + (isExtra ? "extra" : "ctx") + '="' + f.id + '" placeholder="' + esc(f.ph || "") + '" value="' + esc(val || "") + '">';
-      return '<label class="field"><span>' + esc(f.label) + (f.required ? ' <b style="color:var(--pers-ink)">*</b>' : "") + "</span>" + (f.hint ? "<small>" + esc(f.hint) + "</small>" : "") + input + "</label>";
-    }
-    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/ferramentas">← Ferramentas</a></p>' +
-      head(esc(t.name), esc(t.desc), '<span class="chip">' + LENS[t.lens].name + "</span>") +
-      '<div class="tool"><section class="panel"><div class="form">' +
-        (t.extra || []).map(function (f) { return fieldHtml(f, "", true); }).join("") +
-        (fields.length ? '<p class="label" style="margin-top:6px">Contexto do projeto <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· salvo e reaproveitado em todas as ferramentas</span></p>' : "") +
-        fields.map(function (f) { return fieldHtml(f, ctx[f.id], false); }).join("") +
-      '</div></section><section class="prompt" aria-label="Prompt gerado"><div class="prompt-head"><span class="label">Prompt gerado</span><span class="spacer"></span>' +
-        '<button class="btn btn-accent btn-sm" data-act="copy">Copiar</button>' +
-        '<a class="btn btn-line btn-sm" data-ai="claude" target="_blank" rel="noopener">Abrir no Claude</a>' +
-        '<a class="btn btn-line btn-sm" data-ai="chatgpt" target="_blank" rel="noopener">Abrir no ChatGPT</a></div>' +
-        '<div class="steps"><span><b>1</b> Preencha o que puder</span><span><b>2</b> Copie ou abra na IA</span><span><b>3</b> Cole a resposta abaixo</span></div>' +
-        '<pre id="prompt"></pre>' +
-        '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto."></textarea>' +
-        '<div class="row"><input class="input" id="atitle" style="flex:1;min-width:180px" value="' + esc(t.name) + '"><button class="btn btn-accent" data-act="save-artifact">Salvar artefato</button></div></div>' +
-      "</section></div>";
-    var pre = document.getElementById("prompt");
-    function refresh() {
-      var text = MESA.buildPrompt(t, p, extra); pre.textContent = text;
-      var q = encodeURIComponent(text);
-      main.querySelector("[data-ai=claude]").href = "https://claude.ai/new?q=" + q;
-      main.querySelector("[data-ai=chatgpt]").href = "https://chatgpt.com/?q=" + q;
-    }
-    main.querySelectorAll("[data-ctx]").forEach(function (el) { el.oninput = function () { ctx[el.dataset.ctx] = el.value; refresh(); saveContext(); }; });
-    main.querySelectorAll("[data-extra]").forEach(function (el) { el.oninput = function () { extra[el.dataset.extra] = el.value; refresh(); }; });
-    refresh();
-    main.querySelector("[data-act=copy]").onclick = function () { copy(pre.textContent).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: t.id }); }); };
-    main.querySelectorAll("[data-ai]").forEach(function (a) { a.addEventListener("click", function () { track("prompt_opened", { tool: t.id, ai: a.dataset.ai }); }); });
-    main.querySelector("[data-act=save-artifact]").onclick = function (e) {
-      var content = document.getElementById("answer").value.trim(), title = document.getElementById("atitle").value.trim() || t.name;
-      if (!content) { toast("Cole a resposta da IA antes de salvar."); return document.getElementById("answer").focus(); }
-      e.target.disabled = true;
-      sb.from("artifacts").insert({ project_id: p.id, tool_id: t.id, stage: t.lens, title: title, content: content }).select().single().then(function (r) {
-        e.target.disabled = false; if (r.error) return fail(r.error);
-        state.artifacts.unshift(r.data); track("artifact_saved", { tool: t.id });
-        toast(MESA.DESK_OBJECT[t.id] ? MESA.DESK_OBJECT[t.id] + " na mesa. Clique nele para ver o artefato." : "Artefato salvo.");
-        go("#/p/" + p.id + "/mesa");
-      });
-    };
-  }
-
   /* ---------- Artefatos ---------- */
   function artifactRow(a) {
     return '<a class="item" href="#/p/' + state.p.id + "/artefato/" + a.id + '"><span class="chip">' + (a.stage ? LENS[a.stage].name : "Nota") + '</span><span style="flex:1;min-width:0"><span class="t">' + esc(a.title) + '</span><br><span class="meta">' + (a.tool_id && TOOL[a.tool_id] ? esc(TOOL[a.tool_id].name) + " · " : "") + fmtDate(a.created_at) + "</span></span>→</a>";
   }
   function viewArtefatos(main) {
     var p = state.p;
-    main.innerHTML = head("Artefatos", "Tudo o que o projeto produziu: respostas das ferramentas e notas suas.", '<button class="btn btn-line" data-act="new-note">+ Nota</button><a class="btn btn-primary" href="#/p/' + p.id + '/ferramentas">Usar ferramenta</a>') +
+    main.innerHTML = head("Artefatos", "Tudo o que o projeto produziu: respostas das ferramentas e notas suas.", '<button class="btn btn-line" data-act="new-note">+ Nota</button><a class="btn btn-primary" href="#/p/' + p.id + '/desbloquear">Usar ferramenta</a>') +
       (state.artifacts.length ? MESA.LENSES.concat([{ id: null, name: "Notas" }]).map(function (l) {
         var items = state.artifacts.filter(function (a) { return (a.stage || null) === l.id; });
         return items.length ? '<section class="panel"><h2>' + l.name + '</h2><div class="list" style="margin-top:12px">' + items.map(artifactRow).join("") + "</div></section>" : "";
-      }).join("") : '<div class="empty"><p>Nenhum artefato ainda.</p><a class="btn btn-accent" href="#/p/' + p.id + '/ferramentas">Escolher uma ferramenta</a></div>');
+      }).join("") : '<div class="empty"><p>Nenhum artefato ainda.</p><a class="btn btn-accent" href="#/p/' + p.id + '/desbloquear">Escolher uma ferramenta</a></div>');
     main.querySelector("[data-act=new-note]").onclick = function () {
       sb.from("artifacts").insert({ project_id: p.id, title: "Nova nota", content: "" }).select().single().then(function (r) {
         if (r.error) return fail(r.error); state.artifacts.unshift(r.data); go("#/p/" + p.id + "/artefato/" + r.data.id + "?editar");
@@ -928,7 +1011,7 @@
     else if (act === "new-project") newProjectModal();
     else if (act === "tfilter") { state.toolFilter = el.dataset.f; route(); }
     else if (act === "bfilter") { state.boardFilter = el.dataset.f; route(); }
-    else if (act === "lens") { setFocus(el.dataset.lens); state.toolFilter = el.dataset.lens; go("#/p/" + state.p.id + "/ferramentas"); }
+    else if (act === "lens") { setFocus(el.dataset.lens); state.toolFilter = el.dataset.lens; go("#/p/" + state.p.id + "/desbloquear"); }
     else if (act === "add-item") boardModal(null);
     else if (act === "edit-item") boardModal(state.board.filter(function (b) { return b.id === el.dataset.id; })[0]);
     else if (act === "pin" || act === "sig-del" || act === "sig-q") {
