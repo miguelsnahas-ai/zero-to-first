@@ -96,7 +96,7 @@
   function route() {
     var parts = parse();
     if (RECOVERY) return state.session ? renderNewPassword() : ($app.innerHTML = '<div class="loading">Validando o link…</div>');
-    if (!state.session) return renderAuth(/[?&]email=/.test(location.hash) ? "criar" : "entrar");
+    if (!state.session) return renderAuth(/[?&](email|pago)=/.test(location.hash) ? "criar" : "entrar");
     if (CONFIG.requirePurchase && state.entitled !== true) return checkAccess();
     if (parts[0] !== "p" || !parts[1]) return renderProjects();
     var id = parts[1], tab = parts[2] || "mesa", sub = parts[3];
@@ -163,7 +163,8 @@
       '</section><main class="auth-main"><div class="auth-card">' +
         '<div class="tabs" role="tablist"><button role="tab" data-mode="entrar" aria-selected="' + (mode === "entrar") + '">Entrar</button><button role="tab" data-mode="criar" aria-selected="' + (mode === "criar") + '">Criar conta</button></div>' +
         '<form class="form" id="auth-form" novalidate>' +
-          '<h2>' + (mode === "entrar" ? "Bem-vindo de volta" : "Crie sua conta gratuita") + '</h2>' +
+          (/[?&]pago=1/.test(location.hash) ? '<p class="msg ok">Pagamento confirmado. ' + (mode === "criar" ? "Crie sua conta com o mesmo e-mail usado na compra." : "Entre com o e-mail usado na compra.") + "</p>" : "") +
+          '<h2>' + (mode === "entrar" ? "Bem-vindo de volta" : (CONFIG.requirePurchase ? "Crie sua conta" : "Crie sua conta gratuita")) + '</h2>' +
           '<label class="field"><span>E-mail</span><input class="input" name="email" type="email" autocomplete="email" required value="' + esc(email) + '"></label>' +
           '<label class="field"><span>Senha</span><input class="input" name="senha" type="password" autocomplete="' + (mode === "entrar" ? "current-password" : "new-password") + '" minlength="8" required>' + (mode === "criar" ? "<small>Mínimo de 8 caracteres.</small>" : "") + '</label>' +
           '<div class="msg" id="auth-msg" hidden></div>' +

@@ -47,6 +47,12 @@ O método tem **três fases oficiais** (`MESA.PHASES` em `app/tools.js`): **Disc
 
 O app só exige compra quando `CONFIG.requirePurchase = true` em `app/app.js`. Até lá, qualquer conta entra.
 
+Situação atual:
+- Webhook publicado no Supabase (`stripe-webhook`) e cadastrado no Stripe **de teste**, com o evento `checkout.session.completed`.
+- Link de pagamento **de teste** (R$ 47): https://buy.stripe.com/test_7sY14ocNL3zn3fN2K673G01. Depois do pagamento, volta para `app/#/?pago=1`, que abre "Criar conta".
+- Quem já tinha conta foi liberado como cortesia.
+- Falta: cadastrar o segredo `STRIPE_WEBHOOK_SECRET` no Supabase e repetir link e webhook na conta **live** do Stripe.
+
 1. Crie o Payment Link no Stripe (R$ 47, pagamento único) e cole em `CHECKOUT_URL` no `toolkit/index.html`.
 2. Publique o webhook em `supabase/functions/stripe-webhook` (instruções no topo do arquivo). Cada compra paga grava o e-mail em `entitlements`.
 3. Libere quem já usa a Mesa antes de ativar a cobrança (SQL Editor do Supabase):
