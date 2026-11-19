@@ -105,9 +105,9 @@ MESA.MATERIALS = {
 MESA.TOOLS = [
   /* ---------------- ENTENDER ---------------- */
   {
-    id: "territorio", lens: "entender", name: "Avaliação da oportunidade", board: "pergunta",
+    id: "territorio", lens: "entender", name: "Território de oportunidade", board: "pergunta",
     blocker: "Não sei se essa ideia vale a pena",
-    desc: "Mapeia oportunidades no território e avalia se a ideia merece investigação.",
+    desc: "Mapeia oportunidades dentro de um território e avalia se a ideia merece investigação.",
     fields: [{ id: "ativos", label: "O que você traz", ph: "Experiências, acessos, conhecimentos ou ativos que podem dar vantagem", long: true }],
     role: "Você é um(a) investidor(a) early stage e estrategista de novos negócios, com a régua de avaliação de ideias de Paul Graham e o olhar de dor urgente contra melhoria desejável.",
     steps: [
@@ -123,7 +123,7 @@ MESA.TOOLS = [
     materials: ["pgIdeas", "painkiller", "whyNow", "jtbd", "momTest"]
   },
   {
-    id: "mercado", lens: "entender", name: "Deep-dive de mercado", board: "hipotese",
+    id: "mercado", lens: "entender", name: "Avaliação de mercado", board: "hipotese",
     blocker: "Não conheço meu mercado",
     desc: "Tamanho do mercado (TAM, SAM, SOM), tendências e por que agora.",
     fields: [{ id: "geo", label: "Região de atuação", ph: "Ex.: Brasil, começando por São Paulo" }, { id: "preco", label: "Preço", fromBase: "preco" }],
@@ -177,7 +177,7 @@ MESA.TOOLS = [
     materials: ["momTest", "jtbd", "journey", "ost", "pgDontScale"]
   },
   {
-    id: "analisador", lens: "entender", name: "Análise de entrevistas", board: "evidencia",
+    id: "analisador", lens: "entender", name: "Analisador de entrevistas", board: "evidencia",
     blocker: "Fiz entrevistas e não sei o que concluir",
     desc: "Separa evidência de elogio e mostra padrões entre as entrevistas.",
     fields: [{ id: "transcricao", label: "Transcrições ou anotações (separe as entrevistas com ---)", ph: "Entrevista 1...\n---\nEntrevista 2...", long: true }, { id: "hipoteses", label: "Hipóteses a checar (uma por linha)", fromBase: "hipoteses", long: true }],
@@ -195,9 +195,9 @@ MESA.TOOLS = [
     materials: ["momTest", "jtbd", "csd", "ost"]
   },
   {
-    id: "jtbd", lens: "entender", name: "ICP e persona", board: "hipotese",
+    id: "jtbd", lens: "entender", name: "Jobs to Be Done", board: "hipotese",
     blocker: "Não sei exatamente quem é meu cliente",
-    desc: "Perfil de cliente ideal, jobs, forças do progresso e critérios de qualificação.",
+    desc: "Que progresso o cliente está tentando fazer, o que o impede e quem é o cliente ideal.",
     fields: [{ id: "persona", label: "Quem você acredita que é o cliente", fromBase: "persona", long: true }],
     role: "Você é um(a) especialista em segmentação e Jobs to Be Done, na linha de Christensen e Bill Aulet.",
     steps: [
@@ -305,22 +305,22 @@ MESA.TOOLS = [
     materials: ["odi", "jtbd", "ost", "vpc"]
   },
   {
-    id: "resultados", lens: "explorar", name: "Proposta de valor", board: "decisao",
-    blocker: "Não sei por que o cliente escolheria a minha solução",
-    desc: "Encaixe entre dores, ganhos e o que a solução entrega.",
-    fields: [{ id: "proposta", label: "Proposta de valor atual", fromBase: "proposta", long: true }, { id: "solucao", label: "Solução", fromBase: "solucao", long: true }],
-    role: "Você é um(a) estrategista de produto que usa o Value Proposition Canvas e o posicionamento de April Dunford.",
+    id: "resultados", lens: "explorar", name: "Resultados desejados", board: "decisao",
+    blocker: "Não sei qual resultado a solução precisa entregar primeiro",
+    desc: "O que atacar primeiro: os resultados que o cliente quer, priorizados.",
+    fields: [{ id: "solucao", label: "Solução", fromBase: "solucao", long: true }, { id: "proposta", label: "Proposta de valor", fromBase: "proposta", long: true }],
+    role: "Você é um(a) estrategista de produto que trabalha com Jobs to Be Done, Outcome-Driven Innovation e Opportunity Solution Tree.",
     steps: [
-      "Preencha o perfil do cliente: tarefas, dores e ganhos, priorizados.",
-      "Preencha o mapa de valor: produtos e serviços, aliviadores de dor e criadores de ganho.",
-      "Avalie o encaixe: quais dores e ganhos importantes estão cobertos e quais não.",
-      "Compare com a alternativa atual do cliente e diga o que é diferente de verdade.",
-      "Escreva 3 versões da proposta de valor em uma frase e recomende uma.",
-      "Liste como testar se a proposta ressoa, com critério de sucesso."
+      "Escreva de 10 a 15 resultados desejados pelo cliente no formato: minimizar/aumentar [métrica] ao [atividade].",
+      "Agrupe os resultados por etapa do job e marque quais vêm do contexto e quais são [suposição].",
+      "Priorize cada resultado por impacto no cliente e viabilidade de entrega, de 1 a 5, explicando as notas.",
+      "Escolha o primeiro resultado a atacar e explique por que ele vem antes dos outros.",
+      "Diga o que a solução precisa fazer para entregar esse resultado e o que ela não precisa fazer agora.",
+      "Defina como medir se o resultado foi entregue, com critério de sucesso."
     ],
-    format: "Resumo de 3 linhas. Tabelas do perfil e do mapa de valor. Tabela de encaixe: Dor ou ganho | Coberto? | Como. Comparação com a alternativa. As 3 propostas e a recomendada. Testes no formato: Acreditamos que… Saberemos que estamos certos quando…",
-    rules: ["Proposta de valor fala de resultado para o cliente, não de funcionalidades.", "Não afirme diferenciais sem compará-los com a alternativa atual."],
-    materials: ["vpc", "dunford", "jtbd", "storyBrand"]
+    format: "Resumo de 3 linhas. Tabela: Resultado desejado | Etapa do job | Impacto | Viabilidade | Prioridade. O primeiro resultado em destaque, com a justificativa. Duas listas: a solução precisa / não precisa agora. Critério no formato: Acreditamos que… Saberemos que estamos certos quando…",
+    rules: ["Resultado desejado descreve o progresso do cliente, não uma funcionalidade.", "Notas sem dado de cliente são [estimativa]."],
+    materials: ["odi", "jtbd", "ost", "vpc"]
   },
 
   /* ---------------- EXPERIMENTAR ---------------- */
@@ -343,9 +343,9 @@ MESA.TOOLS = [
     materials: ["workingBackwards", "vpc", "testingIdeas", "rightIt"]
   },
   {
-    id: "mvp", lens: "experimentar", name: "MVP", board: "experimento",
+    id: "mvp", lens: "experimentar", name: "Seleção de MVP", board: "experimento",
     blocker: "Não sei o que construir primeiro",
-    desc: "O menor teste que gera aprendizado real, com escopo e plano.",
+    desc: "Concierge, Wizard of Oz, Smoke test, Single feature ou Piecemeal: o menor teste que gera aprendizado.",
     fields: [{ id: "hipotese", label: "Hipótese mais arriscada", fromBase: "hipoteses", ph: "Ex.: donas de clínica pagariam R$ 99/mês para não esquecer cobranças", long: true }, { id: "recursos", label: "Tempo e recursos disponíveis", ph: "Ex.: 3 semanas, 2 pessoas, R$ 2 mil" }],
     role: "Você é um(a) especialista em experimentação enxuta, com Lean Startup, Testing Business Ideas e a visão de MVP de Henrik Kniberg.",
     steps: [
@@ -435,9 +435,9 @@ MESA.TOOLS = [
     materials: ["csd", "testingIdeas", "leanStartup", "momTest"]
   },
   {
-    id: "metricas", lens: "validar", name: "Funil e métricas (AARRR)", board: "experimento",
+    id: "metricas", lens: "validar", name: "Métricas iniciais", board: "experimento",
     blocker: "Não sei o que medir",
-    desc: "Funil, métricas por etapa e onde está o gargalo.",
+    desc: "Ativação, retenção e conversão: o painel mínimo e onde está o gargalo.",
     fields: [{ id: "tipo", label: "Tipo de negócio", fromBase: "tipo" }, { id: "numeros", label: "Números que você já tem", ph: "Visitas, cadastros, clientes, receita, cancelamentos…", long: true }],
     role: "Você é um(a) especialista em métricas de startups, com o funil AARRR de Dave McClure e o cuidado contra métricas de vaidade do Lean Startup.",
     steps: [
@@ -533,21 +533,21 @@ MESA.TOOLS = [
     materials: ["premortem", "leanStartup", "pgIdeas", "bmc"]
   },
   {
-    id: "pitch", lens: "avancar", name: "Pitch deck", board: "decisao",
+    id: "pitch", lens: "avancar", name: "Pitch para decisão", board: "decisao",
     blocker: "Vou apresentar para investidores ou patrocinadores",
-    desc: "Narrativa e roteiro de slides para pedir investimento ou aprovação.",
-    fields: [{ id: "pedido", label: "O que você vai pedir", ph: "Ex.: R$ 500 mil de investimento, ou 60 dias e R$ 20 mil para um piloto" }, { id: "publico", label: "Para quem vai apresentar", ph: "Ex.: investidores-anjo, comitê de inovação" }],
-    role: "Você é um(a) especialista em pitch para investidores e comitês de aprovação, com a estrutura da Sequoia e a regra 10/20/30 de Guy Kawasaki.",
+    desc: "Uma página para patrocinador, sócio ou investidor decidir o próximo passo.",
+    fields: [{ id: "pedido", label: "O que você vai pedir", ph: "Ex.: 60 dias e R$ 20 mil para um piloto com 10 clínicas" }, { id: "publico", label: "Para quem vai apresentar", ph: "Ex.: investidores-anjo, comitê de inovação, sócio" }],
+    role: "Você é um(a) especialista em comunicação para decisão, com a estrutura de narrativa da Sequoia e a clareza da regra 10/20/30 de Guy Kawasaki.",
     steps: [
-      "Defina a mensagem central em uma frase e os 3 argumentos que a sustentam.",
-      "Monte o roteiro de 10 a 12 slides: problema, solução, por que agora, mercado, produto, tração ou evidências, modelo de negócio, concorrência, time, plano e pedido.",
-      "Escreva o título e os pontos de cada slide, com os dados do contexto.",
+      "Defina a decisão que o público precisa tomar e a mensagem central em uma frase.",
+      "Escreva o documento de uma página: problema, evidência reunida até aqui, o que ainda é incerto, o pedido e o que será entregue em troca, com prazo.",
       "Aponte as lacunas de evidência que o público vai perceber e como tratá-las com honestidade.",
       "Antecipe as 8 perguntas mais difíceis e as respostas.",
+      "Se houver apresentação, sugira um roteiro curto de até 10 slides a partir da página.",
       "Escreva a versão falada de 2 minutos."
     ],
-    format: "Resumo de 3 linhas. Mensagem central em destaque. Tabela: Slide | Título | Pontos | Dado de apoio. Lacunas em lista. Tabela: Pergunta | Resposta. Pitch de 2 minutos em texto corrido.",
-    rules: ["Não infle números: use só os do contexto e marque projeções como [estimativa].", "O pedido precisa dizer o que será alcançado com ele."],
+    format: "Resumo de 3 linhas. Decisão e mensagem central em destaque. Documento de uma página em seções. Lacunas em lista. Tabela: Pergunta | Resposta. Roteiro de slides em lista (opcional). Pitch de 2 minutos em texto corrido.",
+    rules: ["Não infle números: use só os do contexto e marque projeções como [estimativa].", "O pedido precisa dizer o que será alcançado com ele e em quanto tempo."],
     materials: ["sequoiaPlan", "kawasaki", "tam", "whyNow", "bmc"]
   }
 ];
