@@ -12,7 +12,11 @@
     supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZGdlem1xb3Bjdnh0YXVwZGd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1NDUzMDUsImV4cCI6MjA5NzEyMTMwNX0.Lwb1lgEWG2lkbvsuHfeEVHeVnOBV3aaosAv8oLQ4h3E",
     // Link de agendamento da mentoria (Google Agenda). Vazio = o pedido fica registrado e Miguel responde por e-mail.
     mentoriaUrl: "https://calendar.app.google/6Qih7Yp9AqVi8UQE8",
-    contato: "miguelsnahas@gmail.com"
+    contato: "miguelsnahas@gmail.com",
+    // Acesso pago: com true, só entra quem tem compra registrada na tabela entitlements (ver README).
+    // Deixe false enquanto o link de pagamento não estiver ativo no toolkit.
+    requirePurchase: false,
+    checkoutUrl: "../toolkit/#oferta"
   };
 
   var sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey, {
@@ -23,8 +27,6 @@
   var state = { generations: [], genFor: null, session: null, projects: [], p: null, artifacts: [], board: [], radar: [], pedidos: [], workspaces: [], toolFilter: "todas", boardFilter: "todas", tTab: {}, aiVar: {} };
   var LENS = {}; MESA.LENSES.forEach(function (l) { LENS[l.id] = l; });
   var TOOL = {}; MESA.TOOLS.forEach(function (t) { TOOL[t.id] = t; });
-  var KINDS = { hipotese: "Hipótese", experimento: "Experimento", evidencia: "Evidência", decisao: "Decisão", pergunta: "Pergunta" };
-  var STATUS = { aberto: "Aberto", testando: "Testando", validado: "Validado", refutado: "Refutado", feito: "Feito" };
 
   /* ---------------- utilidades ---------------- */
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -90,9 +92,12 @@
     var parts = h.split("/").filter(Boolean);
     return parts;
   }
+  var RECOVERY = /type=recovery/.test(location.hash);
   function route() {
     var parts = parse();
+    if (RECOVERY) return state.session ? renderNewPassword() : ($app.innerHTML = '<div class="loading">Validando o link…</div>');
     if (!state.session) return renderAuth(/[?&]email=/.test(location.hash) ? "criar" : "entrar");
+    if (CONFIG.requirePurchase && state.entitled !== true) return checkAccess();
     if (parts[0] !== "p" || !parts[1]) return renderProjects();
     var id = parts[1], tab = parts[2] || "mesa", sub = parts[3];
     var ready = state.p && state.p.id === id ? Promise.resolve() : (($app.innerHTML = '<div class="loading">Carregando projeto…</div>'), loadProject(id));
@@ -109,6 +114,41 @@
       '<button class="btn btn-ghost btn-sm" data-act="logout">Sair</button></header>';
   }
 
+  /* ================= ACESSO ================= */
+  /* Confere se a pessoa tem compra registrada (só quando CONFIG.requirePurchase = true) */
+  function checkAccess() {
+    $app.innerHTML = '<div class="loading">Conferindo seu acesso…</div>';
+    sb.from("entitlements").select("id").limit(1).then(function (r) {
+      if (!r.error && r.data && r.data.length) { state.entitled = true; return route(); }
+      state.entitled = false; renderPaywall();
+    });
+  }
+  function renderPaywall() {
+    var email = (state.session && state.session.user && state.session.user.email) || "";
+    $app.innerHTML = '<div class="gate"><div class="gate-card"><a class="brand" href="../toolkit/">Mesa de Trabalho' + ast() + '</a>' +
+      '<h1>Falta liberar o seu acesso</h1><p>Não encontramos uma compra da Mesa de Trabalho para <b>' + esc(email) + '</b>. Se você já pagou com outro e-mail, escreva para a gente.</p>' +
+      '<div class="row"><a class="btn btn-accent" href="' + esc(CONFIG.checkoutUrl) + '">Comprar acesso</a><button class="btn btn-line" data-gate="again">Já paguei, conferir de novo</button></div>' +
+      '<p class="small muted">Dúvidas: <a href="mailto:' + CONFIG.contato + '">' + CONFIG.contato + '</a> · <button class="linkbtn" data-act="logout">Sair</button></p></div></div>';
+    $app.querySelector("[data-gate=again]").onclick = function () { state.entitled = null; checkAccess(); };
+  }
+  /* Nova senha, depois do link de recuperação enviado por e-mail */
+  function renderNewPassword() {
+    $app.innerHTML = '<div class="gate"><div class="gate-card"><a class="brand" href="../toolkit/">Mesa de Trabalho' + ast() + '</a><h1>Crie uma nova senha</h1>' +
+      '<form class="form" id="np-form" novalidate><label class="field"><span>Nova senha</span><input class="input" name="senha" type="password" autocomplete="new-password" minlength="8" required></label>' +
+      '<div class="msg" id="np-msg" hidden></div><button class="btn btn-primary" type="submit">Salvar e entrar</button></form></div></div>';
+    var f = document.getElementById("np-form"), msg = document.getElementById("np-msg");
+    f.onsubmit = function (e) {
+      e.preventDefault(); var pw = f.senha.value;
+      if (pw.length < 8) { msg.textContent = "A senha precisa ter pelo menos 8 caracteres."; msg.className = "msg err"; msg.hidden = false; return; }
+      f.querySelector("button").disabled = true;
+      sb.auth.updateUser({ password: pw }).then(function (r) {
+        f.querySelector("button").disabled = false;
+        if (r.error) { msg.textContent = r.error.message; msg.className = "msg err"; msg.hidden = false; return; }
+        RECOVERY = false; track("password_reset_done"); history.replaceState(null, "", location.pathname + "#/"); toast("Senha atualizada."); route();
+      });
+    };
+  }
+
   /* ================= AUTH ================= */
   function renderAuth(mode) {
     mode = mode || "entrar";
@@ -119,7 +159,7 @@
         '<a class="brand" href="../toolkit/">Mesa de Trabalho' + ast() + '</a>' +
         '<div><h1>Seu projeto, <em>uma decisão</em> por vez.</h1>' +
         '<p>Crie projetos, use as ferramentas do método Zero to First com a sua IA preferida e acompanhe hipóteses, experimentos e evidências num só lugar.</p></div>' +
-        '<ul><li>Ferramentas que montam o prompt com o contexto do projeto</li><li>Quadro de hipóteses, experimentos e decisões</li><li>Radar de sinais e próximos movimentos</li><li>Mentoria com o Miguel quando precisar</li></ul>' +
+        '<ul><li>Ferramentas que montam o prompt com o contexto do projeto</li><li>Um próximo passo claro, do primeiro cliente à tração</li><li>Radar de sinais e próximos movimentos</li><li>Mentoria com o Miguel quando precisar</li></ul>' +
       '</section><main class="auth-main"><div class="auth-card">' +
         '<div class="tabs" role="tablist"><button role="tab" data-mode="entrar" aria-selected="' + (mode === "entrar") + '">Entrar</button><button role="tab" data-mode="criar" aria-selected="' + (mode === "criar") + '">Criar conta</button></div>' +
         '<form class="form" id="auth-form" novalidate>' +
@@ -128,12 +168,23 @@
           '<label class="field"><span>Senha</span><input class="input" name="senha" type="password" autocomplete="' + (mode === "entrar" ? "current-password" : "new-password") + '" minlength="8" required>' + (mode === "criar" ? "<small>Mínimo de 8 caracteres.</small>" : "") + '</label>' +
           '<div class="msg" id="auth-msg" hidden></div>' +
           '<button class="btn btn-primary" type="submit">' + (mode === "entrar" ? "Entrar" : "Criar conta e entrar") + '</button>' +
-          (mode === "entrar" ? '<p class="small muted">Esqueceu a senha? Escreva para <a href="mailto:' + CONFIG.contato + '?subject=Senha%20da%20Mesa%20de%20Trabalho">' + CONFIG.contato + "</a>.</p>" :
+          (mode === "entrar" ? '<p class="small muted"><button type="button" class="linkbtn" data-forgot>Esqueci minha senha</button></p>' :
             '<p class="small muted">Ao criar a conta, você concorda com os <a href="../termos.html">termos de uso</a> e a <a href="../privacidade.html">política de privacidade</a>.</p>') +
         "</form></div></main></div>";
     $app.querySelectorAll("[data-mode]").forEach(function (b) { b.onclick = function () { renderAuth(b.dataset.mode); }; });
     var form = document.getElementById("auth-form"), msg = document.getElementById("auth-msg");
     function say(t, cls) { msg.textContent = t; msg.className = "msg " + cls; msg.hidden = false; }
+    var forgot = $app.querySelector("[data-forgot]");
+    if (forgot) forgot.onclick = function () {
+      var em = form.email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { form.email.focus(); return say("Digite o seu e-mail acima e clique de novo em Esqueci minha senha.", "err"); }
+      forgot.disabled = true;
+      sb.auth.resetPasswordForEmail(em, { redirectTo: location.origin + location.pathname }).then(function (r) {
+        forgot.disabled = false;
+        if (r.error) return say(/rate|seconds/i.test(r.error.message) ? "Aguarde um pouco antes de pedir outro link." : r.error.message, "err");
+        track("password_reset_requested"); say("Se houver uma conta com esse e-mail, enviamos um link para criar uma nova senha.", "ok");
+      });
+    };
     form.onsubmit = function (e) {
       e.preventDefault();
       var em = form.email.value.trim(), pw = form.senha.value;
@@ -147,7 +198,7 @@
           var m = r.error.message || "";
           if (/Invalid login/i.test(m)) return say("E-mail ou senha incorretos.", "err");
           if (/already registered/i.test(m)) return say("Esse e-mail já tem conta. Use a aba Entrar.", "err");
-          if (/Email not confirmed/i.test(m)) return say("Sua conta ainda não foi confirmada. Escreva para " + CONFIG.contato + ".", "err");
+          if (/Email not confirmed/i.test(m)) return say("Sua conta ainda não foi confirmada. Procure o link de confirmação no seu e-mail ou escreva para " + CONFIG.contato + ".", "err");
           return say(m, "err");
         }
         if (mode === "criar" && !r.data.session) return say("Conta criada. Confirme pelo link enviado ao seu e-mail para entrar.", "ok");
@@ -277,7 +328,7 @@
   /* ================= PROJETO ================= */
   /* Uma tela principal: a Mesa. Cada bloqueio abre o seu objetivo. O resto fica no menu ··· */
   /* Tela única: a Mesa fica sempre ao fundo e todo o resto abre num painel por cima dela */
-  var SHEET_TITLE = { desbloquear: "Objetivo", ferramenta: "Objetivo", artefatos: "Artefatos", artefato: "Artefato", quadro: "Quadro", radar: "Radar de sinais", mentoria: "Falar com o Miguel", contexto: "Base do negócio" };
+  var SHEET_TITLE = { desbloquear: "Objetivo", ferramenta: "Objetivo", artefatos: "Artefatos", artefato: "Artefato", radar: "Radar de sinais", mentoria: "Falar com o Miguel", contexto: "Base do negócio" };
   function scroller(el) { var b = el && el.closest && el.closest(".sheet-body"); return b || null; }
   function getScroll(el) { var b = scroller(el); return b ? b.scrollTop : window.scrollY; }
   function setScroll(el, y) { var b = scroller(el); if (b) b.scrollTop = y; else window.scrollTo(0, y); }
@@ -313,7 +364,7 @@
       return;
     }
     if (state.mesaDirty) { viewMesa(main); state.mesaDirty = false; }
-    var views = { desbloquear: viewObjetivo, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewObjetivo(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    var views = { desbloquear: viewObjetivo, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewObjetivo(m); }, artefatos: viewArtefatos, artefato: viewArtefato, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
     if (!views[tab]) { history.replaceState(null, "", base + "mesa"); return renderProject("mesa"); }
     document.getElementById("sheet-title").textContent = tab === "ferramenta" && TOOL[sub] && TOOL[sub].workspace ? "Tração · área de trabalho" : (SHEET_TITLE[tab] || "");
     sheet.hidden = false; document.body.classList.add("sheet-open");
@@ -351,7 +402,7 @@
     if (seen) done.forEach(function (id) { if (seen.indexOf(id) === -1) fresh[id] = true; });
     var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces)[0];
     var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
-    var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Completar a base";
+    var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria" }[move.action.id] || "Abrir") : "Completar a base";
     var rec = move.action.type === "tool" ? move.action.id : null; /* uma única recomendação: o próximo passo */
     var fcWs = state.workspaces.filter(function (w) { return w.tool_id === "first"; })[0];
     var paying = fcWs && MESA.TRACTION_SIGNALS ? MESA.TRACTION_SIGNALS.fcStats(fcWs.data || {}).ganhos : 0;
@@ -470,8 +521,8 @@
         '</div></section><section class="prompt" aria-label="Prompt pronto"><div class="prompt-head"><span class="label">Prompt pronto</span><span class="spacer"></span>' +
           '<button class="btn btn-accent btn-sm" data-d="copy">Copiar</button><button class="btn btn-line btn-sm" data-d="md">.md</button>' +
           '<a class="btn btn-line btn-sm" data-ai="claude" target="_blank" rel="noopener">Claude</a><a class="btn btn-line btn-sm" data-ai="chatgpt" target="_blank" rel="noopener">ChatGPT</a></div>' +
-          '<p class="dmeta">Funciona no Claude, ChatGPT e Gemini · <span id="d-chars"></span> caracteres</p><pre id="prompt"></pre><div id="d-mentor"></div>' +
-          '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e conclui o objetivo no painel."></textarea>' +
+          '<p class="dmeta">Funciona no Claude, ChatGPT e Gemini · <span id="d-chars"></span> caracteres</p><div class="pwrap" id="d-pwrap"><pre id="prompt"></pre><button class="pmore" type="button" data-d="expand">Ver o prompt completo</button></div><div id="d-mentor"></div>' +
+          '<div class="paste" id="d-paste"><p class="paste-step" id="d-step" hidden>Copiou? Agora cole na sua IA e traga a resposta para cá.</p><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e conclui o objetivo no painel."></textarea>' +
           '<div class="row"><input class="input" id="atitle" style="flex:1;min-width:180px" value="' + esc(t.name) + '" aria-label="Título do artefato"><button class="btn btn-accent" data-d="save">Salvar artefato</button></div></div>' +
         "</section></div></section>" +
         (mine.length ? '<section class="panel"><h2>Artefatos salvos</h2><div class="list" style="margin-top:12px">' + mine.map(artifactRow).join("") + "</div></section>" : "");
@@ -519,6 +570,20 @@
         state.generations.unshift(r.data); histRender();
       });
     }
+    var awaiting = false;
+    function awaitAnswer() {
+      awaiting = true; var w = document.getElementById("d-pwrap"); if (w) w.classList.add("is-short");
+      var st = document.getElementById("d-step"); if (st) st.hidden = false;
+    }
+    function bringAnswer() {
+      var a = document.getElementById("answer"); if (!a || !awaiting || a.value.trim()) return;
+      a.scrollIntoView({ behavior: "smooth", block: "center" }); a.focus({ preventScroll: true });
+    }
+    function onReturn() { if (document.visibilityState === "visible") setTimeout(bringAnswer, 150); }
+    document.addEventListener("visibilitychange", onReturn); window.addEventListener("focus", onReturn);
+    var onHash = function () { setTimeout(function () { if (!document.getElementById("answer")) { document.removeEventListener("visibilitychange", onReturn); window.removeEventListener("focus", onReturn); window.removeEventListener("hashchange", onHash); } }); };
+    window.addEventListener("hashchange", onHash);
+    main.querySelector("[data-d=expand]").onclick = function () { document.getElementById("d-pwrap").classList.remove("is-short"); };
     function mentorCard() {
       try { if (sessionStorage.getItem("mesa-mentor-card")) return; sessionStorage.setItem("mesa-mentor-card", "1"); } catch (e) {}
       document.getElementById("d-mentor").innerHTML = '<div class="dmentor"><b>Quer um olhar de fora sobre a resposta?</b><span>Leve o artefato para uma conversa com o Miguel.</span><a class="btn btn-accent btn-sm" href="#/p/' + p.id + '/mentoria">Pedir mentoria</a></div>';
@@ -526,9 +591,9 @@
     main.querySelectorAll("[data-in]").forEach(function (el) { el.oninput = el.onchange = function () { inputsNow[el.dataset.in] = el.value; refresh(); }; });
     main.querySelectorAll("[data-base]").forEach(function (el) { el.oninput = el.onchange = function () { ctx[el.dataset.base] = el.value; saveContext(); refresh(); }; });
     refresh();
-    main.querySelector("[data-d=copy]").onclick = function () { copy(pre.textContent).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: t.id }); record(); mentorCard(); }); };
-    main.querySelector("[data-d=md]").onclick = function () { downloadMd(MESA.mdFilename(t, p), pre.textContent); track("prompt_downloaded", { tool: t.id }); record(); };
-    main.querySelectorAll("[data-ai]").forEach(function (a) { a.addEventListener("click", function () { track("prompt_opened", { tool: t.id, ai: a.dataset.ai }); record(); }); });
+    main.querySelector("[data-d=copy]").onclick = function () { copy(pre.textContent).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: t.id }); record(); mentorCard(); awaitAnswer(); bringAnswer(); }); };
+    main.querySelector("[data-d=md]").onclick = function () { downloadMd(MESA.mdFilename(t, p), pre.textContent); track("prompt_downloaded", { tool: t.id }); record(); awaitAnswer(); };
+    main.querySelectorAll("[data-ai]").forEach(function (a) { a.addEventListener("click", function () { track("prompt_opened", { tool: t.id, ai: a.dataset.ai }); record(); awaitAnswer(); }); });
     main.querySelector("[data-d=save]").onclick = function (e) {
       var content = document.getElementById("answer").value.trim(), title = document.getElementById("atitle").value.trim() || t.name;
       if (!content) { toast("Cole a resposta da IA antes de salvar."); return document.getElementById("answer").focus(); }
@@ -577,7 +642,7 @@
     if (!LENS[p.focus] || LENS[p.focus].phase !== "traction") setFocus(t.lens);
     if (!w) { w = { tool_id: toolId, status: "em_andamento", data: {} }; (t.sections || []).forEach(function (s) { (s.fields || []).forEach(function (f) { if (f.def != null) w.data[f.id] = f.def; }); }); }
     var d = w.data, env = function () { var e = wsEnv(); e.ws[toolId] = d; return e; };
-    var tab = state.tTab[toolId] || (isNew ? "guia" : "trabalho");
+    var tab = state.tTab[toolId] || "trabalho"; /* começa na área de trabalho; o guia fica numa aba */
     var idx = MESA.TRACTION.indexOf(t), next = t.next && TOOL[t.next];
     var stepper = '<ol class="tmini" aria-label="Ferramentas da Fase 3">' + MESA.TRACTION.map(function (x) { var st = toolState(x.id); return '<li class="is-' + st.k + (x.id === toolId ? " is-cur" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + x.id + '" title="' + esc(x.n + ". " + x.name + " · " + st.label) + '"><span>' + x.n + "</span><b>" + esc(x.name) + "</b></a></li>"; }).join("") + "</ol>";
     var st = toolState(toolId);
@@ -645,16 +710,26 @@
     }
     function renderWork() {
       var n = 0;
-      body.innerHTML = '<details class="panel reuse-box"' + (isNew ? " open" : "") + '><summary><b>Reaproveitado das etapas anteriores</b> <span class="small muted">· edite na origem</span></summary>' + reuseHtml(true) + "</details>" +
+      var secFilled = function (s) {
+        if (s.type === "fields") return s.fields.some(function (f) { return MESA.util.filled(d[f.id]); });
+        if (s.type === "list") return MESA.util.rows(d, s.id).length > 0;
+        if (s.type === "decisions") return Object.keys(d[s.id] || {}).some(function (k) { return MESA.util.filled((d[s.id][k] || {}).texto); });
+        if (s.type === "unit") return Object.keys(d.ue || {}).length > 0;
+        if (s.type === "model") return !!(p.context || {}).tipo;
+        return false;
+      };
+      body.innerHTML = '<details class="panel reuse-box"><summary><b>Reaproveitado das etapas anteriores</b> <span class="small muted">· edite na origem</span></summary>' + reuseHtml(true) + "</details>" +
         t.sections.map(function (s) {
           if (s.type === "panel") return '<div data-panel="' + s.fn + '">' + MESA.TRACTION_PANELS[s.fn](d, env()) + "</div>";
           n++;
           var inner = s.type === "fields" ? '<div class="fgrid">' + s.fields.map(fieldBlock).join("") + "</div>" : s.type === "list" ? listBlock(s) : s.type === "decisions" ? decisionsBlock(s) : s.type === "unit" ? unitBlock() :
             s.type === "model" ? '<div class="fgrid"><label class="field"><span>Modelo de negócio</span>' + inputHtml(MESA.CONTEXT_FIELDS.filter(function (f) { return f.id === "tipo"; })[0], (p.context || {}).tipo, 'data-ctxf="tipo"') + '<small>Salvo no contexto do projeto: vale para todas as ferramentas.</small></label></div>' : "";
           var title = s.type === "unit" ? "Cenários" : s.type === "model" ? "Modelo de negócio" : s.title;
-          return '<section class="panel wsec" data-sec="' + (s.id || n) + '"><h2><span class="snum">' + n + "</span>" + esc(title) + "</h2>" + (s.help ? '<p class="small muted">' + esc(s.help) + "</p>" : "") + inner + "</section>";
+          var mem = (state.tOpen || {})[toolId + ":" + n], open = mem != null ? mem : (n <= 2 || secFilled(s));
+          return '<details class="panel wsec" data-sec="' + (s.id || n) + '" data-n="' + n + '"' + (open ? " open" : "") + '><summary><h2><span class="snum">' + n + "</span>" + esc(title) + '</h2><span class="wsec-st">' + (secFilled(s) ? "preenchida" : "") + "</span></summary>" + (s.help ? '<p class="small muted">' + esc(s.help) + "</p>" : "") + inner + "</details>";
         }).join("") + aiBlock() +
         '<div class="row" style="margin-top:16px"><span class="spacer"></span><button class="btn btn-accent" data-tab="resultado">Ver o resultado →</button></div>';
+      body.querySelectorAll("details.wsec").forEach(function (el) { el.addEventListener("toggle", function () { state.tOpen = state.tOpen || {}; state.tOpen[toolId + ":" + el.dataset.n] = el.open; }); });
     }
     function renderResult() {
       var e = env(), deliverable = MESA.tractionDeliverable(t, d, e), checks = MESA.tractionChecks(t, d, e), all = checks.every(function (c) { return c.ok; });
@@ -746,13 +821,12 @@
     var t = a.tool_id && TOOL[a.tool_id];
     main.innerHTML = '<p class="small"><a href="#/p/' + state.p.id + '/artefatos">← Artefatos</a></p>' +
       head(esc(a.title), (t ? esc(t.name) + " · " : "") + (a.stage ? LENS[a.stage].name + " · " : "") + fmtDate(a.created_at),
-        '<button class="btn btn-line btn-sm" data-act="edit">' + (editing ? "Visualizar" : "Editar") + '</button><button class="btn btn-line btn-sm" data-act="to-board">+ Quadro</button><button class="btn btn-ghost btn-sm btn-danger" data-act="del">Excluir</button>') +
+        '<button class="btn btn-line btn-sm" data-act="edit">' + (editing ? "Visualizar" : "Editar") + '</button><button class="btn btn-ghost btn-sm btn-danger" data-act="del">Excluir</button>') +
       '<section class="panel">' + (editing ?
         '<div class="form"><label class="field"><span>Título</span><input class="input" id="et" value="' + esc(a.title) + '"></label><label class="field"><span>Conteúdo (aceita Markdown)</span><textarea class="textarea tall" id="ec" style="min-height:420px">' + esc(a.content) + '</textarea></label><div class="row"><span class="spacer"></span><button class="btn btn-primary" data-act="save">Salvar</button></div></div>'
         : '<div class="md">' + md(a.content) + "</div>") + "</section>" +
       (t ? '<p class="small muted" style="margin-top:14px">Quer refazer? <a href="#/p/' + state.p.id + "/ferramenta/" + t.id + '">Abrir ' + esc(t.name) + "</a></p>" : "");
     main.querySelector("[data-act=edit]").onclick = function () { go("#/p/" + state.p.id + "/artefato/" + a.id + (editing ? "" : "?editar")); };
-    main.querySelector("[data-act=to-board]").onclick = function () { boardModal(null, { kind: (t && t.board) || "hipotese", body: "Origem: " + a.title }); };
     main.querySelector("[data-act=del]").onclick = function () {
       if (!confirm("Excluir este artefato?")) return;
       sb.from("artifacts").delete().eq("id", a.id).then(function (r) { if (r.error) return fail(r.error); state.artifacts = state.artifacts.filter(function (x) { return x.id !== a.id; }); toast("Artefato excluído."); go("#/p/" + state.p.id + "/artefatos"); });
@@ -764,47 +838,7 @@
     };
   }
 
-  /* ---------- Quadro ---------- */
-  function viewQuadro(main) {
-    var f = state.boardFilter;
-    var items = state.board.filter(function (b) { return f === "todas" || b.kind === f; });
-    var cols = [["aberto", "Aberto"], ["testando", "Testando"], ["validado", "Validado"], ["refutado|feito", "Refutado / feito"]];
-    main.innerHTML = head("Quadro", "Hipóteses, experimentos, evidências, decisões e perguntas do projeto. Mova pelo status conforme aprende.", '<button class="btn btn-primary" data-act="add-item">+ Item</button>') +
-      '<div class="filters">' + [["todas", "Todos"]].concat(Object.keys(KINDS).map(function (k) { return [k, KINDS[k]]; })).map(function (k) { return '<button data-act="bfilter" data-f="' + k[0] + '" aria-pressed="' + (f === k[0]) + '">' + k[1] + "</button>"; }).join("") + "</div>" +
-      '<div class="board">' + cols.map(function (c) {
-        var st = c[0].split("|"), list = items.filter(function (b) { return st.indexOf(b.status) !== -1; });
-        return '<div class="bcol"><h3>' + c[1] + "<span>" + list.length + "</span></h3>" + list.map(function (b) {
-          return '<button class="bitem" data-act="edit-item" data-id="' + b.id + '"><span class="chip k-' + b.kind + '">' + KINDS[b.kind] + '</span><span class="t">' + esc(b.title) + "</span>" + (b.status === "refutado" ? '<span class="small" style="color:var(--bad)">Refutado</span>' : b.status === "feito" ? '<span class="small muted">Feito</span>' : "") + "</button>";
-        }).join("") + "</div>";
-      }).join("") + "</div>";
-  }
-  function boardModal(item, preset) {
-    var b = item || Object.assign({ kind: "hipotese", status: "aberto", title: "", body: "" }, preset || {});
-    modal("<h2>" + (item ? "Editar item" : "Novo item") + '</h2><form class="form" id="bf">' +
-      '<div class="row"><label class="field" style="flex:1"><span>Tipo</span><select class="select" name="kind">' + Object.keys(KINDS).map(function (k) { return '<option value="' + k + '"' + (b.kind === k ? " selected" : "") + ">" + KINDS[k] + "</option>"; }).join("") + "</select></label>" +
-      '<label class="field" style="flex:1"><span>Status</span><select class="select" name="status">' + Object.keys(STATUS).map(function (k) { return '<option value="' + k + '"' + (b.status === k ? " selected" : "") + ">" + STATUS[k] + "</option>"; }).join("") + "</select></label></div>" +
-      '<label class="field"><span>Título</span><input class="input" name="title" required maxlength="300" value="' + esc(b.title) + '" placeholder="Ex.: Donas de clínica pagariam R$ 99/mês para não esquecer cobranças"></label>' +
-      '<label class="field"><span>Detalhes</span><textarea class="textarea" name="body" placeholder="Como saber se é verdade, o que foi observado, próximos passos…">' + esc(b.body) + "</textarea></label>" +
-      '<div class="row">' + (item ? '<button type="button" class="btn btn-ghost btn-danger" data-act="del-item">Excluir</button>' : "") + '<span class="spacer"></span><button type="button" class="btn btn-ghost" data-close>Cancelar</button><button class="btn btn-primary">Salvar</button></div></form>',
-      function (box, close) {
-        var form = box.querySelector("#bf");
-        form.onsubmit = function (e) {
-          e.preventDefault(); var title = form.title.value.trim(); if (!title) return form.title.focus();
-          var data = { kind: form.kind.value, status: form.status.value, title: title, body: form.body.value };
-          var q = item ? sb.from("board_items").update(data).eq("id", item.id).select().single() : sb.from("board_items").insert(Object.assign({ project_id: state.p.id }, data)).select().single();
-          q.then(function (r) {
-            if (r.error) return fail(r.error);
-            if (item) Object.assign(item, r.data); else { state.board.unshift(r.data); track("board_item_created", { kind: data.kind }); }
-            close(); toast("Quadro atualizado."); if (/\/quadro/.test(location.hash)) route(); else renderProject(parse()[2], parse()[3]);
-          });
-        };
-        var del = box.querySelector("[data-act=del-item]");
-        if (del) del.onclick = function () {
-          if (!confirm("Excluir este item?")) return;
-          sb.from("board_items").delete().eq("id", item.id).then(function (r) { if (r.error) return fail(r.error); state.board = state.board.filter(function (x) { return x.id !== item.id; }); close(); route(); });
-        };
-      });
-  }
+
 
   /* ---------- Radar ---------- */
   function viewRadar(main) {
@@ -819,7 +853,7 @@
       '<section class="panel"><div class="panel-head"><h2>Sinais salvos</h2><span class="small muted">' + saved.length + " sinal(is)</span></div>" +
         (saved.length ? '<div class="signals">' + saved.map(function (s) {
           return '<article class="signal' + (s.pinned ? " pinned" : "") + '"><div class="row"><span class="chip ' + (s.source === "ia" ? "plum" : "") + '">' + (s.source === "ia" ? "IA" : s.source === "curadoria" ? "Curadoria" : "Manual") + "</span>" + (s.pinned ? '<span class="chip pers">Fixado</span>' : "") + "</div><h4>" + esc(s.title) + "</h4>" + (s.body ? '<div class="md small">' + md(s.body) + "</div>" : "") +
-            '<div class="row"><button class="btn btn-ghost btn-sm" data-act="pin" data-id="' + s.id + '">' + (s.pinned ? "Desafixar" : "Fixar") + '</button><button class="btn btn-ghost btn-sm" data-act="sig-q" data-id="' + s.id + '">+ Pergunta</button><button class="btn btn-ghost btn-sm btn-danger" data-act="sig-del" data-id="' + s.id + '">Remover</button></div></article>';
+            '<div class="row"><button class="btn btn-ghost btn-sm" data-act="pin" data-id="' + s.id + '">' + (s.pinned ? "Desafixar" : "Fixar") + '</button><button class="btn btn-ghost btn-sm btn-danger" data-act="sig-del" data-id="' + s.id + '">Remover</button></div></article>';
         }).join("") + "</div>" : '<p class="muted">Nenhum sinal salvo ainda. Rode a varredura com IA ou salve itens da curadoria.</p>') + "</section>" +
       '<section class="panel"><div class="panel-head"><div><h2>Da curadoria</h2><p class="small muted">Temas, métodos, armadilhas e perguntas selecionados para o momento do projeto.</p></div></div><div class="signals">' +
         cur.map(function (r, i) {
@@ -883,7 +917,7 @@
         '<div class="row"><label class="field" style="flex:2;min-width:220px"><span>Nome do projeto</span><input class="input" id="pname" maxlength="120" value="' + esc(p.name) + '"></label>' +
         '<label class="field" style="flex:1;min-width:200px"><span>Tipo</span><select class="select" id="pkind"><option value="empreendedor"' + (p.kind === "empreendedor" ? " selected" : "") + '>Projeto empreendedor</option><option value="inovacao"' + (p.kind === "inovacao" ? " selected" : "") + ">Inovação em uma organização</option></select></label></div>" +
         baseFieldsHtml(p, "data-ctx") +
-      '</div></section><section class="panel"><h2>Zona de perigo</h2><p class="small muted" style="margin:6px 0 12px">Excluir o projeto apaga artefatos, quadro, radar e pedidos de mentoria.</p><button class="btn btn-line btn-danger" data-act="del-project">Excluir projeto</button></section>';
+      '</div></section><section class="panel"><h2>Zona de perigo</h2><p class="small muted" style="margin:6px 0 12px">Excluir o projeto apaga artefatos, prompts, radar e pedidos de mentoria.</p><button class="btn btn-line btn-danger" data-act="del-project">Excluir projeto</button></section>';
     main.querySelectorAll("[data-ctx]").forEach(function (el) { el.oninput = el.onchange = function () { ctx[el.dataset.ctx] = el.value; saveContext(); }; });
     var saveMeta = debounce(function () {
       var name = document.getElementById("pname").value.trim(); if (!name) return;
@@ -906,22 +940,19 @@
     else if (act === "scroll") { e.preventDefault(); var tg = document.getElementById(el.dataset.target); if (tg) tg.scrollIntoView({ behavior: "smooth", block: "start" }); }
     else if (act === "new-project") newProjectModal();
     else if (act === "tfilter") { state.toolFilter = el.dataset.f; route(); }
-    else if (act === "bfilter") { state.boardFilter = el.dataset.f; route(); }
     else if (act === "lens") { setFocus(el.dataset.lens); state.toolFilter = el.dataset.lens; go("#/p/" + state.p.id + "/mesa"); }
-    else if (act === "add-item") boardModal(null);
-    else if (act === "edit-item") boardModal(state.board.filter(function (b) { return b.id === el.dataset.id; })[0]);
-    else if (act === "pin" || act === "sig-del" || act === "sig-q") {
+    else if (act === "pin" || act === "sig-del") {
       var s = state.radar.filter(function (x) { return x.id === el.dataset.id; })[0]; if (!s) return;
       if (act === "pin") sb.from("radar_items").update({ pinned: !s.pinned }).eq("id", s.id).then(function (r) { if (r.error) return fail(r.error); s.pinned = !s.pinned; route(); });
       if (act === "sig-del") sb.from("radar_items").delete().eq("id", s.id).then(function (r) { if (r.error) return fail(r.error); state.radar = state.radar.filter(function (x) { return x.id !== s.id; }); route(); });
-      if (act === "sig-q") boardModal(null, { kind: "pergunta", title: s.title, body: s.body });
     }
   });
 
   /* ---------------- início ---------------- */
   sb.auth.onAuthStateChange(function (event, session) {
     var had = !!state.session; state.session = session;
-    if (event === "SIGNED_OUT") { state.p = null; route(); }
+    if (event === "PASSWORD_RECOVERY") { RECOVERY = true; return renderNewPassword(); }
+    if (event === "SIGNED_OUT") { state.p = null; state.entitled = null; route(); }
     else if (!had && session) route();
   });
   sb.auth.getSession().then(function (r) { state.session = r.data.session; route(); });

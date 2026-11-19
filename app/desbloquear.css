@@ -53,3 +53,11 @@
 .dstep { scroll-margin-top: calc(var(--top) + 16px); }
 @media (max-width: 1000px) { .dstep { scroll-margin-top: calc(var(--top) + 72px); } }
 a.dblock { display: block; text-decoration: none; color: inherit; }
+
+/* Prompt recolhido depois de copiar: a caixa de resposta fica perto */
+.pwrap { position: relative; }
+.pmore { display: none; }
+.pwrap.is-short pre { max-height: 132px; overflow: hidden; }
+.pwrap.is-short::after { content: ""; position: absolute; left: 0; right: 0; bottom: 34px; height: 56px; background: linear-gradient(transparent, var(--plum)); pointer-events: none; }
+.pwrap.is-short .pmore { display: block; width: 100%; padding: 8px 16px 12px; border: 0; background: var(--plum); color: var(--pers-light); font-weight: 600; font-size: 13.5px; text-align: left; cursor: pointer; }
+.paste-step { margin: 0; padding: 10px 12px; border-radius: 10px; background: rgba(242, 138, 94, .16); color: #FFF; font-size: 14px; font-weight: 600; }
