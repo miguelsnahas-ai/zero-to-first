@@ -42,3 +42,22 @@ O método tem **três fases oficiais** (`MESA.PHASES` em `app/tools.js`): **Disc
 - Os dados vêm de funções no banco (`admin_overview`, `admin_users`, `admin_leads`, `admin_mentorias`, `admin_set_mentoria_status`), e cada uma confere `is_admin()`.
 - Dos projetos, só aparecem números agregados. Nos pedidos de mentoria aparecem o nome e o contexto do projeto e **apenas** os artefatos que a pessoa escolheu compartilhar.
 - Para dar acesso a outra conta, rode no SQL Editor: `insert into public.admins (user_id) select id from auth.users where email = 'email@exemplo.com';`
+
+## Acesso pago (Mesa de Trabalho)
+
+O app só exige compra quando `CONFIG.requirePurchase = true` em `app/app.js`. Até lá, qualquer conta entra.
+
+1. Crie o Payment Link no Stripe (R$ 47, pagamento único) e cole em `CHECKOUT_URL` no `toolkit/index.html`.
+2. Publique o webhook em `supabase/functions/stripe-webhook` (instruções no topo do arquivo). Cada compra paga grava o e-mail em `entitlements`.
+3. Libere quem já usa a Mesa antes de ativar a cobrança (SQL Editor do Supabase):
+   ```sql
+   insert into public.entitlements (email, user_id, source)
+   select lower(email), id, 'cortesia' from auth.users
+   on conflict do nothing;
+   ```
+4. Mude `requirePurchase` para `true`. Quem não tiver compra vê a tela "Falta liberar o seu acesso", com o link de compra.
+
+Liberar alguém manualmente:
+```sql
+insert into public.entitlements (email, source) values ('pessoa@exemplo.com', 'manual') on conflict do nothing;
+```
