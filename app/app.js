@@ -199,12 +199,12 @@
       if (step === 1) return '<h2>Em que momento o projeto está?</h2><p class="muted">Define por onde a mesa começa. Não é uma trilha: você pode visitar qualquer etapa depois.</p><div class="starts">' +
         MESA.STARTS.map(function (st) { var t = TOOL[st.tool]; return '<button type="button" class="start' + (wz.start === st.id ? " is-on" : "") + '" data-start="' + st.id + '"><span class="start-art">' + MESA.deskArt(st.tool) + "</span><span><b>" + esc(st.title) + "</b><small>" + esc(st.desc) + '</small><em>Fase ' + MESA.PHASES.filter(function (p) { return p.lenses.indexOf(st.lens) !== -1; })[0].n + " · começa por " + esc(t.name) + "</em></span></button>"; }).join("") + "</div>";
       if (s.fields) return "<h2>" + esc(s.title) + '</h2><p class="muted">' + esc(s.lead) + "</p>" + s.fields.map(fieldHtml).join("") +
-        (s.id === "evidencias" ? '<label class="field"><span>Sua aposta mais arriscada</span><small>O que precisa ser verdade para o projeto dar certo e ainda não foi provado? Vai direto para o quadro do projeto.</small><input class="input" data-wh="1" placeholder="Ex.: donas de clínica pagariam R$ 99/mês para não esquecer cobranças" value="' + esc(wz.hipotese) + '"></label>' : "");
+        (s.id === "evidencias" ? '<label class="field"><span>Sua aposta mais arriscada</span><small>O que precisa ser verdade para o projeto dar certo e ainda não foi provado? Entra na base do negócio.</small><input class="input" data-wh="1" placeholder="Ex.: donas de clínica pagariam R$ 99/mês para não esquecer cobranças" value="' + esc(wz.hipotese) + '"></label>' : "");
       var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0] || MESA.STARTS[0], rec = TOOL[st.tool], n = filledCount(), tot = totalFields();
       return '<h2>Sua mesa está pronta</h2><div class="wdone"><div class="wmeter"><b>' + n + "/" + tot + '</b><span>campos de contexto</span><span class="pbar"><i style="width:' + Math.round(n / tot * 100) + '%"></i></span>' +
         (n < 6 ? '<small class="muted">Dá para completar depois na base do negócio. Os prompts ficam mais precisos com pelo menos 6 campos.</small>' : '<small class="muted">Ótimo ponto de partida.</small>') + "</div>" +
         '<div class="wrec"><span class="start-art">' + MESA.deskArt(rec.id) + '</span><div><p class="label">Primeiro objetivo sugerido</p><b>' + esc(rec.name) + "</b><p>" + esc(rec.desc) + "</p></div></div>" +
-        (wz.hipotese ? '<p class="small">Sua aposta mais arriscada vai para o quadro como hipótese: <b>“' + esc(wz.hipotese) + '”</b></p>' : "") + "</div>";
+        (wz.hipotese ? '<p class="small">Sua aposta mais arriscada entra na base do negócio: <b>“' + esc(wz.hipotese) + '”</b></p>' : "") + "</div>";
     }
     function nav() {
       var last = step === STEPS.length - 1;
@@ -242,7 +242,7 @@
           if (r.error) { btn.disabled = false; return fail(r.error); }
           var pid = r.data.id;
           track("project_created", { kind: wz.kind, start: wz.start || "nao_informado", context_fields: filledCount(), imported: !!wz.imported });
-          var after = wz.hipotese ? sb.from("board_items").insert({ project_id: pid, kind: "hipotese", status: "aberto", title: wz.hipotese.slice(0, 300), body: "Registrada ao criar o projeto." }) : Promise.resolve({});
+          var after = Promise.resolve({});
           return after.then(function (r2) {
             if (r2 && r2.error) fail(r2.error);
             try { sessionStorage.setItem("mesa-novo-" + pid, "1"); } catch (e) {}
@@ -292,21 +292,17 @@
   }
 
   /* ================= PROJETO ================= */
-  /* Três áreas: Mesa (painel), Desbloquear (trabalho) e Quadro (hipóteses). O resto fica no menu ··· */
-  var AREAS = [{ id: "mesa", name: "Mesa" }, { id: "desbloquear", name: "Desbloquear" }, { id: "quadro", name: "Quadro" }];
-  var AREA_OF = { mesa: "mesa", visao: "mesa", artefatos: "mesa", artefato: "mesa", desbloquear: "desbloquear", ferramentas: "desbloquear", ferramenta: "desbloquear", radar: "desbloquear", quadro: "quadro" };
+  /* Uma tela principal: a Mesa. Cada bloqueio abre o seu objetivo. O resto fica no menu ··· */
   function renderProject(tab, sub) {
-    var p = state.p, area = AREA_OF[tab] || "", base = "#/p/" + p.id + "/";
-    var seg = '<nav class="seg" aria-label="Áreas do projeto">' + AREAS.map(function (t) {
-      return '<a href="' + base + t.id + '"' + (t.id === area ? ' aria-current="page"' : "") + ">" + t.name + "</a>";
-    }).join("") + "</nav>";
+    var p = state.p, base = "#/p/" + p.id + "/";
     var menu = '<div class="more"><button class="more-btn" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções" data-more>···</button><div class="more-pop" role="menu" hidden>' +
-      '<a role="menuitem" href="' + base + 'contexto">Projeto e base do negócio</a>' +
-      '<a role="menuitem" href="' + base + 'artefatos">Todos os artefatos</a>' +
+      '<a role="menuitem" href="' + base + 'mesa">Mesa</a>' +
+      '<a role="menuitem" href="' + base + 'contexto">Base do negócio</a>' +
+      '<a role="menuitem" href="' + base + 'artefatos">Artefatos</a>' +
       '<a role="menuitem" href="' + base + 'radar">Radar de sinais</a>' +
       '<a role="menuitem" href="' + base + 'mentoria">Falar com o Miguel</a>' +
       '<hr><a role="menuitem" href="#/">Trocar de projeto</a><a role="menuitem" href="https://miguelsnahas-ai.github.io/">Site do Miguel</a><button role="menuitem" data-act="logout">Sair</button></div></div>';
-    $app.innerHTML = '<header class="topbar proj-top"><a class="brand" href="#/" title="Seus projetos">Mesa de Trabalho' + ast() + '</a><span class="pname" title="' + esc(p.name) + '">' + esc(p.name) + "</span>" + seg + menu + "</header>" +
+    $app.innerHTML = '<header class="topbar proj-top"><a class="brand" href="#/" title="Seus projetos">Mesa de Trabalho' + ast() + '</a><a class="pname" href="' + base + 'mesa" title="' + esc(p.name) + '">' + esc(p.name) + '</a><span class="spacer"></span>' + menu + "</header>" +
       '<main class="main solo" id="main"></main>';
     var btn = $app.querySelector("[data-more]"), pop = $app.querySelector(".more-pop");
     var closeMenu = function () { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); document.removeEventListener("click", outside); };
@@ -314,8 +310,8 @@
     btn.onclick = function () { var open = pop.hidden; pop.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) setTimeout(function () { document.addEventListener("click", outside); }); };
     pop.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(); });
     var main = document.getElementById("main");
-    var views = { mesa: viewMesa, visao: viewMesa, desbloquear: viewDesbloquear, ferramentas: function (m) { setObjective(null); viewDesbloquear(m); }, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewDesbloquear(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
-    if (tab === "visao") history.replaceState(null, "", base + "mesa");
+    var views = { mesa: viewMesa, visao: viewMesa, desbloquear: viewObjetivo, ferramentas: viewMesa, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewObjetivo(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    if (tab === "visao" || tab === "ferramentas") history.replaceState(null, "", base + "mesa");
     (views[tab] || viewMesa)(main, sub);
     window.scrollTo(0, 0);
   }
@@ -365,14 +361,14 @@
       var t = TOOL[id], n = (byTool[id] || []).length, st = isDone(id) ? "is-on" : wip[id] ? "is-wip" : "is-empty";
       var sub = n ? (n > 1 ? n + " artefatos" : "Concluído") : wip[id] === "done" ? "Concluído" : wip[id] ? "Em andamento" : id === rec ? "Comece aqui" : t.workspace ? "Área de trabalho" : "Disponível";
       return '<button class="obj ' + st + (fresh[id] ? " is-new" : "") + (id === rec && st === "is-empty" ? " is-reco" : "") + '" data-tool="' + id + '" title="' + esc(t.name + (t.blocker ? ": " + t.blocker : "")) + '">' +
-        '<span class="art ico">' + MESA.deskArt(id) + '</span><span class="tag"><b>' + esc(t.name) + "</b><small>" + sub + "</small></span>" + (st === "is-on" ? '<span class="tick" aria-label="concluído">✓</span>' : "") + "</button>";
+        '<span class="art ico">' + MESA.deskArt(id) + '</span><span class="tag"><b>“' + esc(t.blocker || t.name) + '”</b><small>' + esc(t.name) + " · " + sub + "</small></span>" + (st === "is-on" ? '<span class="tick" aria-label="concluído">✓</span>' : "") + "</button>";
     };
     var phases = MESA.PHASES.map(function (ph) {
       var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(isDone).length;
       return '<section class="pboard' + (ph.id === cur ? " is-cur" : "") + '" aria-label="Fase ' + ph.n + ": " + ph.name + '"><header><span class="pn">' + ph.n + '</span><div><h2>' + ph.name + ' <span class="muted">· ' + ph.pt + "</span></h2><p>" + esc(ph.goal) + '</p></div><div class="pscore"><b>' + n + "/" + ids.length + '</b><span class="xp"><i style="width:' + pct(n, ids.length) + '%"></i></span></div></header>' +
         ph.lenses.map(function (lid) {
           var ls = ids.filter(function (id) { return TOOL[id].lens === lid; });
-          return '<div class="drow' + (p.focus === lid ? " is-focus" : "") + '"><p class="lname">' + LENS[lid].name + (p.focus === lid ? " <em>foco</em>" : "") + '</p><div class="objs">' + ls.map(tile).join("") + "</div></div>";
+          return '<div class="drow' + (p.focus === lid ? " is-focus" : "") + '"><p class="lname">' + LENS[lid].name + (p.focus === lid ? " <em>foco</em>" : "") + '</p><div class="objs">' + ls.map(tile).join("") + (lid === "entender" ? '<a class="obj ' + (state.radar.length ? "is-on" : "is-empty") + '" href="#/p/' + p.id + '/radar"><span class="art ico">' + MESA.deskArt("mercado") + '</span><span class="tag"><b>“Quero saber o que está mudando no meu mercado”</b><small>Radar de sinais · ' + (state.radar.length ? state.radar.length + " sinais" : "Disponível") + "</small></span></a>" : "") + "</div></div>";
         }).join("") + "</section>";
     }).join("");
 
@@ -389,14 +385,11 @@
       onboardHtml() +
       '<div class="hud">' +
         '<div class="hcard hmain"><p class="label">Progresso do projeto</p><div class="hnum"><b>' + done.length + '</b><span>de ' + total + ' objetivos</span></div><span class="xp big"><i style="width:' + pct(done.length, total) + '%"></i></span><small>Fase atual: ' + MESA.PHASES.filter(function (x) { return x.id === cur; })[0].name + "</small></div>" +
-        '<a class="hcard" href="#/p/' + p.id + '/desbloquear"><p class="label">Base do negócio</p><div class="hnum"><b>' + base.filled + '</b><span>de ' + base.total + ' campos</span></div><span class="xp"><i style="width:' + pct(base.filled, base.total) + '%"></i></span><small>' + (base.filled < 6 ? "Complete para prompts mais precisos" : "Usada em todos os prompts") + "</small></a>" +
-        '<a class="hcard" href="#/p/' + p.id + '/quadro"><p class="label">Quadro</p><div class="hnum"><b>' + stat("hipotese", "aberto") + '</b><span>hipóteses abertas</span></div><small>' + stat("experimento", "testando") + " experimento(s) em teste · " + stat("hipotese", "validado") + " validada(s)</small></a>" +
-        '<a class="hcard" href="#/p/' + p.id + '/radar"><p class="label">Radar</p><div class="hnum"><b>' + state.radar.length + '</b><span>sinais salvos</span></div><small>' + (state.radar.length ? "Negócios, tendências e mudanças" : "Rode o radar para buscar sinais") + "</small></a>" +
+        '<a class="hcard" href="#/p/' + p.id + '/contexto"><p class="label">Base do negócio</p><div class="hnum"><b>' + base.filled + '</b><span>de ' + base.total + ' campos</span></div><span class="xp"><i style="width:' + pct(base.filled, base.total) + '%"></i></span><small>' + (base.filled < 6 ? "Complete para prompts mais precisos" : "Usada em todos os prompts") + "</small></a>" +
       "</div>" +
-      '<div class="dash"><div class="boards">' + phases + "</div>" +
+      '<div class="dash"><div class="boards"><div class="bq"><h2>O que está travando você?</h2><p class="muted">Escolha um bloqueio e leve um prompt pronto para a sua IA, com a base do seu negócio.</p></div>' + phases + "</div>" +
         '<aside class="dside">' +
           '<section class="mission"><p class="label">Próximo passo</p><div class="mrow"><span class="ico mi">' + (move.action.type === "tool" ? MESA.deskArt(move.action.id) : "") + "</span><b>" + esc(move.text) + '</b></div><a class="btn btn-accent btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></section>" +
-          '<section class="scard"><div class="scard-h"><h3>Quadro</h3><a class="small" href="#/p/' + p.id + '/quadro">Abrir →</a></div>' + (recent || '<p class="small muted">Registre hipóteses, experimentos e decisões do projeto.</p>') + '<button class="btn btn-line btn-sm" data-act="add-item">+ Hipótese</button></section>' +
           '<section class="scard"><div class="scard-h"><h3>Mentoria</h3></div><p class="small muted">' + (state.pedidos.length ? "Pedido enviado. Acompanhe na aba Mentoria." : "Leve os artefatos do projeto para uma conversa com o Miguel.") + '</p><a class="btn btn-line btn-sm" href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver pedidos" : "Falar com o Miguel") + "</a></section>" +
         "</aside></div>";
     var ob = main.querySelector("[data-onb-off]");
@@ -406,15 +399,8 @@
     if (isNew || !seenTour) { try { sessionStorage.removeItem("mesa-novo-" + p.id); localStorage.setItem("mesa-tour-v1", "1"); } catch (e) {} setTimeout(function () { welcome(rec); }, 350); }
     main.querySelectorAll("[data-act=mesa-focus]").forEach(function (b) { b.onclick = function () { setFocus(b.dataset.lens); viewMesa(main); }; });
 
-    main.querySelectorAll(".obj").forEach(function (el) {
-      el.onclick = function () {
-        var id = el.dataset.tool, t = TOOL[id], list = byTool[id] || [];
-        if (!list.length || t.workspace) return go("#/p/" + p.id + "/ferramenta/" + id);
-        if (list.length === 1) return go("#/p/" + p.id + "/artefato/" + list[0].id);
-        modal('<div class="obj-modal"><span class="art ico">' + MESA.deskArt(id) + "</span><div><p class=\"label\">" + esc(LENS[t.lens].name) + "</p><h2>" + esc(t.name) + "</h2></div></div>" +
-          '<div class="list" data-close style="margin:16px 0">' + list.map(artifactRow).join("") + "</div>" +
-          '<div class="row"><span class="spacer"></span><button class="btn btn-ghost" data-close>Fechar</button><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + id + '" data-close>Usar de novo</a></div>');
-      };
+    main.querySelectorAll("button.obj").forEach(function (el) {
+      el.onclick = function () { if (TOOL[el.dataset.tool]) go("#/p/" + p.id + "/ferramenta/" + el.dataset.tool); };
     });
     writeSeen(done);
   }
@@ -468,43 +454,26 @@
     var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/markdown;charset=utf-8" })); a.download = name;
     document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
-  function viewDesbloquear(main) {
+  function viewObjetivo(main) {
     var p = state.p, ctx = p.context = p.context || {};
     var objId = hashParam("objetivo"), t = objId && TOOL[objId] && !TOOL[objId].workspace ? TOOL[objId] : null;
-    if (objId && !t) setObjective(null);
+    if (!t) { history.replaceState(null, "", "#/p/" + p.id + "/mesa"); return viewMesa(main); }
     state.dInputs = state.dInputs || {};
     var baseFields = MESA.contextFields(p), cnt = MESA.baseFilledCount(p);
-    var openBase = cnt.filled < 4 || state.baseOpen;
 
     function fieldInput(f, val, attr) {
       if (f.options) return '<select class="select" ' + attr + ">" + f.options.map(function (o) { return '<option value="' + esc(o[0]) + '"' + ((val || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>";
       if (f.long) return '<textarea class="textarea" ' + attr + ' placeholder="' + esc(f.ph || "") + '">' + esc(val || "") + "</textarea>";
       return '<input class="input" ' + attr + ' placeholder="' + esc(f.ph || "") + '" value="' + esc(val || "") + '">';
     }
-    var projOpts = state.projects.length ? state.projects : [p];
-    if (!projOpts.some(function (x) { return x.id === p.id; })) projOpts = [p].concat(projOpts);
-    var step1 = '<section class="panel dstep" id="d-base"><div class="dstep-head"><span class="pn">1</span><div><h2>Base do negócio</h2><p class="muted">Preencha uma vez. Todos os prompts usam essas informações.</p></div></div>' +
-      '<div class="row d-proj"><label class="field" style="flex:1;min-width:220px"><span>Projeto</span><select class="select" id="d-proj">' + projOpts.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.id ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + '</select></label><button class="btn btn-line" data-act="new-project">Criar do zero</button></div>' +
-      '<details class="dbase"' + (openBase ? " open" : "") + '><summary><b id="d-count">' + cnt.filled + " de " + cnt.total + '</b> campos preenchidos <span class="ws-save" id="d-save"></span><span class="spacer"></span><span class="small dbase-toggle">' + (openBase ? "Recolher" : "Ver e editar") + "</span></summary>" +
-        baseFieldsHtml(p, "data-base") + "</details></section>";
-
-    var step2 = '<section class="panel dstep" id="d-obj"><div class="dstep-head"><span class="pn">2</span><div><h2>O que está travando você?</h2><p class="muted">Escolha o bloqueio. As três fases do Zero to First estão aqui, mas você pode começar por qualquer uma.</p></div></div>' +
-      MESA.PHASES.map(function (ph) {
-        var pr = phaseProgress(ph), cur = currentPhase() === ph.id || (t && LENS[t.lens].phase === ph.id);
-        return '<details class="dphase"' + (cur ? " open" : "") + '><summary><span class="pn">' + ph.n + '</span><span><b>' + ph.name + '</b> <span class="muted">· ' + ph.pt + '</span><small>' + esc(ph.goal) + '</small></span><span class="dprog">' + pr.done + "/" + pr.total + "</span></summary>" +
-          ph.lenses.map(function (lid) {
-            var ts = MESA.TOOLS.filter(function (x) { return x.lens === lid; });
-            return '<div class="dlens"><h4>' + LENS[lid].name + ' <span class="muted">· ' + esc(LENS[lid].q) + '</span></h4><div class="dblockers">' + ts.map(function (x) {
-              var st = toolState(x.id), on = t && t.id === x.id;
-              return '<button class="dblock' + (on ? " is-on" : "") + (st.k === "done" ? " is-done" : "") + '" data-obj="' + x.id + '"' + (on ? ' aria-pressed="true"' : "") + '><b>“' + esc(x.blocker || x.name) + '”</b><small>' + esc(x.name) + (x.workspace ? " · área de trabalho" : "") + (st.k !== "todo" ? " · " + st.label : "") + "</small></button>";
-            }).join("") + (lid === "entender" ? '<a class="dblock" href="#/p/' + p.id + '/radar"><b>“Quero saber o que está mudando no meu mercado”</b><small>Radar de sinais' + (state.radar.length ? " · " + state.radar.length + " sinais" : "") + "</small></a>" : "") + "</div></div>";
-          }).join("") + "</details>";
-      }).join("") + "</section>";
-
     var step3 = "";
     if (t) {
       var inputs = state.dInputs[t.id] = state.dInputs[t.id] || MESA.initialInputs(t, p);
-      step3 = '<section class="dstep d3" id="d-prompt"><div class="dstep-head"><span class="pn">3</span><div><p class="label">' + LENS[t.lens].name + " · " + esc(t.name) + '</p><h2>“' + esc(t.blocker) + '”</h2><p class="muted">' + esc(t.desc) + '</p></div></div><div class="tool">' +
+      var mine = state.artifacts.filter(function (a) { return a.tool_id === t.id; });
+      step3 = '<p class="small back"><a href="#/p/' + p.id + '/mesa">← Mesa</a></p>' +
+        '<header class="ohead"><p class="label">Fase ' + MESA.PHASES.filter(function (x) { return x.id === LENS[t.lens].phase; })[0].n + ' · ' + LENS[t.lens].name + ' · ' + esc(t.name) + '</p><h1>“' + esc(t.blocker) + '”</h1><p class="muted">' + esc(t.desc) + '</p>' +
+        '<a class="obase' + (cnt.filled < 4 ? ' is-low' : '') + '" href="#/p/' + p.id + '/contexto"><span>Base do negócio</span><b>' + cnt.filled + ' de ' + cnt.total + ' campos</b><em>' + (cnt.filled < 4 ? 'Complete para um prompt mais preciso' : 'Usada neste prompt') + ' · Editar</em></a></header>' +
+        '<section class="d3" id="d-prompt"><div class="tool">' +
         '<section class="panel"><div class="form">' + ((t.fields || []).length ? '<p class="label">Detalhes deste objetivo <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· opcionais</span></p>' : "") +
           (t.fields || []).map(function (f) {
             var base = f.fromBase ? baseFields.filter(function (b) { return b.id === f.fromBase; })[0] : null, ff = base ? Object.assign({}, base, f, { options: base.options, ph: f.ph || base.ph }) : f;
@@ -517,46 +486,19 @@
           '<p class="dmeta">Funciona no Claude, ChatGPT e Gemini · <span id="d-chars"></span> caracteres</p><pre id="prompt"></pre><div id="d-mentor"></div>' +
           '<div class="paste"><label class="label" for="answer">Resposta da IA</label><textarea class="textarea" id="answer" placeholder="Cole aqui a resposta. Ela vira um artefato do projeto e conclui o objetivo no painel."></textarea>' +
           '<div class="row"><input class="input" id="atitle" style="flex:1;min-width:180px" value="' + esc(t.name) + '" aria-label="Título do artefato"><button class="btn btn-accent" data-d="save">Salvar artefato</button></div></div>' +
-        "</section></div></section>";
+        "</section></div></section>" +
+        (mine.length ? '<section class="panel"><h2>Artefatos salvos</h2><div class="list" style="margin-top:12px">' + mine.map(artifactRow).join("") + "</div></section>" : "");
     }
-    var hist = '<section class="panel" id="d-hist"><div class="panel-head"><h2>Prompts gerados</h2></div><div id="d-hist-list" class="list" style="margin-top:12px"><p class="small muted">Carregando…</p></div></section>';
+    var hist = '<section class="panel" id="d-hist"><div class="panel-head"><h2>Prompts gerados para este objetivo</h2></div><div id="d-hist-list" class="list" style="margin-top:12px"><p class="small muted">Carregando…</p></div></section>';
 
-    main.innerHTML = head("Desbloquear", "Diga o que está travando o projeto e leve um prompt pronto para a sua IA, com o contexto do negócio e os melhores frameworks como base.") + step1 + step2 + step3 + hist;
-
-    /* passo 1: base */
-    var countEl = document.getElementById("d-count");
-    main.querySelectorAll("[data-base]").forEach(function (el) {
-      el.oninput = el.onchange = function () {
-        ctx[el.dataset.base] = el.value; saveContext();
-        var c = MESA.baseFilledCount(p); countEl.textContent = c.filled + " de " + c.total;
-        var sv = document.getElementById("d-save"); sv.textContent = "Salvando…"; sv.className = "ws-save";
-        clearTimeout(sv._t); sv._t = setTimeout(function () { sv.textContent = "Salvo"; sv.className = "ws-save ok"; }, 900);
-        if (t) refresh();
-      };
-    });
-    var det = main.querySelector(".dbase");
-    det.addEventListener("toggle", function () { state.baseOpen = det.open; det.querySelector(".dbase-toggle").textContent = det.open ? "Recolher" : "Ver e editar"; });
-    if (state.projects.length < 2) loadProjects().then(function () {
-      var sel = document.getElementById("d-proj"); if (!sel || state.projects.length < 2) return;
-      sel.innerHTML = state.projects.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.id ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("");
-    }).catch(function () {});
-    document.getElementById("d-proj").onchange = function (e) { flushContext(); go("#/p/" + e.target.value + "/desbloquear"); };
-
-    /* passo 2: objetivo */
-    main.querySelectorAll("[data-obj]").forEach(function (b) {
-      b.onclick = function () {
-        var x = TOOL[b.dataset.obj]; track("blocker_selected", { tool: x.id });
-        if (x.workspace) return go("#/p/" + p.id + "/ferramenta/" + x.id);
-        setObjective(x.id); viewDesbloquear(main);
-        var target = document.getElementById("d-prompt"); if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-      };
-    });
+    main.innerHTML = step3 + hist;
 
     /* histórico */
     function histRender() {
       var box = document.getElementById("d-hist-list"); if (!box) return;
       if (state.genOff) { box.innerHTML = '<p class="small muted">O histórico não está disponível agora.</p>'; return; }
-      box.innerHTML = state.generations.length ? state.generations.map(function (g) {
+      var gens = state.generations.filter(function (g) { return g.objective === t.id; });
+      box.innerHTML = gens.length ? gens.map(function (g) {
         var x = TOOL[g.objective];
         return '<div class="item dgen"><span style="flex:1;min-width:0"><span class="t">' + esc(x ? x.name : g.objective) + '</span><br><span class="meta">' + fmtDate(g.created_at) + " · " + g.prompt.length + ' caracteres</span></span><button class="btn btn-ghost btn-sm" data-g="ver" data-id="' + g.id + '">Ver</button><button class="btn btn-ghost btn-sm" data-g="copy" data-id="' + g.id + '">Copiar</button><button class="btn btn-ghost btn-sm" data-g="md" data-id="' + g.id + '">.md</button><button class="btn btn-ghost btn-sm btn-danger" data-g="del" data-id="' + g.id + '">Apagar</button></div>';
       }).join("") : '<p class="small muted">Os prompts que você copiar ou baixar ficam aqui, para usar de novo.</p>';
@@ -573,8 +515,7 @@
     }
     loadGenerations().then(histRender);
 
-    if (!t) return;
-    /* passo 3: prompt */
+    /* prompt */
     var pre = document.getElementById("prompt"), inputsNow = state.dInputs[t.id];
     function refresh() {
       var text = MESA.composePrompt(t, p, inputsNow); pre.textContent = text;
@@ -652,7 +593,7 @@
     var idx = MESA.TRACTION.indexOf(t), next = t.next && TOOL[t.next];
     var stepper = '<ol class="tmini" aria-label="Ferramentas da Fase 3">' + MESA.TRACTION.map(function (x) { var st = toolState(x.id); return '<li class="is-' + st.k + (x.id === toolId ? " is-cur" : "") + '"><a href="#/p/' + p.id + "/ferramenta/" + x.id + '" title="' + esc(x.n + ". " + x.name + " · " + st.label) + '"><span>' + x.n + "</span><b>" + esc(x.name) + "</b></a></li>"; }).join("") + "</ol>";
     var st = toolState(toolId);
-    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/desbloquear">← Desbloquear</a> <span class="muted">· Fase 3 · Traction · ferramenta ' + t.n + " de 7</span></p>" + stepper +
+    main.innerHTML = '<p class="small"><a href="#/p/' + p.id + '/mesa">← Mesa</a> <span class="muted">· Fase 3 · Traction · ferramenta ' + t.n + " de 7</span></p>" + stepper +
       '<div class="thead"><div><h1>' + esc(t.title) + '</h1><p class="tq"><span class="label">Pergunta central</span>' + esc(t.question) + '</p></div><div class="tstatus"><span class="chip" id="ws-status"></span><span class="ws-save" id="ws-save">' + (isNew ? "Nada salvo ainda" : "Salvo") + "</span></div></div>" +
       '<div class="ttabs" role="tablist">' + [["guia", "Guia"], ["trabalho", "Área de trabalho"], ["resultado", "Resultado"]].map(function (x) { return '<button role="tab" data-tab="' + x[0] + '" aria-selected="' + (tab === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div>" +
       '<div id="tbody"></div>';
@@ -736,7 +677,7 @@
           (w.status === "concluido" ? '<p class="small"><b>Concluída.</b> O entregável está na Mesa.</p><button class="btn btn-ghost btn-sm" data-reopen>Reabrir</button>' : '<button class="btn btn-primary" data-conclude' + (all ? "" : " disabled") + ">Marcar como concluída</button>" + (all ? "" : '<p class="small muted">Complete os itens acima na área de trabalho para concluir.</p>')) + "</section>" +
         '<section class="panel"><h2>Próxima ação</h2><p class="small muted">Sugestão: ' + esc(t.nextAction) + '</p><div class="fgrid"><label class="field span2"><span>Minha próxima ação, fora da ferramenta</span><input class="input" data-f="_acao" value="' + esc(d._acao || "") + '"></label><label class="field"><span>Até quando</span><input class="input" type="date" data-f="_acao_data" value="' + esc(d._acao_data || "") + '"></label></div></section>' +
         '<section class="panel next-step"><h2>Próxima etapa</h2>' + (next ? '<p><b>' + next.n + ". " + esc(next.name) + "</b> · " + esc(next.question) + '</p><p class="small muted">Vai reaproveitar o que você registrou aqui.</p><a class="btn btn-accent" href="#/p/' + p.id + "/ferramenta/" + next.id + '">Ir para ' + esc(next.name) + " →</a>" :
-          '<p>Você chegou ao fim da Fase 3. A partir daqui, a tração vira ciclo: mantenha a rotina de revisão, volte a First Customers e Traction Channels quando o roadmap pedir, e reveja Discovery e Validation se a evidência mudar.</p><a class="btn btn-line" href="#/p/' + p.id + '/desbloquear">Ver a jornada</a>') + "</section></div>";
+          '<p>Você chegou ao fim da Fase 3. A partir daqui, a tração vira ciclo: mantenha a rotina de revisão, volte a First Customers e Traction Channels quando o roadmap pedir, e reveja Discovery e Validation se a evidência mudar.</p><a class="btn btn-line" href="#/p/' + p.id + '/mesa">Voltar para a Mesa</a>') + "</section></div>";
     }
     function updateStatus() {
       var s2 = toolState(toolId), el = document.getElementById("ws-status"); if (!el) return;
@@ -800,11 +741,11 @@
   }
   function viewArtefatos(main) {
     var p = state.p;
-    main.innerHTML = head("Artefatos", "Tudo o que o projeto produziu: respostas das ferramentas e notas suas.", '<button class="btn btn-line" data-act="new-note">+ Nota</button><a class="btn btn-primary" href="#/p/' + p.id + '/desbloquear">Usar ferramenta</a>') +
+    main.innerHTML = head("Artefatos", "Tudo o que o projeto produziu: respostas das ferramentas e notas suas.", '<button class="btn btn-line" data-act="new-note">+ Nota</button><a class="btn btn-primary" href="#/p/' + p.id + '/mesa">Abrir a Mesa</a>') +
       (state.artifacts.length ? MESA.LENSES.concat([{ id: null, name: "Notas" }]).map(function (l) {
         var items = state.artifacts.filter(function (a) { return (a.stage || null) === l.id; });
         return items.length ? '<section class="panel"><h2>' + l.name + '</h2><div class="list" style="margin-top:12px">' + items.map(artifactRow).join("") + "</div></section>" : "";
-      }).join("") : '<div class="empty"><p>Nenhum artefato ainda.</p><a class="btn btn-accent" href="#/p/' + p.id + '/desbloquear">Escolher uma ferramenta</a></div>');
+      }).join("") : '<div class="empty"><p>Nenhum artefato ainda.</p><a class="btn btn-accent" href="#/p/' + p.id + '/mesa">Escolher um objetivo na Mesa</a></div>');
     main.querySelector("[data-act=new-note]").onclick = function () {
       sb.from("artifacts").insert({ project_id: p.id, title: "Nova nota", content: "" }).select().single().then(function (r) {
         if (r.error) return fail(r.error); state.artifacts.unshift(r.data); go("#/p/" + p.id + "/artefato/" + r.data.id + "?editar");
@@ -978,7 +919,7 @@
     else if (act === "new-project") newProjectModal();
     else if (act === "tfilter") { state.toolFilter = el.dataset.f; route(); }
     else if (act === "bfilter") { state.boardFilter = el.dataset.f; route(); }
-    else if (act === "lens") { setFocus(el.dataset.lens); state.toolFilter = el.dataset.lens; go("#/p/" + state.p.id + "/desbloquear"); }
+    else if (act === "lens") { setFocus(el.dataset.lens); state.toolFilter = el.dataset.lens; go("#/p/" + state.p.id + "/mesa"); }
     else if (act === "add-item") boardModal(null);
     else if (act === "edit-item") boardModal(state.board.filter(function (b) { return b.id === el.dataset.id; })[0]);
     else if (act === "pin" || act === "sig-del" || act === "sig-q") {

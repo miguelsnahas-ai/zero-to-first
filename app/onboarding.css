@@ -41,7 +41,7 @@
 .onb { margin-bottom: 18px; padding: 16px 18px; border-radius: var(--r); background: var(--white); border: 1.5px solid var(--ink); }
 .onb-head { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; margin-bottom: 12px; }
 .onb-head h2 { font-size: 20px; }
-.onb-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.onb-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 @media (max-width: 1180px) { .onb-list { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } }
 .onb-item { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; width: 100%; height: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); text-decoration: none; text-align: left; font: inherit; color: inherit; cursor: pointer; }
 a.onb-item:hover, button.onb-item:hover { border-color: var(--ink); }
