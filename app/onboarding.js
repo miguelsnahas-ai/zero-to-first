@@ -90,7 +90,7 @@ window.MESA = window.MESA || {};
     var tools = (artifacts || []).filter(function (a) { return a.tool_id; }).length + (workspaces || []).length;
     var recTool = rec && MESA.TOOLS.filter(function (t) { return t.id === rec; })[0];
     return [
-      { id: "contexto", label: "Complete o contexto do projeto", hint: filled + " de " + fields.length + " campos. Todas as ferramentas usam essas informações.", done: filled >= goal, href: "contexto" },
+      { id: "contexto", label: "Complete a base do negócio", hint: filled + " de " + fields.length + " campos. Todos os prompts usam essas informações.", done: filled >= goal, href: "contexto" },
       { id: "ferramenta", label: recTool ? "Use sua primeira ferramenta: " + recTool.name : "Use sua primeira ferramenta", hint: "Cada objetivo concluído desbloqueia um bloco no painel.", done: tools > 0, href: rec ? "ferramenta/" + rec : "desbloquear" },
       { id: "hipotese", label: "Registre sua aposta mais arriscada no quadro", hint: "O que precisa ser verdade para o projeto dar certo?", done: (board || []).some(function (b) { return b.kind === "hipotese"; }), act: "add-item" },
       { id: "radar", label: "Rode o radar de sinais", hint: "Referências e movimentos do mercado ligados ao projeto.", done: (radar || []).length > 0, href: "radar" },

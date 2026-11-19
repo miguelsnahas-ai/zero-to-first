@@ -52,3 +52,4 @@
 }
 .dstep { scroll-margin-top: calc(var(--top) + 16px); }
 @media (max-width: 1000px) { .dstep { scroll-margin-top: calc(var(--top) + 72px); } }
+a.dblock { display: block; text-decoration: none; color: inherit; }
