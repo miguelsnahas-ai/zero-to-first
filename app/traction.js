@@ -575,7 +575,7 @@ window.MESA = window.MESA || {};
   function ctxItem(c, id, label) {
     var v = c[id] || "";
     if (id === "tipo" && v) { var f = MESA.CONTEXT_FIELDS.filter(function (x) { return x.id === "tipo"; })[0]; (f.options || []).forEach(function (o) { if (o[0] === v) v = o[1]; }); }
-    return { label: label, value: v, origin: "Contexto do projeto", href: "contexto" };
+    return { label: label, value: v, origin: "Base do negócio", href: "contexto" };
   }
   function artItem(env, toolId) {
     var a = (env.artifacts || []).filter(function (x) { return x.tool_id === toolId; })[0], t = MESA.TOOLS.filter(function (x) { return x.id === toolId; })[0];

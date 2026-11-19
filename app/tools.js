@@ -64,6 +64,9 @@ MESA.CONTEXT_FIELDS = [
   { id: "org", label: "Contexto da organização", hint: "Para projetos de inovação em empresas: área, patrocinador, restrições.", ph: "Ex.: área de novos negócios; patrocínio da diretoria comercial; piloto de 90 dias", long: true, kind: "inovacao" }
 ];
 
+/* Os quatro campos que aparecem primeiro; os demais ficam em "Mais detalhes" */
+MESA.BASE_ESSENTIALS = ["ideia", "persona", "problema", "solucao"];
+
 /* Curadoria que embasa os prompts. Só fontes públicas; url apenas quando o endereço é conhecido. */
 MESA.MATERIALS = {
   pgIdeas: { name: "How to Get Startup Ideas (Paul Graham)", label: "Essencial · Ensaio", desc: "Boas ideias nascem de problemas que o próprio fundador e um grupo pequeno sentem com intensidade.", url: "https://paulgraham.com/startupideas.html", stage: "Entender" },

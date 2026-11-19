@@ -202,7 +202,7 @@
         (s.id === "evidencias" ? '<label class="field"><span>Sua aposta mais arriscada</span><small>O que precisa ser verdade para o projeto dar certo e ainda não foi provado? Vai direto para o quadro do projeto.</small><input class="input" data-wh="1" placeholder="Ex.: donas de clínica pagariam R$ 99/mês para não esquecer cobranças" value="' + esc(wz.hipotese) + '"></label>' : "");
       var st = MESA.STARTS.filter(function (x) { return x.id === wz.start; })[0] || MESA.STARTS[0], rec = TOOL[st.tool], n = filledCount(), tot = totalFields();
       return '<h2>Sua mesa está pronta</h2><div class="wdone"><div class="wmeter"><b>' + n + "/" + tot + '</b><span>campos de contexto</span><span class="pbar"><i style="width:' + Math.round(n / tot * 100) + '%"></i></span>' +
-        (n < 6 ? '<small class="muted">Dá para completar depois em Contexto. As ferramentas ficam mais precisas com pelo menos 6 campos.</small>' : '<small class="muted">Ótimo ponto de partida.</small>') + "</div>" +
+        (n < 6 ? '<small class="muted">Dá para completar depois na base do negócio. Os prompts ficam mais precisos com pelo menos 6 campos.</small>' : '<small class="muted">Ótimo ponto de partida.</small>') + "</div>" +
         '<div class="wrec"><span class="start-art">' + MESA.deskArt(rec.id) + '</span><div><p class="label">Primeiro objetivo sugerido</p><b>' + esc(rec.name) + "</b><p>" + esc(rec.desc) + "</p></div></div>" +
         (wz.hipotese ? '<p class="small">Sua aposta mais arriscada vai para o quadro como hipótese: <b>“' + esc(wz.hipotese) + '”</b></p>' : "") + "</div>";
     }
@@ -276,7 +276,7 @@
     var slides = [
       { art: '<span class="wel-arts">' + ["jtbd", "roteiro", "csd", "mvp"].map(MESA.deskArt).join("") + "</span>", t: "Este é o painel do seu projeto", d: "Cada objetivo concluído desbloqueia um bloco aqui. Você vê em que fase está, o que já foi feito e qual é o próximo passo sugerido." },
       { art: '<span class="wel-arts">' + MESA.PHASES.map(function (p) { return '<b class="pn">' + p.n + "</b>"; }).join("") + "</span>", t: "Três fases, uma decisão por vez", d: "Discovery, Validation e Traction. Não é uma trilha rígida: o próximo passo sugerido aparece no painel e você pode abrir qualquer objetivo pela tela Desbloquear." },
-      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pelo contexto", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro bloco do painel fica pronto." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
+      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pela base do negócio", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro bloco do painel fica pronto." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
     ];
     var i = 0;
     modal('<div class="welcome"></div>', function (box, close) {
@@ -292,27 +292,30 @@
   }
 
   /* ================= PROJETO ================= */
-  var TABS = [
-    { id: "mesa", name: "Mesa" },
-    { id: "visao", name: "Visão geral" },
-    { id: "desbloquear", name: "Desbloquear" },
-    { id: "artefatos", name: "Artefatos" },
-    { id: "quadro", name: "Quadro" },
-    { id: "radar", name: "Radar" },
-    { id: "mentoria", name: "Mentoria" },
-    { id: "contexto", name: "Contexto" }
-  ];
+  /* Três áreas: Mesa (painel), Desbloquear (trabalho) e Quadro (hipóteses). O resto fica no menu ··· */
+  var AREAS = [{ id: "mesa", name: "Mesa" }, { id: "desbloquear", name: "Desbloquear" }, { id: "quadro", name: "Quadro" }];
+  var AREA_OF = { mesa: "mesa", visao: "mesa", artefatos: "mesa", artefato: "mesa", desbloquear: "desbloquear", ferramentas: "desbloquear", ferramenta: "desbloquear", radar: "desbloquear", quadro: "quadro" };
   function renderProject(tab, sub) {
-    var p = state.p;
-    var cnt = { artefatos: state.artifacts.length, quadro: state.board.length, radar: state.radar.length };
-    var activeTab = tab === "ferramenta" || tab === "ferramentas" ? "desbloquear" : tab === "artefato" ? "artefatos" : tab;
-    var side = '<nav class="side" aria-label="Seções do projeto">' + TABS.map(function (t) {
-      return '<a href="#/p/' + p.id + "/" + t.id + '"' + (t.id === activeTab ? ' aria-current="page"' : "") + ">" + t.name + (cnt[t.id] ? '<span class="count">' + cnt[t.id] + "</span>" : "") + "</a>";
-    }).join("") + '<div class="sep"></div><div class="side-cta"><b>Precisa de um olhar de fora?</b><span class="muted">Peça feedback do Miguel sobre o projeto.</span><a class="btn btn-accent btn-sm" href="#/p/' + p.id + '/mentoria">Pedir mentoria</a></div></nav>';
-    $app.innerHTML = topbar('<a href="#/">Projetos</a><span>/</span><strong>' + esc(p.name) + "</strong>") +
-      '<div class="proj">' + side + '<main class="main" id="main"></main></div>';
+    var p = state.p, area = AREA_OF[tab] || "", base = "#/p/" + p.id + "/";
+    var seg = '<nav class="seg" aria-label="Áreas do projeto">' + AREAS.map(function (t) {
+      return '<a href="' + base + t.id + '"' + (t.id === area ? ' aria-current="page"' : "") + ">" + t.name + "</a>";
+    }).join("") + "</nav>";
+    var menu = '<div class="more"><button class="more-btn" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções" data-more>···</button><div class="more-pop" role="menu" hidden>' +
+      '<a role="menuitem" href="' + base + 'contexto">Projeto e base do negócio</a>' +
+      '<a role="menuitem" href="' + base + 'artefatos">Todos os artefatos</a>' +
+      '<a role="menuitem" href="' + base + 'radar">Radar de sinais</a>' +
+      '<a role="menuitem" href="' + base + 'mentoria">Falar com o Miguel</a>' +
+      '<hr><a role="menuitem" href="#/">Trocar de projeto</a><a role="menuitem" href="https://miguelsnahas-ai.github.io/">Site do Miguel</a><button role="menuitem" data-act="logout">Sair</button></div></div>';
+    $app.innerHTML = '<header class="topbar proj-top"><a class="brand" href="#/" title="Seus projetos">Mesa de Trabalho' + ast() + '</a><span class="pname" title="' + esc(p.name) + '">' + esc(p.name) + "</span>" + seg + menu + "</header>" +
+      '<main class="main solo" id="main"></main>';
+    var btn = $app.querySelector("[data-more]"), pop = $app.querySelector(".more-pop");
+    var closeMenu = function () { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); document.removeEventListener("click", outside); };
+    var outside = function (e) { if (!e.target.closest(".more")) closeMenu(); };
+    btn.onclick = function () { var open = pop.hidden; pop.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) setTimeout(function () { document.addEventListener("click", outside); }); };
+    pop.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(); });
     var main = document.getElementById("main");
-    var views = { mesa: viewMesa, visao: viewVisao, desbloquear: viewDesbloquear, ferramentas: function (m) { setObjective(null); viewDesbloquear(m); }, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewDesbloquear(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    var views = { mesa: viewMesa, visao: viewMesa, desbloquear: viewDesbloquear, ferramentas: function (m) { setObjective(null); viewDesbloquear(m); }, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewDesbloquear(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    if (tab === "visao") history.replaceState(null, "", base + "mesa");
     (views[tab] || viewMesa)(main, sub);
     window.scrollTo(0, 0);
   }
@@ -394,7 +397,7 @@
         '<aside class="dside">' +
           '<section class="mission"><p class="label">Próximo passo</p><div class="mrow"><span class="ico mi">' + (move.action.type === "tool" ? MESA.deskArt(move.action.id) : "") + "</span><b>" + esc(move.text) + '</b></div><a class="btn btn-accent btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></section>" +
           '<section class="scard"><div class="scard-h"><h3>Quadro</h3><a class="small" href="#/p/' + p.id + '/quadro">Abrir →</a></div>' + (recent || '<p class="small muted">Registre hipóteses, experimentos e decisões do projeto.</p>') + '<button class="btn btn-line btn-sm" data-act="add-item">+ Hipótese</button></section>' +
-          '<section class="scard"><div class="scard-h"><h3>Mentoria</h3></div><p class="small muted">' + (state.pedidos.length ? "Pedido enviado. Acompanhe na aba Mentoria." : "Leve os artefatos do projeto para uma conversa com o Miguel.") + '</p><a class="btn btn-line btn-sm" href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver pedidos" : "Pedir mentoria") + "</a></section>" +
+          '<section class="scard"><div class="scard-h"><h3>Mentoria</h3></div><p class="small muted">' + (state.pedidos.length ? "Pedido enviado. Acompanhe na aba Mentoria." : "Leve os artefatos do projeto para uma conversa com o Miguel.") + '</p><a class="btn btn-line btn-sm" href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver pedidos" : "Falar com o Miguel") + "</a></section>" +
         "</aside></div>";
     var ob = main.querySelector("[data-onb-off]");
     if (ob) ob.onclick = function () { p.context = p.context || {}; p.context._onb_off = true; saveContext(); main.querySelector(".onb").remove(); toast("Primeiros passos ocultos. O próximo passo continua no painel."); };
@@ -416,34 +419,6 @@
     writeSeen(done);
   }
 
-  /* ---------- Visão geral ---------- */
-  function viewVisao(main) {
-    var p = state.p, c = counts();
-    var moves = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces);
-    var radar = MESA.matchRadar(p, c, 3);
-    var lensBtn = function (l) {
-      var n = c[l.id] || 0, meter = "";
-      for (var i = 0; i < 4; i++) meter += "<i" + (i < Math.min(n, 4) ? ' class="on"' : "") + "></i>";
-      return '<button class="lens' + (p.focus === l.id ? " is-focus" : "") + '" data-act="lens" data-lens="' + l.id + '"><b>' + l.name + '</b><span class="q">' + l.q + '</span><span class="small muted">' + n + " artefato" + (n === 1 ? "" : "s") + '</span><span class="meter">' + meter + "</span></button>";
-    };
-    var lenses = MESA.PHASES.map(function (ph) { return '<div class="lens-phase" style="--n:' + ph.lenses.length + '"><p class="label">Fase ' + ph.n + " · " + ph.name + '</p><div class="lens-col">' + ph.lenses.map(function (id) { return lensBtn(LENS[id]); }).join("") + "</div></div>"; }).join("");
-    var recent = state.artifacts.slice(0, 4).map(artifactRow).join("");
-    var b = state.board;
-    var stat = function (k, st) { return b.filter(function (x) { return x.kind === k && (!st || x.status === st); }).length; };
-    main.innerHTML = head(esc(p.name), esc((p.context && p.context.ideia) || "Descreva a ideia no contexto do projeto."),
-        '<label class="row small"><span class="muted">Foco agora</span><select class="select" data-act="focus" style="width:auto">' + MESA.LENSES.map(function (l) { return '<option value="' + l.id + '"' + (p.focus === l.id ? " selected" : "") + ">" + l.name + "</option>"; }).join("") + "</select></label>") +
-      '<section class="panel"><div class="panel-head"><h2>Próximos movimentos</h2><span class="small muted">Sugestões a partir do estado do projeto</span></div><div class="moves">' +
-        moves.map(function (m) { return '<div class="move"><p>' + esc(m.text) + "</p>" + moveButton(m) + "</div>"; }).join("") + "</div></section>" +
-      '<section class="panel"><div class="panel-head"><h2>Mapa do método</h2><span class="small muted">Não é uma trilha: entre na lente que o projeto pede agora.</span></div><div class="lenses">' + lenses + "</div></section>" +
-      '<div class="cols-2"><section class="panel"><div class="panel-head"><h2>Quadro</h2><a class="small" href="#/p/' + p.id + '/quadro">Abrir quadro</a></div>' +
-        '<div class="row"><span class="chip k-hipotese">' + stat("hipotese") + ' hipóteses</span><span class="chip k-experimento">' + stat("experimento") + ' experimentos</span><span class="chip k-evidencia">' + stat("evidencia") + ' evidências</span><span class="chip k-decisao">' + stat("decisao") + " decisões</span></div>" +
-        '<p class="small muted" style="margin-top:12px">' + stat("hipotese", "validado") + " validada(s) · " + stat("hipotese", "refutado") + " refutada(s) · " + stat("experimento", "testando") + " experimento(s) em andamento</p></section>" +
-      '<section class="panel"><div class="panel-head"><h2>No radar</h2><a class="small" href="#/p/' + p.id + '/radar">Abrir radar</a></div><div class="list">' +
-        radar.map(function (r) { return '<div class="item"><span class="chip">' + esc(r.item.type) + '</span><span class="t">' + esc(r.item.t) + "</span></div>"; }).join("") + "</div></section></div>" +
-      '<section class="panel"><div class="panel-head"><h2>Artefatos recentes</h2><a class="small" href="#/p/' + p.id + '/desbloquear">+ Usar uma ferramenta</a></div>' +
-        (recent ? '<div class="list">' + recent + "</div>" : '<p class="muted">Nenhum artefato ainda. Escolha uma ferramenta para começar.</p>') + "</section>";
-    main.querySelector("[data-act=focus]").onchange = function (e) { setFocus(e.target.value); };
-  }
   function setFocus(lens) {
     state.p.focus = lens;
     sb.from("projects").update({ focus: lens }).eq("id", state.p.id).then(function (r) { if (r.error) fail(r.error); });
@@ -460,6 +435,21 @@
   function phaseTools(ph) { return MESA.TOOLS.filter(function (t) { return LENS[t.lens] && LENS[t.lens].phase === ph.id; }); }
   function phaseProgress(ph) { var ts = phaseTools(ph), d = ts.filter(function (t) { return toolState(t.id).k === "done"; }).length; return { done: d, total: ts.length }; }
   function currentPhase() { var l = LENS[state.p.focus]; return (l && l.phase) || "discovery"; }
+  /* Base do negócio: quatro campos essenciais e o resto em "Mais detalhes" */
+  function baseInput(f, val, attr) {
+    if (f.options) return '<select class="select" ' + attr + ">" + f.options.map(function (o) { return '<option value="' + esc(o[0]) + '"' + ((val || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select>";
+    if (f.long) return '<textarea class="textarea" rows="2" ' + attr + ' placeholder="' + esc(f.ph || "") + '">' + esc(val || "") + "</textarea>";
+    return '<input class="input" ' + attr + ' placeholder="' + esc(f.ph || "") + '" value="' + esc(val || "") + '">';
+  }
+  function baseFieldsHtml(p, dataAttr) {
+    var ctx = p.context || {}, fields = MESA.contextFields(p);
+    var one = function (f) { return '<label class="field' + (f.long ? " wide" : "") + '"><span>' + esc(f.label) + "</span><small>" + esc(f.hint || "") + "</small>" + baseInput(f, ctx[f.id], dataAttr + '="' + f.id + '"') + "</label>"; };
+    var ess = fields.filter(function (f) { return MESA.BASE_ESSENTIALS.indexOf(f.id) !== -1; }), rest = fields.filter(function (f) { return MESA.BASE_ESSENTIALS.indexOf(f.id) === -1; });
+    var restFilled = rest.filter(function (f) { return String(ctx[f.id] || "").trim(); }).length;
+    return '<div class="bgrid">' + ess.map(one).join("") + "</div>" +
+      '<details class="bmore"' + (restFilled ? " open" : "") + '><summary>Mais detalhes <span class="muted">· preço, mercado, evidências, links' + (restFilled ? " · " + restFilled + " preenchido" + (restFilled > 1 ? "s" : "") : "") + '</span></summary><div class="bgrid">' + rest.map(one).join("") + "</div></details>";
+  }
+
   /* ---------- Desbloquear: base do negócio → bloqueio → prompt pronto ---------- */
   function hashParam(name) { var q = (location.hash.split("?")[1]) || ""; return new URLSearchParams(q).get(name); }
   function setObjective(id) {
@@ -496,7 +486,7 @@
     var step1 = '<section class="panel dstep" id="d-base"><div class="dstep-head"><span class="pn">1</span><div><h2>Base do negócio</h2><p class="muted">Preencha uma vez. Todos os prompts usam essas informações.</p></div></div>' +
       '<div class="row d-proj"><label class="field" style="flex:1;min-width:220px"><span>Projeto</span><select class="select" id="d-proj">' + projOpts.map(function (x) { return '<option value="' + x.id + '"' + (x.id === p.id ? " selected" : "") + ">" + esc(x.name) + "</option>"; }).join("") + '</select></label><button class="btn btn-line" data-act="new-project">Criar do zero</button></div>' +
       '<details class="dbase"' + (openBase ? " open" : "") + '><summary><b id="d-count">' + cnt.filled + " de " + cnt.total + '</b> campos preenchidos <span class="ws-save" id="d-save"></span><span class="spacer"></span><span class="small dbase-toggle">' + (openBase ? "Recolher" : "Ver e editar") + "</span></summary>" +
-        '<div class="fgrid">' + baseFields.map(function (f) { return '<label class="field' + (f.long ? " wide" : "") + '"><span>' + esc(f.label) + "</span><small>" + esc(f.hint || "") + "</small>" + fieldInput(f, ctx[f.id], 'data-base="' + f.id + '"') + "</label>"; }).join("") + "</div></details></section>";
+        baseFieldsHtml(p, "data-base") + "</details></section>";
 
     var step2 = '<section class="panel dstep" id="d-obj"><div class="dstep-head"><span class="pn">2</span><div><h2>O que está travando você?</h2><p class="muted">Escolha o bloqueio. As três fases do Zero to First estão aqui, mas você pode começar por qualquer uma.</p></div></div>' +
       MESA.PHASES.map(function (ph) {
@@ -507,7 +497,7 @@
             return '<div class="dlens"><h4>' + LENS[lid].name + ' <span class="muted">· ' + esc(LENS[lid].q) + '</span></h4><div class="dblockers">' + ts.map(function (x) {
               var st = toolState(x.id), on = t && t.id === x.id;
               return '<button class="dblock' + (on ? " is-on" : "") + (st.k === "done" ? " is-done" : "") + '" data-obj="' + x.id + '"' + (on ? ' aria-pressed="true"' : "") + '><b>“' + esc(x.blocker || x.name) + '”</b><small>' + esc(x.name) + (x.workspace ? " · área de trabalho" : "") + (st.k !== "todo" ? " · " + st.label : "") + "</small></button>";
-            }).join("") + "</div></div>";
+            }).join("") + (lid === "entender" ? '<a class="dblock" href="#/p/' + p.id + '/radar"><b>“Quero saber o que está mudando no meu mercado”</b><small>Radar de sinais' + (state.radar.length ? " · " + state.radar.length + " sinais" : "") + "</small></a>" : "") + "</div></div>";
           }).join("") + "</details>";
       }).join("") + "</section>";
 
@@ -959,14 +949,11 @@
   function viewContexto(main) {
     var p = state.p, ctx = p.context = p.context || {};
     var fields = MESA.CONTEXT_FIELDS.filter(function (f) { return !f.kind || f.kind === p.kind; });
-    main.innerHTML = head("Contexto do projeto", "Preencha uma vez: todas as ferramentas usam essas informações. Salva automaticamente.") +
+    main.innerHTML = head("Projeto e base do negócio", "Preencha uma vez: todos os prompts usam essas informações. Salva automaticamente.") +
       '<section class="panel"><div class="form">' +
         '<div class="row"><label class="field" style="flex:2;min-width:220px"><span>Nome do projeto</span><input class="input" id="pname" maxlength="120" value="' + esc(p.name) + '"></label>' +
         '<label class="field" style="flex:1;min-width:200px"><span>Tipo</span><select class="select" id="pkind"><option value="empreendedor"' + (p.kind === "empreendedor" ? " selected" : "") + '>Projeto empreendedor</option><option value="inovacao"' + (p.kind === "inovacao" ? " selected" : "") + ">Inovação em uma organização</option></select></label></div>" +
-        fields.map(function (f) {
-          if (f.options) return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint) + '</small><select class="select" data-ctx="' + f.id + '">' + f.options.map(function (o) { return '<option value="' + o[0] + '"' + ((ctx[f.id] || "") === o[0] ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join("") + "</select></label>";
-          return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint) + "</small>" + (f.long ? '<textarea class="textarea" data-ctx="' + f.id + '" placeholder="' + esc(f.ph) + '">' + esc(ctx[f.id] || "") + "</textarea>" : '<input class="input" data-ctx="' + f.id + '" placeholder="' + esc(f.ph) + '" value="' + esc(ctx[f.id] || "") + '">') + "</label>";
-        }).join("") +
+        baseFieldsHtml(p, "data-ctx") +
       '</div></section><section class="panel"><h2>Zona de perigo</h2><p class="small muted" style="margin:6px 0 12px">Excluir o projeto apaga artefatos, quadro, radar e pedidos de mentoria.</p><button class="btn btn-line btn-danger" data-act="del-project">Excluir projeto</button></section>';
     main.querySelectorAll("[data-ctx]").forEach(function (el) { el.oninput = el.onchange = function () { ctx[el.dataset.ctx] = el.value; saveContext(); }; });
     var saveMeta = debounce(function () {
