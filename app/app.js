@@ -99,6 +99,7 @@
     ready.then(function () { renderProject(tab, sub); }).catch(function (e) { fail(e); go("#/"); });
   }
   window.addEventListener("hashchange", function () { flushContext(); flushWorkspace(); route(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !document.querySelector(".modal") && document.body.classList.contains("sheet-open")) closeSheet(); });
 
   /* ---------------- topo ---------------- */
   function topbar(crumb) {
@@ -293,28 +294,56 @@
 
   /* ================= PROJETO ================= */
   /* Uma tela principal: a Mesa. Cada bloqueio abre o seu objetivo. O resto fica no menu ··· */
+  /* Tela única: a Mesa fica sempre ao fundo e todo o resto abre num painel por cima dela */
+  var SHEET_TITLE = { desbloquear: "Objetivo", ferramenta: "Objetivo", artefatos: "Artefatos", artefato: "Artefato", quadro: "Quadro", radar: "Radar de sinais", mentoria: "Falar com o Miguel", contexto: "Base do negócio" };
+  function scroller(el) { var b = el && el.closest && el.closest(".sheet-body"); return b || null; }
+  function getScroll(el) { var b = scroller(el); return b ? b.scrollTop : window.scrollY; }
+  function setScroll(el, y) { var b = scroller(el); if (b) b.scrollTop = y; else window.scrollTo(0, y); }
+  function closeSheet() { location.hash = "#/p/" + state.p.id + "/mesa"; }
   function renderProject(tab, sub) {
     var p = state.p, base = "#/p/" + p.id + "/";
-    var menu = '<div class="more"><button class="more-btn" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções" data-more>···</button><div class="more-pop" role="menu" hidden>' +
-      '<a role="menuitem" href="' + base + 'mesa">Mesa</a>' +
-      '<a role="menuitem" href="' + base + 'contexto">Base do negócio</a>' +
-      '<a role="menuitem" href="' + base + 'artefatos">Artefatos</a>' +
-      '<a role="menuitem" href="' + base + 'radar">Radar de sinais</a>' +
-      '<a role="menuitem" href="' + base + 'mentoria">Falar com o Miguel</a>' +
-      '<hr><a role="menuitem" href="#/">Trocar de projeto</a><a role="menuitem" href="https://miguelsnahas-ai.github.io/">Site do Miguel</a><button role="menuitem" data-act="logout">Sair</button></div></div>';
-    $app.innerHTML = '<header class="topbar proj-top"><a class="brand" href="#/" title="Seus projetos">Mesa de Trabalho' + ast() + '</a><a class="pname" href="' + base + 'mesa" title="' + esc(p.name) + '">' + esc(p.name) + '</a><span class="spacer"></span>' + menu + "</header>" +
-      '<main class="main solo" id="main"></main>';
-    var btn = $app.querySelector("[data-more]"), pop = $app.querySelector(".more-pop");
-    var closeMenu = function () { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); document.removeEventListener("click", outside); };
-    var outside = function (e) { if (!e.target.closest(".more")) closeMenu(); };
-    btn.onclick = function () { var open = pop.hidden; pop.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) setTimeout(function () { document.addEventListener("click", outside); }); };
-    pop.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(); });
-    var main = document.getElementById("main");
-    var views = { mesa: viewMesa, visao: viewMesa, desbloquear: viewObjetivo, ferramentas: viewMesa, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewObjetivo(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
-    if (tab === "visao" || tab === "ferramentas") history.replaceState(null, "", base + "mesa");
-    (views[tab] || viewMesa)(main, sub);
-    window.scrollTo(0, 0);
+    if (tab === "visao" || tab === "ferramentas" || !tab) { history.replaceState(null, "", base + "mesa"); tab = "mesa"; }
+    var fresh = state.shellFor !== p.id || !document.getElementById("main");
+    if (fresh) {
+      var menu = '<div class="more"><button class="more-btn" aria-haspopup="true" aria-expanded="false" aria-label="Mais opções" data-more>···</button><div class="more-pop" role="menu" hidden>' +
+        '<a role="menuitem" href="' + base + 'contexto">Base do negócio</a>' +
+        '<a role="menuitem" href="' + base + 'artefatos">Artefatos</a>' +
+        '<a role="menuitem" href="' + base + 'radar">Radar de sinais</a>' +
+        '<a role="menuitem" href="' + base + 'mentoria">Falar com o Miguel</a>' +
+        '<hr><a role="menuitem" href="#/">Trocar de projeto</a><a role="menuitem" href="https://miguelsnahas-ai.github.io/">Site do Miguel</a><button role="menuitem" data-act="logout">Sair</button></div></div>';
+      $app.innerHTML = '<header class="topbar proj-top"><a class="brand" href="#/" title="Seus projetos">Mesa de Trabalho' + ast() + '</a><a class="pname" href="' + base + 'mesa" title="' + esc(p.name) + '">' + esc(p.name) + '</a><span class="spacer"></span>' + menu + "</header>" +
+        '<main class="main solo" id="main"></main>' +
+        '<div class="sheet" id="sheet" hidden><div class="sheet-backdrop" data-sheet-close></div><section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title"><header class="sheet-head"><p id="sheet-title"></p><button class="sheet-x" data-sheet-close aria-label="Fechar">×</button></header><div class="sheet-body" id="sheet-body"></div></section></div>';
+      state.shellFor = p.id; state.mesaDirty = true;
+      var btn = $app.querySelector("[data-more]"), pop = $app.querySelector(".more-pop");
+      var closeMenu = function () { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); document.removeEventListener("click", outside); };
+      var outside = function (e) { if (!e.target.closest(".more")) closeMenu(); };
+      btn.onclick = function () { var open = pop.hidden; pop.hidden = !open; btn.setAttribute("aria-expanded", String(open)); if (open) setTimeout(function () { document.addEventListener("click", outside); }); };
+      pop.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(); });
+      $app.querySelectorAll("[data-sheet-close]").forEach(function (el) { el.onclick = closeSheet; });
+    }
+    var main = document.getElementById("main"), sheet = document.getElementById("sheet"), body = document.getElementById("sheet-body");
+    if (tab === "mesa") {
+      var y = window.scrollY;
+      sheet.hidden = true; document.body.classList.remove("sheet-open"); body.innerHTML = "";
+      viewMesa(main); state.mesaDirty = false;
+      if (!fresh) window.scrollTo(0, y); else window.scrollTo(0, 0);
+      return;
+    }
+    if (state.mesaDirty) { viewMesa(main); state.mesaDirty = false; }
+    var views = { desbloquear: viewObjetivo, ferramenta: function (m, id) { if (TOOL[id] && TOOL[id].workspace) return viewTraction(m, id); setObjective(TOOL[id] ? id : null); viewObjetivo(m); }, artefatos: viewArtefatos, artefato: viewArtefato, quadro: viewQuadro, radar: viewRadar, mentoria: viewMentoria, contexto: viewContexto };
+    if (!views[tab]) { history.replaceState(null, "", base + "mesa"); return renderProject("mesa"); }
+    document.getElementById("sheet-title").textContent = tab === "ferramenta" && TOOL[sub] && TOOL[sub].workspace ? "Tração · área de trabalho" : (SHEET_TITLE[tab] || "");
+    sheet.hidden = false; document.body.classList.add("sheet-open");
+    body.innerHTML = "";
+    var inner = document.createElement("div"); inner.className = "sheet-inner"; body.appendChild(inner);
+    views[tab](inner, sub);
+    if (!document.getElementById("main")) return; /* uma view pode ter redirecionado para a Mesa */
+    if (sheet.hidden) return;
+    body.scrollTop = 0;
+    var x = sheet.querySelector(".sheet-x"); if (x && !sheet.contains(document.activeElement)) x.focus({ preventScroll: true });
   }
+
 
   function head(title, desc, actions) {
     return '<div class="main-head"><div><h1>' + title + "</h1>" + (desc ? "<p>" + desc + "</p>" : "") + "</div>" + (actions ? '<div class="row">' + actions + "</div>" : "") + "</div>";
@@ -457,7 +486,7 @@
   function viewObjetivo(main) {
     var p = state.p, ctx = p.context = p.context || {};
     var objId = hashParam("objetivo"), t = objId && TOOL[objId] && !TOOL[objId].workspace ? TOOL[objId] : null;
-    if (!t) { history.replaceState(null, "", "#/p/" + p.id + "/mesa"); return viewMesa(main); }
+    if (!t) return closeSheet();
     state.dInputs = state.dInputs || {};
     var baseFields = MESA.contextFields(p), cnt = MESA.baseFilledCount(p);
 
@@ -695,7 +724,7 @@
       body.querySelectorAll("[data-comp]").forEach(function (el) { var k = el.dataset.comp.split(":"), s = t.sections.filter(function (x) { return x.id === k[0]; })[0], c = s.columns.filter(function (x) { return x.id === k[2]; })[0]; el.textContent = c.computed(MESA.util.rows(d, k[0])[+k[1]] || {}); });
     }
     function changed() { saveWorkspace(w); refreshPanels(); updateStatus(); }
-    function rerender() { var y = window.scrollY; render(); window.scrollTo(0, y); }
+    function rerender() { var y = getScroll(main); render(); setScroll(main, y); }
     function onInput(e) {
       var el = e.target, ds = el.dataset;
       if (ds.f) { d[ds.f] = el.value; changed(); }
@@ -711,7 +740,7 @@
     main.addEventListener("click", function (e) {
       var b = e.target.closest("button, [data-tab]"); if (!b) return;
       var ds = b.dataset;
-      if (ds.tab) { tab = state.tTab[toolId] = ds.tab; render(); window.scrollTo(0, main.querySelector(".ttabs").offsetTop - 70); }
+      if (ds.tab) { tab = state.tTab[toolId] = ds.tab; render(); setScroll(main, main.querySelector(".ttabs").offsetTop - 70); }
       else if (ds.add) { d[ds.add] = MESA.util.rows(d, ds.add).concat([{ _id: MESA.util.uid() }]); saveWorkspace(w); rerender(); var rs = body.querySelectorAll('[data-l="' + ds.add + '"]'); if (rs.length) { var last = body.querySelector('[data-l="' + ds.add + '"][data-r="' + (d[ds.add].length - 1) + '"]'); if (last) last.focus(); } }
       else if (ds.del) { var row = MESA.util.rows(d, ds.del)[+ds.r] || {}; if (Object.keys(row).some(function (k) { return k !== "_id" && MESA.util.filled(row[k]); }) && !confirm("Remover esta linha?")) return; d[ds.del].splice(+ds.r, 1); saveWorkspace(w); rerender(); }
       else if (ds.action) { var msg = MESA.TRACTION_ACTIONS[ds.action](d, env()); saveWorkspace(w); rerender(); toast(msg); }
