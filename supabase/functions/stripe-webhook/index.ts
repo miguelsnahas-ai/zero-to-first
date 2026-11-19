@@ -1,12 +1,12 @@
 // Webhook do Stripe: registra a compra da Mesa de Trabalho na tabela entitlements.
 // Publicar:  supabase functions deploy stripe-webhook --no-verify-jwt
-// Segredos:  supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=...
+// Segredo:   STRIPE_WEBHOOK_SECRET (o "Signing secret" do endpoint no Stripe). A chave da API não é necessária.
 // No Stripe:  Developers > Webhooks > endpoint https://<projeto>.supabase.co/functions/v1/stripe-webhook
 //             evento checkout.session.completed
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "", { apiVersion: "2024-06-20", httpClient: Stripe.createFetchHttpClient() });
+const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "sk_unused_only_verifies_signatures", { apiVersion: "2024-06-20", httpClient: Stripe.createFetchHttpClient() });
 const db = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
 
 Deno.serve(async (req) => {
