@@ -175,7 +175,7 @@
   function newProjectModal() {
     var wz = { name: "", kind: "empreendedor", start: "", ctx: {}, hipotese: "" }, step = 0;
     var FIELD = {}; MESA.CONTEXT_FIELDS.forEach(function (f) { FIELD[f.id] = f; });
-    var STEPS = [{ title: "Começo" }, { title: "Momento" }].concat(MESA.WIZARD_STEPS).concat([{ title: "Pronto" }]);
+    var STEPS = [{ title: "Começo" }]; /* começo rápido: o resto da base é preenchido dentro de cada objetivo */
     function fieldHtml(id) {
       var f = FIELD[id]; if (!f || (f.kind && f.kind !== wz.kind)) return "";
       var v = wz.ctx[id] || "", a = 'data-w="' + id + '" placeholder="' + esc(f.ph || "") + '"';
@@ -187,7 +187,7 @@
     function totalFields() { return MESA.CONTEXT_FIELDS.filter(function (f) { return !f.kind || f.kind === wz.kind; }).length; }
     function body() {
       var s = STEPS[step];
-      if (step === 0) return '<h2>Novo projeto</h2><p class="muted">Quanto mais contexto agora, melhores ficam as ferramentas, os prompts e as sugestões da mesa. Tudo pode ser editado depois.</p>' +
+      if (step === 0) return '<h2>Novo projeto</h2><p class="muted">Só o essencial para começar. O resto da base do negócio você completa quando precisar, dentro de cada objetivo.</p>' +
         '<label class="field"><span>Nome do projeto</span><input class="input" data-wn="name" maxlength="120" placeholder="Ex.: Caixa da Clínica" value="' + esc(wz.name) + '"></label>' +
         '<div class="field"><span>Tipo</span><div class="seg wseg" role="radiogroup" aria-label="Tipo de projeto"><button type="button" role="radio" data-kind="empreendedor" aria-checked="' + (wz.kind === "empreendedor") + '">Projeto empreendedor</button><button type="button" role="radio" data-kind="inovacao" aria-checked="' + (wz.kind === "inovacao") + '">Inovação em uma organização</button></div></div>' +
         fieldHtml("ideia") +
@@ -211,9 +211,9 @@
       var last = step === STEPS.length - 1;
       return '<div class="wnav">' + (step ? '<button type="button" class="btn btn-ghost" data-wact="back">Voltar</button>' : '<button type="button" class="btn btn-ghost" data-close>Cancelar</button>') + '<span class="spacer"></span>' +
         (step >= 1 && !last ? '<button type="button" class="btn btn-ghost" data-wact="create">Criar agora e completar depois</button>' : "") +
-        (last ? '<button type="button" class="btn btn-accent" data-wact="create">Criar projeto e abrir a mesa</button>' : '<button type="button" class="btn btn-primary" data-wact="next">' + (step === 0 ? "Continuar" : "Próximo") + "</button>") + "</div>";
+        (last ? '<button type="button" class="btn btn-accent" data-wact="create">Criar e abrir a Mesa</button>' : '<button type="button" class="btn btn-primary" data-wact="next">' + (step === 0 ? "Continuar" : "Próximo") + "</button>") + "</div>";
     }
-    modal('<div class="wizard"><ol class="wsteps">' + STEPS.map(function (s, i) { return "<li data-i=\"" + i + "\">" + esc(s.short || s.title) + "</li>"; }).join("") + '</ol><div class="wbody"></div><div class="wfoot"></div></div>', function (box, close) {
+    modal('<div class="wizard"><ol class="wsteps"' + (STEPS.length < 2 ? " hidden" : "") + '>' + STEPS.map(function (s, i) { return "<li data-i=\"" + i + "\">" + esc(s.short || s.title) + "</li>"; }).join("") + '</ol><div class="wbody"></div><div class="wfoot"></div></div>', function (box, close) {
       box.classList.add("wide");
       var b = box.querySelector(".wbody"), foot = box.querySelector(".wfoot");
       function collect() {
@@ -264,7 +264,7 @@
           if (!keys.length) return toast("Não encontrei campos na resposta. Confira se ela veio no formato “Campo: valor”.");
           collect(); if (got.hipotese) { wz.hipotese = wz.hipotese || got.hipotese; delete got.hipotese; }
           Object.keys(got).forEach(function (k) { if (FIELD[k] && !wz.ctx[k]) wz.ctx[k] = got[k]; });
-          wz.imported = true; wz.importOpen = false; render(); toast(keys.length + " campo(s) preenchido(s). Revise nas próximas etapas."); track("project_context_imported", { n: keys.length });
+          wz.imported = true; wz.importOpen = false; render(); toast(keys.length + " campo(s) preenchido(s). Eles vão para a base do negócio."); track("project_context_imported", { n: keys.length });
         }
       });
       box.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); var nx = box.querySelector('[data-wact="next"]') || box.querySelector('[data-wact="create"]'); if (nx) nx.click(); } });
@@ -272,25 +272,7 @@
     }, { sticky: true });
   }
 
-  /* ---------- Boas-vindas na mesa (primeira visita) ---------- */
-  function welcome(rec) {
-    var slides = [
-      { art: '<span class="wel-arts">' + ["jtbd", "roteiro", "csd", "mvp"].map(MESA.deskArt).join("") + "</span>", t: "Este é o painel do seu projeto", d: "Cada objetivo concluído desbloqueia um bloco aqui. Você vê em que fase está, o que já foi feito e qual é o próximo passo sugerido." },
-      { art: '<span class="wel-arts">' + MESA.PHASES.map(function (p) { return '<b class="pn">' + p.n + "</b>"; }).join("") + "</span>", t: "Três fases, uma decisão por vez", d: "Discovery, Validation e Traction. Não é uma trilha rígida: o próximo passo sugerido aparece no painel e você pode abrir qualquer objetivo pela tela Desbloquear." },
-      { art: '<span class="wel-arts one">' + (rec ? MESA.deskArt(rec) : "") + "</span>", t: rec ? "Comece por " + TOOL[rec].name : "Comece pela base do negócio", d: rec ? TOOL[rec].desc + " Em poucos minutos, o primeiro bloco do painel fica pronto." : "Preencha o contexto do projeto: todas as ferramentas usam essas informações." }
-    ];
-    var i = 0;
-    modal('<div class="welcome"></div>', function (box, close) {
-      var el = box.querySelector(".welcome");
-      function render() {
-        var s = slides[i];
-        el.innerHTML = '<div class="wel-art">' + s.art + "</div><h2>" + esc(s.t) + "</h2><p>" + esc(s.d) + '</p><div class="wel-dots">' + slides.map(function (x, k) { return "<i" + (k === i ? ' class="on"' : "") + "></i>"; }).join("") + '</div><div class="wnav"><button type="button" class="btn btn-ghost" data-close>Pular</button><span class="spacer"></span>' +
-          (i < slides.length - 1 ? '<button type="button" class="btn btn-primary" data-wel="next">Próximo</button>' : (rec ? '<a class="btn btn-accent" data-close href="#/p/' + state.p.id + "/ferramenta/" + rec + '">Abrir ' + esc(TOOL[rec].name) + " →</a>" : '<a class="btn btn-accent" data-close href="#/p/' + state.p.id + '/contexto">Preencher o contexto →</a>')) + "</div>";
-      }
-      el.addEventListener("click", function (e) { if (e.target.closest('[data-wel="next"]')) { i++; render(); } });
-      render();
-    });
-  }
+
 
   /* ================= PROJETO ================= */
   /* Uma tela principal: a Mesa. Cada bloqueio abre o seu objetivo. O resto fica no menu ··· */
@@ -358,18 +340,7 @@
   function seenKey() { return "mesa-vista-" + state.p.id; }
   function readSeen() { try { return JSON.parse(localStorage.getItem(seenKey()) || "null"); } catch (e) { return null; } }
   function writeSeen(ids) { try { localStorage.setItem(seenKey(), JSON.stringify(ids)); } catch (e) {} }
-  function onboardHtml() {
-    var p = state.p; if ((p.context || {})._onb_off) return "";
-    var steps = MESA.firstSteps(p, state.artifacts, state.board, state.radar, state.workspaces), done = steps.filter(function (x) { return x.done; }).length;
-    if (done === steps.length) return "";
-    var next = steps.filter(function (x) { return !x.done; })[0];
-    return '<section class="onb" aria-label="Primeiros passos"><div class="onb-head"><div><p class="label">Primeiros passos</p><h2>' + done + " de " + steps.length + ' feitos</h2></div><span class="pbar"><i style="width:' + Math.round(done / steps.length * 100) + '%"></i></span><button class="btn btn-ghost btn-sm" data-onb-off>Ocultar</button></div><ol class="onb-list">' +
-      steps.map(function (x) {
-        var inner = '<span class="onb-check">' + (x.done ? "✓" : "") + "</span><span><b>" + esc(x.label) + "</b><small>" + esc(x.hint) + "</small></span>";
-        var cls = "onb-item" + (x.done ? " is-done" : "") + (x === next ? " is-next" : "");
-        return "<li>" + (x.done ? '<div class="' + cls + '">' + inner + "</div>" : x.act ? '<button class="' + cls + '" data-act="' + x.act + '">' + inner + "</button>" : '<a class="' + cls + '" href="#/p/' + p.id + "/" + x.href + '">' + inner + "</a>") + "</li>";
-      }).join("") + "</ol></section>";
-  }
+
   function viewMesa(main) {
     var p = state.p, ctx = p.context || {}, byTool = {};
     state.artifacts.forEach(function (a) { if (a.tool_id) (byTool[a.tool_id] = byTool[a.tool_id] || []).push(a); });
@@ -381,9 +352,10 @@
     var move = MESA.nextMoves(p, state.artifacts, state.board, state.pedidos, state.workspaces)[0];
     var moveHref = move.action.type === "tool" ? "#/p/" + p.id + "/ferramenta/" + move.action.id : move.action.type === "tab" ? "#/p/" + p.id + "/" + move.action.id : "#/p/" + p.id + "/contexto";
     var moveLabel = move.action.type === "tool" ? TOOL[move.action.id].name : move.action.type === "tab" ? ({ radar: "Rodar o radar", mentoria: "Pedir mentoria", quadro: "Abrir o quadro" }[move.action.id] || "Abrir") : "Completar a base";
-    var rec = MESA.recommendTool(p, state.artifacts, state.workspaces);
+    var rec = move.action.type === "tool" ? move.action.id : null; /* uma única recomendação: o próximo passo */
+    var fcWs = state.workspaces.filter(function (w) { return w.tool_id === "first"; })[0];
+    var paying = fcWs && MESA.TRACTION_SIGNALS ? MESA.TRACTION_SIGNALS.fcStats(fcWs.data || {}).ganhos : 0;
     var base = MESA.baseFilledCount(p), total = MESA.DESK_ORDER.length, cur = currentPhase();
-    var stat = function (k, s) { return state.board.filter(function (b) { return b.kind === k && (!s || b.status === s); }).length; };
     var pct = function (a, b) { return b ? Math.round(a / b * 100) : 0; };
 
     var tile = function (id) {
@@ -401,33 +373,16 @@
         }).join("") + "</section>";
     }).join("");
 
-    var steps = MESA.PHASES.map(function (ph) {
-      var ids = MESA.DESK_ORDER.filter(function (id) { return TOOL[id] && LENS[TOOL[id].lens].phase === ph.id; }), n = ids.filter(isDone).length;
-      return '<li><button data-act="mesa-focus" data-lens="' + ph.lenses[0] + '"' + (ph.id === cur ? ' aria-current="step"' : "") + ' title="' + esc(ph.goal) + '"><span class="dot' + (n ? " has" : "") + (n === ids.length ? " full" : "") + '">' + ph.n + "</span><b>" + ph.name + "</b><small>" + n + "/" + ids.length + "</small></button></li>";
-    }).join("");
-    var recent = state.board.slice(0, 5).map(function (b) {
-      return '<button class="qrow" data-act="edit-item" data-id="' + b.id + '"><span class="kdot k-' + b.kind + '"></span><span class="qt">' + esc(b.title) + '</span><small>' + KINDS[b.kind] + " · " + (STATUS[b.status] || "") + "</small></button>";
-    }).join("");
-
     main.innerHTML =
-      '<div class="desk-head"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div><ol class="msteps" aria-label="Fases do método">' + steps + "</ol></div>" +
-      onboardHtml() +
-      '<div class="hud">' +
-        '<div class="hcard hmain"><p class="label">Progresso do projeto</p><div class="hnum"><b>' + done.length + '</b><span>de ' + total + ' objetivos</span></div><span class="xp big"><i style="width:' + pct(done.length, total) + '%"></i></span><small>Fase atual: ' + MESA.PHASES.filter(function (x) { return x.id === cur; })[0].name + "</small></div>" +
-        '<a class="hcard" href="#/p/' + p.id + '/contexto"><p class="label">Base do negócio</p><div class="hnum"><b>' + base.filled + '</b><span>de ' + base.total + ' campos</span></div><span class="xp"><i style="width:' + pct(base.filled, base.total) + '%"></i></span><small>' + (base.filled < 6 ? "Complete para prompts mais precisos" : "Usada em todos os prompts") + "</small></a>" +
-      "</div>" +
-      '<div class="dash"><div class="boards"><div class="bq"><h2>O que está travando você?</h2><p class="muted">Escolha um bloqueio e leve um prompt pronto para a sua IA, com a base do seu negócio.</p></div>' + phases + "</div>" +
-        '<aside class="dside">' +
-          '<section class="mission"><p class="label">Próximo passo</p><div class="mrow"><span class="ico mi">' + (move.action.type === "tool" ? MESA.deskArt(move.action.id) : "") + "</span><b>" + esc(move.text) + '</b></div><a class="btn btn-accent btn-sm" href="' + moveHref + '">' + esc(moveLabel) + " →</a></section>" +
-          '<section class="scard"><div class="scard-h"><h3>Mentoria</h3></div><p class="small muted">' + (state.pedidos.length ? "Pedido enviado. Acompanhe na aba Mentoria." : "Leve os artefatos do projeto para uma conversa com o Miguel.") + '</p><a class="btn btn-line btn-sm" href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver pedidos" : "Falar com o Miguel") + "</a></section>" +
-        "</aside></div>";
-    var ob = main.querySelector("[data-onb-off]");
-    if (ob) ob.onclick = function () { p.context = p.context || {}; p.context._onb_off = true; saveContext(); main.querySelector(".onb").remove(); toast("Primeiros passos ocultos. O próximo passo continua no painel."); };
-    var isNew = false, seenTour = false;
-    try { isNew = sessionStorage.getItem("mesa-novo-" + p.id) === "1"; seenTour = localStorage.getItem("mesa-tour-v1") === "1"; } catch (e) { seenTour = true; }
-    if (isNew || !seenTour) { try { sessionStorage.removeItem("mesa-novo-" + p.id); localStorage.setItem("mesa-tour-v1", "1"); } catch (e) {} setTimeout(function () { welcome(rec); }, 350); }
-    main.querySelectorAll("[data-act=mesa-focus]").forEach(function (b) { b.onclick = function () { setFocus(b.dataset.lens); viewMesa(main); }; });
-
+      '<div class="mhead"><div><p class="label">Mesa de trabalho</p><h1>' + esc(p.name) + '</h1></div>' +
+        '<div class="kpis">' +
+          '<a class="kpi kpi-main" href="#/p/' + p.id + '/ferramenta/first" title="Registrados em First Customers"><b>' + paying + '</b><span>cliente' + (paying === 1 ? "" : "s") + " pagante" + (paying === 1 ? "" : "s") + "</span></a>" +
+          '<div class="kpi"><b>' + done.length + '<small>/' + total + '</small></b><span>objetivos</span></div>' +
+          '<a class="kpi" href="#/p/' + p.id + '/contexto"><b>' + base.filled + '<small>/' + base.total + '</small></b><span>base do negócio</span></a>' +
+        "</div></div>" +
+      '<section class="nextbar"><span class="ico mi">' + (move.action.type === "tool" ? MESA.deskArt(move.action.id) : "") + '</span><div><p class="label">Próximo passo</p><b>' + esc(move.text) + '</b></div><a class="btn btn-accent" href="' + moveHref + '">' + esc(moveLabel) + " →</a></section>" +
+      '<div class="boards"><div class="bq"><h2>O que está travando você?</h2><p class="muted">Ou escolha outro bloqueio e leve um prompt pronto para a sua IA, com a base do seu negócio.</p></div>' + phases + "</div>" +
+      '<p class="mfoot">Quer um olhar de fora? <a href="#/p/' + p.id + '/mentoria">' + (state.pedidos.length ? "Ver o pedido de mentoria" : "Falar com o Miguel") + " →</a></p>";
     main.querySelectorAll("button.obj").forEach(function (el) {
       el.onclick = function () { if (TOOL[el.dataset.tool]) go("#/p/" + p.id + "/ferramenta/" + el.dataset.tool); };
     });
@@ -503,7 +458,10 @@
         '<header class="ohead"><p class="label">Fase ' + MESA.PHASES.filter(function (x) { return x.id === LENS[t.lens].phase; })[0].n + ' · ' + LENS[t.lens].name + ' · ' + esc(t.name) + '</p><h1>“' + esc(t.blocker) + '”</h1><p class="muted">' + esc(t.desc) + '</p>' +
         '<a class="obase' + (cnt.filled < 4 ? ' is-low' : '') + '" href="#/p/' + p.id + '/contexto"><span>Base do negócio</span><b>' + cnt.filled + ' de ' + cnt.total + ' campos</b><em>' + (cnt.filled < 4 ? 'Complete para um prompt mais preciso' : 'Usada neste prompt') + ' · Editar</em></a></header>' +
         '<section class="d3" id="d-prompt"><div class="tool">' +
-        '<section class="panel"><div class="form">' + ((t.fields || []).length ? '<p class="label">Detalhes deste objetivo <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· opcionais</span></p>' : "") +
+        '<section class="panel"><div class="form">' + (function () {
+          var miss = baseFields.filter(function (f) { return MESA.BASE_ESSENTIALS.indexOf(f.id) !== -1 && !String(ctx[f.id] || "").trim() && !(t.fields || []).some(function (x) { return x.fromBase === f.id; }); });
+          return miss.length ? '<div class="bfill"><p class="label">Para um prompt mais preciso <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· vai para a base do negócio</span></p>' + miss.map(function (f) { return '<label class="field"><span>' + esc(f.label) + "</span><small>" + esc(f.hint || "") + "</small>" + fieldInput(f, "", 'data-base="' + f.id + '"') + "</label>"; }).join("") + "</div>" : "";
+        })() + ((t.fields || []).length ? '<p class="label">Detalhes deste objetivo <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">· opcionais</span></p>' : "") +
           (t.fields || []).map(function (f) {
             var base = f.fromBase ? baseFields.filter(function (b) { return b.id === f.fromBase; })[0] : null, ff = base ? Object.assign({}, base, f, { options: base.options, ph: f.ph || base.ph }) : f;
             return '<label class="field"><span>' + esc(ff.label) + "</span>" + (base ? "<small>Vem da base. Se mudar aqui, vale só para este prompt.</small>" : "") + fieldInput(ff, inputs[f.id], 'data-in="' + f.id + '"') + "</label>";
@@ -566,6 +524,7 @@
       document.getElementById("d-mentor").innerHTML = '<div class="dmentor"><b>Quer um olhar de fora sobre a resposta?</b><span>Leve o artefato para uma conversa com o Miguel.</span><a class="btn btn-accent btn-sm" href="#/p/' + p.id + '/mentoria">Pedir mentoria</a></div>';
     }
     main.querySelectorAll("[data-in]").forEach(function (el) { el.oninput = el.onchange = function () { inputsNow[el.dataset.in] = el.value; refresh(); }; });
+    main.querySelectorAll("[data-base]").forEach(function (el) { el.oninput = el.onchange = function () { ctx[el.dataset.base] = el.value; saveContext(); refresh(); }; });
     refresh();
     main.querySelector("[data-d=copy]").onclick = function () { copy(pre.textContent).then(function () { toast("Prompt copiado. Cole na sua IA."); track("prompt_copied", { tool: t.id }); record(); mentorCard(); }); };
     main.querySelector("[data-d=md]").onclick = function () { downloadMd(MESA.mdFilename(t, p), pre.textContent); track("prompt_downloaded", { tool: t.id }); record(); };

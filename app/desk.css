@@ -150,3 +150,30 @@ a.hcard:hover { border-color: var(--ink); }
 @media (max-width: 1180px) { .dside { order: -1; } }
 @media (max-width: 760px) { .hud { grid-template-columns: 1fr; } .dside { grid-template-columns: 1fr; } .dside .scard { display: none; } }
 .bq { padding: 2px 2px 2px; } .bq h2 { font-size: clamp(22px, 2.4vw, 28px); } .bq p { margin-top: 4px; font-size: 15px; }
+
+/* Mesa enxuta: título com indicadores, próximo passo e bloqueios */
+.mhead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; margin-bottom: 18px; }
+.mhead h1 { font-size: clamp(26px, 3vw, 34px); }
+.kpis { display: flex; gap: 8px; }
+.kpi { display: grid; gap: 2px; min-width: 112px; padding: 10px 14px; border-radius: 12px; background: var(--white); border: 1px solid var(--line); text-decoration: none; color: inherit; }
+a.kpi:hover { border-color: var(--ink); }
+.kpi b { font: 600 26px/1 var(--sans); font-stretch: 75%; }
+.kpi b small { font-size: 15px; color: var(--muted); font-weight: 600; }
+.kpi span { font-size: 12.5px; color: var(--muted); }
+.kpi-main { background: var(--plum); border-color: var(--plum); color: #FFF; }
+.kpi-main span { color: var(--on-plum); }
+.kpi-main b { color: var(--pers-light); }
+.nextbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 16px 18px; margin-bottom: 26px; border-radius: 14px; background: var(--plum); color: #FFF; }
+.nextbar .label { color: var(--pers-light); margin-bottom: 2px; }
+.nextbar b { font-size: 16.5px; font-weight: 600; line-height: 1.35; }
+.nextbar .mi:empty { display: none; }
+.mfoot { margin-top: 22px; text-align: center; color: var(--muted); font-size: 14.5px; }
+.mfoot a { color: var(--ink); font-weight: 600; }
+@media (max-width: 760px) {
+  .mhead { margin-bottom: 14px; }
+  .kpis { width: 100%; }
+  .kpi { flex: 1; min-width: 0; padding: 10px; }
+  .kpi b { font-size: 22px; }
+  .nextbar { grid-template-columns: auto minmax(0, 1fr); padding: 14px; }
+  .nextbar .btn { grid-column: 1 / -1; }
+}
