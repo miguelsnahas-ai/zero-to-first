@@ -92,7 +92,6 @@ window.MESA = window.MESA || {};
     return [
       { id: "contexto", label: "Complete a base do negócio", hint: filled + " de " + fields.length + " campos. Todos os prompts usam essas informações.", done: filled >= goal, href: "contexto" },
       { id: "ferramenta", label: recTool ? "Use sua primeira ferramenta: " + recTool.name : "Use sua primeira ferramenta", hint: "Cada objetivo concluído desbloqueia um bloco no painel.", done: tools > 0, href: rec ? "ferramenta/" + rec : "desbloquear" },
-      { id: "hipotese", label: "Registre sua aposta mais arriscada no quadro", hint: "O que precisa ser verdade para o projeto dar certo?", done: (board || []).some(function (b) { return b.kind === "hipotese"; }), act: "add-item" },
       { id: "radar", label: "Rode o radar de sinais", hint: "Referências e movimentos do mercado ligados ao projeto.", done: (radar || []).length > 0, href: "radar" },
       { id: "tres", label: "Conclua três objetivos", hint: "Três artefatos salvos já mostram o desenho do projeto.", done: (artifacts || []).filter(function (a) { return a.tool_id; }).length >= 3, href: "desbloquear" }
     ];
